@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "proto": {
+      "type": "stdio",
+      "command": "proto",
+      "args": [
+        "mcp"
+      ],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}
