@@ -30,9 +30,9 @@ This dual path keeps friction low for both "download and run" users and system-p
 
 Start with one tool only to reduce operational complexity.
 
-Given the current repo uses Yarn 4 PnP by default:
-- If choosing Forge, account for its packaging requirement around `node_modules`.
-- If staying PnP-first, test packaging early and decide whether packaging happens in a dedicated mode or separate build workspace.
+Given the current repo uses Yarn 4 with `nodeLinker: node-modules`:
+- Packaging tools that expect on-disk `node_modules` are compatible by default.
+- Keep packaging validation in CI to catch regressions early.
 
 ### Linux artifacts to target first
 
@@ -160,8 +160,8 @@ The simpler `update.electronjs.org` plus `update-electron-app` path is useful to
 
 ## Risks and Mitigations
 
-- Tooling mismatch with Yarn PnP during packaging.
-  - Mitigation: validate packaging in CI immediately after Electron scaffold.
+- Tooling mismatch with Yarn/Electron packaging expectations.
+  - Mitigation: keep `nodeLinker: node-modules` and validate packaging in CI immediately after Electron scaffold.
 - ffmpeg runtime availability differences across distributions.
   - Mitigation: document dependency expectations and package variants clearly.
 - AUR metadata drift (`PKGBUILD` vs `.SRCINFO`).

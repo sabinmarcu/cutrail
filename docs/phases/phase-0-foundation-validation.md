@@ -87,14 +87,14 @@ It should also establish the lightest credible preview-publishing path so mainta
 #### Outcomes
 
 - The team has a justified packaging-tool decision.
-- Yarn PnP compatibility risk is explicitly accepted or mitigated.
+- Yarn linker compatibility risk is explicitly accepted or mitigated.
 
 #### Tasks
 
 - Evaluate the most likely packaging tool against the current repository shape.
 - Produce a proof-of-life package or build artifact.
-- Document any packaging caveats around `node_modules`, unplugging, or alternate install modes.
-- Decide whether packaging will be PnP-native or require a dedicated packaging configuration.
+- Document packaging caveats around the chosen linker and install mode.
+- Decide whether packaging requires any dedicated configuration beyond the default repository setup.
 
 #### Deliverables
 
@@ -158,7 +158,7 @@ It should also establish the lightest credible preview-publishing path so mainta
 
 ## Risks And Mitigations
 
-- Yarn PnP may conflict with the chosen packaging flow.
+- Yarn tooling may conflict with the chosen packaging flow.
   - Mitigation: prove packaging now instead of during release hardening.
 - Electron security defaults may be weakened during bootstrap.
   - Mitigation: enforce the security baseline before adding features.

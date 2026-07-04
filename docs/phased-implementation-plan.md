@@ -31,14 +31,14 @@ Detailed phase references:
 
 ### Goal
 
-Confirm that the repository can support the chosen Electron, React, Yarn PnP, and packaging direction before feature work starts.
+Confirm that the repository can support the chosen Electron, React, Yarn, and packaging direction before feature work starts.
 
 ### Outcomes
 
 - Electron application scaffold is present and runnable.
 - React renderer is wired through preload with strict Electron security defaults.
 - Lint, basic test, and developer scripts exist and run consistently.
-- Packaging feasibility is tested early against the Yarn PnP setup.
+- Packaging feasibility is tested early against the chosen Yarn linker setup.
 - A lightweight preview publishing path exists for iteration builds.
 
 ### Workstreams
@@ -58,7 +58,7 @@ Confirm that the repository can support the chosen Electron, React, Yarn PnP, an
 #### Risk retirement
 
 - Verify that Electron packaging works with the current Yarn 4 strategy.
-- Decide whether packaging stays PnP-native or needs a dedicated packaging mode.
+- Validate that packaging works with the repository linker strategy (`node_modules`).
 - Record any ffmpeg runtime assumptions for local development.
 
 #### Preview publishing

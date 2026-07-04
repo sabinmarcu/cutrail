@@ -22,6 +22,7 @@
   "prettier.requireConfig": true,
   "prettier.useEditorConfig": false,
   "chat.tools.terminal.autoApprove": {
-    "yarn install": true
+    "yarn install": true,
+    "proto": true
   }
 }

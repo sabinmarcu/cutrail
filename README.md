@@ -26,7 +26,7 @@ At this stage, usage is centered on developer workflow and foundation validation
 How it currently functions:
 
 1. Tooling is version-pinned through `.prototools` (`node ~26`, `yarn ~4`) for reproducible environments.
-2. Package management uses Yarn Berry with Plug'n'Play (PnP), avoiding `node_modules` and using `.pnp.*` loader artifacts.
+2. Package management uses Yarn Berry with the `node-modules` linker for Electron compatibility.
 3. Runtime stack is bootstrapped with:
 	- Electron main process entrypoint under `src/main`
 	- Preload bridge under `src/preload`
@@ -54,6 +54,10 @@ How it currently functions:
 1. Linux/macOS/Windows development environment
 2. `proto` installed (recommended for pinned toolchain)
 3. Git
+
+Node runtime note:
+- Electron development is currently validated against Node 22 LTS in this repository.
+- Using newer major Node versions (for example Node 26) can break Electron binary installation.
 
 ### Clone
 

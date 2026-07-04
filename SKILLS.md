@@ -53,7 +53,7 @@ Rule of thumb: if a human contributor would need to know it to work correctly, A
 
 Current repository pinning is defined in `.prototools`:
 
-- `node = "~26"`
+- `node = "~22"`
 - `yarn = "~4"`
 
 ### What proto does here
@@ -89,7 +89,7 @@ Current documented proto MCP capabilities include:
 - Tools: `install_tool`, `uninstall_tool`, `list_tool_versions`, `get_config`
 - Resources: `proto://config`, `proto://env`, `proto://tools`
 
-## Yarn (Berry 4.x, PnP)
+## Yarn (Berry 4.x, node_modules linker)
 
 Repository package manager:
 
@@ -97,9 +97,9 @@ Repository package manager:
 
 Behavior and conventions:
 
-- Uses Yarn Modern (Berry) with PnP artifacts (`.pnp.cjs`, `.pnp.loader.mjs`).
+- Uses Yarn Modern (Berry) with `nodeLinker: node-modules` configured in `.yarnrc.yml`.
 - Lockfile (`yarn.lock`) is committed.
-- `.yarn/` and `.pnp.*` are gitignored per non-zero-install style.
+- `.yarn/` and `node_modules/` are gitignored.
 
 Core commands:
 
@@ -120,9 +120,9 @@ Current source layout baseline:
 - `src/domain` for pure clip/timeline logic.
 - `src/infra` for ffmpeg process integration.
 
-PnP note:
+Linker note:
 
-- Peer dependency issues are surfaced explicitly. Fix by adding missing direct deps or by configuring package extensions when needed.
+- Electron and related tooling are more reliable with `node_modules` layout in this repository.
 
 ## ESLint
 
@@ -136,7 +136,6 @@ This repository uses local flat config in `eslint.config.mjs`.
   - `*.config.*`
   - `.*rc.*`
 - Global ignores include generated/package-manager artifacts:
-  - `.pnp.*`
   - `.yarn/**`
   - `node_modules/**`
 
@@ -158,6 +157,7 @@ Core lint command:
 
 - Repository-level `.yarnrc.yml` sets `enableScripts: true`.
 - This is required for packages such as Electron and esbuild that need postinstall build/download steps.
+- Repository-level `.yarnrc.yml` also sets `nodeLinker: node-modules`.
 
 ## Husky + lint-staged + Commitlint
 

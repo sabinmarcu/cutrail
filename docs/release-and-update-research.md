@@ -181,7 +181,7 @@ It is attractive for future macOS and Windows builds, but it does not solve the 
 ### Tradeoffs
 
 - Packaging and updater metadata need to be correct and stable.
-- `electron-builder` currently expects `node_modules` rather than strict Yarn PnP for packaging, so the repo must account for that in build strategy.
+- `electron-builder` expects `node_modules` for packaging; this repo aligns by using Yarn with `nodeLinker: node-modules`.
 - It is more operationally involved than `update-electron-app`.
 
 ### Fit for cutrail
