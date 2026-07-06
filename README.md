@@ -14,6 +14,7 @@ Project planning documents:
 - [Vision and motivation](docs/vision-and-motivation.md)
 - [Technical background and implementation plan](docs/technical-background-and-plan.md)
 - [Distribution and publishing plan](docs/distribution-and-publishing.md)
+- [Build from source guide](BUILD.md)
 - [Phased implementation plan](docs/phased-implementation-plan.md)
 - [Publishing access and manual steps](docs/publishing-access-and-manual-steps.md)
 - [Release and update research](docs/release-and-update-research.md)
@@ -80,6 +81,7 @@ Current workflow boundaries:
 - Editor windows focus on timeline editing and export only.
 - Output directory management is configured in the Options utility window.
 - Shared button primitive lives under `src/renderer/components/button`.
+- AUR packaging skeleton for `cutrail-bin` now lives under `packaging/aur/cutrail-bin`.
 
 Main architecture boundaries:
 - IPC handlers are split one-per-file under `src/main/ipc/handlers`.
@@ -198,6 +200,7 @@ Current available commands:
 - `proto run yarn -- start` to run Electron against the local project entrypoint.
 - `proto run yarn -- package` to create an unpacked Electron app bundle via `electron-builder`.
 - `proto run yarn -- dist` to create packaged distribution artifacts via `electron-builder`.
+- `proto run yarn -- dist:appimage` to build a Linux AppImage locally.
 - `proto run yarn -- lint` for strict static validation.
 - `proto run yarn -- lint:fix` for autofixable issues.
 - `proto run yarn -- test` to run unit tests with Vitest.

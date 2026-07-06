@@ -3,6 +3,7 @@
 import {
   contextBridge,
   ipcRenderer,
+  webUtils,
 } from 'electron';
 
 /**
@@ -34,6 +35,10 @@ import {
  */
 
 /**
+ * @typedef {{ sourcePath?: string }} OpenVideoEditorPayload
+ */
+
+/**
  * @typedef {{
  *   getRuntimeInfo: () => { electron?: string, chrome?: string, node?: string },
  *   closeWindow: () => Promise<unknown>,
@@ -42,7 +47,8 @@ import {
  *   getOutputDirectory: () => Promise<string | null>,
  *   getFfmpegDiagnostics: () => Promise<unknown>,
  *   getThirdPartyNotices: () => Promise<string>,
- *   openVideoEditor: () => Promise<string | null>,
+ *   getPathForFile: (file: File | null | undefined) => string | null,
+ *   openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>,
  *   selectSourceVideo: () => Promise<string | null>,
  *   selectOutputDirectory: () => Promise<string | null>,
  *   resolveMediaUrl: (inputPath: string) => string,
@@ -80,7 +86,20 @@ const cutrailBridge = {
   getOutputDirectory: () => ipcRenderer.invoke('cutrail:get-output-directory'),
   getFfmpegDiagnostics: () => ipcRenderer.invoke('cutrail:get-ffmpeg-diagnostics'),
   getThirdPartyNotices: () => ipcRenderer.invoke('cutrail:get-third-party-notices'),
-  openVideoEditor: () => ipcRenderer.invoke('cutrail:open-video-editor'),
+  getPathForFile: (file) => {
+    if (!file) {
+      return null;
+    }
+
+    try {
+      const resolvedPath = webUtils.getPathForFile(file);
+
+      return typeof resolvedPath === 'string' && resolvedPath.length > 0 ? resolvedPath : null;
+    } catch {
+      return null;
+    }
+  },
+  openVideoEditor: (payload) => ipcRenderer.invoke('cutrail:open-video-editor', payload),
   selectSourceVideo: () => ipcRenderer.invoke('cutrail:select-source-video'),
   selectOutputDirectory: () => ipcRenderer.invoke('cutrail:select-output-directory'),
   resolveMediaUrl,

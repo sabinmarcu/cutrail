@@ -1,7 +1,14 @@
+import {
+  type DragEvent,
+  useRef,
+  useState,
+} from 'react';
 import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/button';
 import {
+  dragActive,
+  dropHint,
   logo,
   noDrag,
   page,
@@ -12,19 +19,183 @@ import {
   footer,
 } from './AppWindow.css';
 
-export const AppWindow = () => (
-    <main className={page}>
+type ElectronDropFile = File & { path?: string };
+
+const parseFileUri = (candidate: string): string | null => {
+  if (!candidate.startsWith('file://')) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(candidate);
+
+    if (parsed.protocol !== 'file:') {
+      return null;
+    }
+
+    const decodedPath = decodeURIComponent(parsed.pathname || '');
+
+    return decodedPath.length > 0 ? decodedPath : null;
+  } catch {
+    return decodeURIComponent(candidate.replace(/^file:\/\//, ''));
+  }
+};
+
+const hasFilePayload = (event: DragEvent<HTMLElement>): boolean => {
+  const dataTransfer = event.dataTransfer;
+
+  if (!dataTransfer) {
+    return false;
+  }
+
+  if (dataTransfer.files.length > 0) {
+    return true;
+  }
+
+  if (Array.from(dataTransfer.items).some((item) => item.kind === 'file')) {
+    return true;
+  }
+
+  return Array.from(dataTransfer.types).includes('Files');
+};
+
+const getDroppedFilePaths = (event: DragEvent<HTMLElement>): string[] => {
+  const paths = new Set<string>();
+  const dataTransfer = event.dataTransfer;
+
+  if (!dataTransfer) {
+    return [];
+  }
+
+  for (const nextFile of Array.from(dataTransfer.files)) {
+    const resolvedFromBridge = window.cutrail?.getPathForFile?.(nextFile);
+
+    if (typeof resolvedFromBridge === 'string' && resolvedFromBridge.length > 0) {
+      paths.add(resolvedFromBridge);
+      continue;
+    }
+
+    const electronFile = nextFile as ElectronDropFile;
+
+    if (typeof electronFile.path === 'string' && electronFile.path.length > 0) {
+      paths.add(electronFile.path);
+    }
+  }
+
+  for (const nextItem of Array.from(dataTransfer.items)) {
+    const itemFile = nextItem.getAsFile?.();
+
+    if (!itemFile) {
+      continue;
+    }
+
+    const resolvedFromBridge = window.cutrail?.getPathForFile?.(itemFile);
+
+    if (typeof resolvedFromBridge === 'string' && resolvedFromBridge.length > 0) {
+      paths.add(resolvedFromBridge);
+      continue;
+    }
+
+    const electronItemFile = itemFile as ElectronDropFile;
+
+    if (typeof electronItemFile.path === 'string' && electronItemFile.path.length > 0) {
+      paths.add(electronItemFile.path);
+    }
+  }
+
+  const uriList = dataTransfer.getData('text/uri-list');
+
+  for (const candidate of uriList.split('\n').map((line) => line.trim()).filter((line) => line.length > 0 && !line.startsWith('#'))) {
+    const parsedPath = parseFileUri(candidate);
+
+    if (parsedPath) {
+      paths.add(parsedPath);
+    }
+  }
+
+  const plainText = dataTransfer.getData('text/plain');
+
+  for (const candidate of plainText.split('\n').map((line) => line.trim()).filter((line) => line.length > 0)) {
+    const parsedPath = parseFileUri(candidate);
+
+    if (parsedPath) {
+      paths.add(parsedPath);
+      continue;
+    }
+
+    if (candidate.startsWith('/')) {
+      paths.add(candidate);
+    }
+  }
+
+  return Array.from(paths);
+};
+
+export const AppWindow = () => {
+  const [isDragActive, setIsDragActive] = useState(false);
+  const dragDepthReference = useRef(0);
+
+  return (
+    <main
+      className={`${page} ${noDrag}`}
+      onDragEnter={(event) => {
+        if (!hasFilePayload(event)) {
+          return;
+        }
+
+        event.preventDefault();
+        dragDepthReference.current += 1;
+        setIsDragActive(true);
+      }}
+      onDragOver={(event) => {
+        if (!hasFilePayload(event)) {
+          return;
+        }
+
+        event.preventDefault();
+        const { dataTransfer } = event;
+
+        if (dataTransfer) {
+          dataTransfer.dropEffect = 'copy';
+        }
+      }}
+      onDragLeave={(event) => {
+        if (!isDragActive) {
+          return;
+        }
+
+        event.preventDefault();
+        dragDepthReference.current = Math.max(0, dragDepthReference.current - 1);
+
+        if (dragDepthReference.current === 0) {
+          setIsDragActive(false);
+        }
+      }}
+      onDropCapture={(event) => {
+        event.preventDefault();
+        dragDepthReference.current = 0;
+        setIsDragActive(false);
+        const sourcePaths = getDroppedFilePaths(event);
+
+        void (async () => {
+          for (const sourcePath of sourcePaths) {
+            await window.cutrail?.openVideoEditor?.({ sourcePath });
+          }
+        })();
+      }}
+    >
       <section className={shell}>
-        <section className={content}>
+        <section className={`${content} ${isDragActive ? dragActive : ''}`}>
           <img className={logo} src={logoPath} alt="Cutrail" />
           <h1 className={title}>Cutrail</h1>
           <p className={subtitle}>Open a source video to begin editing clips.</p>
+          <p className={dropHint}>Or drop a video file here</p>
           <Button
             type="button"
             variant="primary"
             className={noDrag}
             onClick={() => {
-              void globalThis.cutrail?.openVideoEditor?.();
+              void window.cutrail?.openVideoEditor?.();
             }}
           >
             Select Video File
@@ -35,11 +206,12 @@ export const AppWindow = () => (
             type="button"
             variant="secondary"
             className={noDrag}
-            onClick={() => void globalThis.cutrail?.closeWindow?.()}
+            onClick={() => void window.cutrail?.closeWindow?.()}
           >
             Close
           </Button>
         </footer>
       </section>
     </main>
-);
+  );
+};

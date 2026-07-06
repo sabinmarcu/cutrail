@@ -4,7 +4,6 @@ import {
 } from '@vanilla-extract/css';
 import { theme } from '@sabinmarcu/theme';
 
-const dragAppRegion = { WebkitAppRegion: 'drag' } as any;
 const noDragAppRegion = { WebkitAppRegion: 'no-drag' } as any;
 
 export const page = style({
@@ -33,8 +32,8 @@ export const shell = style({
   blockSize: '100%',
   minBlockSize: 0,
   overflow: 'hidden',
-  padding: 0,
-  ...dragAppRegion,
+  padding: theme.grid.s,
+  position: 'relative',
 });
 
 export const noDrag = style({
@@ -44,6 +43,11 @@ export const noDrag = style({
 export const content = style({
   alignContent: 'center',
   alignSelf: 'center',
+  borderInlineStart: '1px dashed transparent',
+  borderInlineEnd: '1px dashed transparent',
+  borderBlockStart: '1px dashed transparent',
+  borderBlockEnd: '1px dashed transparent',
+  borderRadius: '12px',
   display: 'grid',
   gap: theme.grid.m,
   justifyItems: 'center',
@@ -51,7 +55,25 @@ export const content = style({
   minBlockSize: 0,
   padding: theme.grid.l,
   maxInlineSize: '34rem',
+  inlineSize: '100%',
   textAlign: 'center',
+  transition: 'border-color 120ms ease, background-color 120ms ease',
+});
+
+export const dragActive = style({
+  backgroundColor: 'rgba(9, 27, 17, 0.55)',
+  borderInlineStart: `1px dashed ${theme.colors.primary.base}`,
+  borderInlineEnd: `1px dashed ${theme.colors.primary.base}`,
+  borderBlockStart: `1px dashed ${theme.colors.primary.base}`,
+  borderBlockEnd: `1px dashed ${theme.colors.primary.base}`,
+});
+
+export const dropHint = style({
+  color: theme.colors.secondary.base,
+  fontSize: '0.74rem',
+  letterSpacing: '0.07em',
+  margin: 0,
+  textTransform: 'uppercase',
 });
 
 export const footer = style({

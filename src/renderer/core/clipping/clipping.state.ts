@@ -18,7 +18,7 @@ export const useClippingState = ({ initialSourcePath }) => {
   const [runResult, setRunResult] = useState(null);
   const [progressById, setProgressById] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
-  const [trimMode, setTrimMode] = useState('accurate');
+  const [trimMode, setTrimMode] = useState('fast');
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);

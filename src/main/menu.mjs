@@ -1,6 +1,7 @@
 // @ts-check
 
 import {
+  BrowserWindow,
   Menu,
   app,
 } from 'electron';
@@ -85,6 +86,11 @@ const createAppMenu = ({
               accelerator: 'CmdOrCtrl+,',
               click: () => { openOptionsWindow(); },
             },
+            {
+              label: 'Close Window',
+              accelerator: 'CmdOrCtrl+W',
+              click: () => { BrowserWindow.getFocusedWindow()?.close(); },
+            },
             { type: 'separator' },
             {
               label: 'Licenses & Notices',
@@ -104,6 +110,11 @@ const createAppMenu = ({
               label: 'Options',
               accelerator: 'CmdOrCtrl+,',
               click: () => { openOptionsWindow(); },
+            },
+            {
+              label: 'Close Window',
+              accelerator: 'CmdOrCtrl+W',
+              click: () => { BrowserWindow.getFocusedWindow()?.close(); },
             },
             { type: 'separator' },
           ]

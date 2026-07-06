@@ -136,7 +136,7 @@ Reduce repeated setup by turning the MVP into a practical daily-use workflow.
 
 - The app can scan and display a configured source folder.
 - Users can move between library, editor, queue, and settings without losing context.
-- State persistence supports recent items, default folders, and export preferences.
+- State persistence extends beyond the existing output-directory baseline to include recent items, source defaults, and export preferences.
 
 ### Workstreams
 
@@ -174,7 +174,7 @@ Expand export control without diluting the core clipping workflow.
 
 ### Outcomes
 
-- Accurate trim mode is available with explicit UX tradeoff messaging.
+- Accurate trim mode is hardened and tuned with explicit UX tradeoff messaging.
 - Export presets become structured rather than ad hoc.
 - Users gain better control over output format behavior where it matters.
 
@@ -209,7 +209,7 @@ Turn the application into a releasable product for Linux-first users.
 
 ### Outcomes
 
-- CI can lint, test, build, and package release artifacts.
+- CI release automation is hardened on top of the existing lint/test baseline.
 - GitHub Releases can publish at least one Linux distribution artifact.
 - AUR packaging is documented and maintainable.
 

@@ -39,7 +39,7 @@ Phase 2 turns the MVP from a single-session demo into a repeatable daily workflo
 
 - Users can work from a configured source folder instead of reopening files one by one.
 
-#### Tasks
+- State persistence expands beyond the existing output-directory baseline to cover recent items, source defaults, and export preferences.
 
 - Add settings for source and output directories.
 - Implement source-folder scanning and refresh behavior.
@@ -58,7 +58,7 @@ Phase 2 turns the MVP from a single-session demo into a repeatable daily workflo
 
 #### Tasks
 
-- Persist recent files, source folder, output folder, and export defaults.
+- Persist recent files, source folder, and export defaults while preserving the existing output-folder persistence flow.
 - Restore last-used defaults safely.
 - Keep persistence bounded and understandable; avoid aggressive background caching.
 

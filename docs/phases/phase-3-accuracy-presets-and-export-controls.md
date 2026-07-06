@@ -6,7 +6,7 @@ Phase 3 expands export control after the fast path is already trustworthy. The p
 
 ## Primary Goals
 
-- Add accurate trim mode with clear UX and technical boundaries.
+- Harden accurate trim mode with clear UX and technical boundaries.
 - Introduce a small preset model for common export choices.
 - Improve diagnostics so advanced export behavior remains understandable.
 
@@ -35,11 +35,11 @@ Phase 3 expands export control after the fast path is already trustworthy. The p
 
 #### Outcomes
 
-- Users can choose correctness over speed when stream-copy cuts are insufficient.
+- Users can reliably choose correctness over speed when stream-copy cuts are insufficient.
 
 #### Tasks
 
-- Define the accurate-trim command path and stream behavior.
+- Validate and tune the accurate-trim command path and stream behavior on representative media.
 - Choose sane default encode settings.
 - Expose the tradeoff in the UI without ambiguity.
 - Keep command generation deterministic and testable.

@@ -80,4 +80,5 @@ const selectValidSourceVideo = async (parentWindow) => {
 
 export {
   selectValidSourceVideo,
+  validateSourceVideoFile,
 };

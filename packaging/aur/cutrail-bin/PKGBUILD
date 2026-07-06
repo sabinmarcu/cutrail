@@ -1,0 +1,25 @@
+pkgname=cutrail-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Desktop video clipping utility for batch range exports'
+arch=('x86_64')
+url='https://github.com/sabinmarcu/video-trimmer'
+license=('MIT')
+depends=('glibc' 'gtk3' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 'libdrm' 'alsa-lib')
+optdepends=('ffmpeg: fallback ffmpeg binary for diagnostics and overrides')
+provides=('cutrail')
+conflicts=('cutrail')
+source_x86_64=("cutrail-${pkgver}.AppImage::https://github.com/sabinmarcu/video-trimmer/releases/download/v${pkgver}/Cutrail-${pkgver}.AppImage")
+sha256sums_x86_64=('SKIP')
+
+package() {
+  install -d "${pkgdir}/opt/${pkgname}"
+  install -Dm755 "${srcdir}/cutrail-${pkgver}.AppImage" "${pkgdir}/opt/${pkgname}/cutrail.AppImage"
+
+  install -d "${pkgdir}/usr/bin"
+  cat > "${pkgdir}/usr/bin/cutrail" <<'EOF'
+#!/usr/bin/env sh
+exec /opt/cutrail-bin/cutrail.AppImage "$@"
+EOF
+  chmod 755 "${pkgdir}/usr/bin/cutrail"
+}

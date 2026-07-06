@@ -7,7 +7,7 @@ Phase 4 converts an early publishing path into a maintainable release pipeline. 
 ## Primary Goals
 
 - Finalize packaging configuration.
-- Harden CI-driven release automation that may have started in Phase 0.
+- Harden CI-driven release automation on top of the existing lint/test and ffmpeg runtime CI checks.
 - Produce maintainable Linux distribution artifacts.
 - Establish the stable changelog and update strategy for released binaries.
 
