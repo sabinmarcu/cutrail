@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to cutrail (repository: `video-trimmer`).
+Thanks for your interest in contributing to cutrail (repository: `cutrail`).
 
 ## Before You Start
 

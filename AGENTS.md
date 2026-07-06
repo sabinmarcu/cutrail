@@ -5,7 +5,7 @@ This file defines how coding agents should work in this repository.
 ## Project Identity
 
 - Product name: `cutrail`
-- Repository name: `video-trimmer`
+- Repository name: `cutrail`
 
 ## External Package Docs
 
@@ -119,4 +119,6 @@ Maintenance rule:
 - Keep root config changes explicit and minimal.
 - Do not introduce additional formatters; ESLint is the formatter/linter authority in this workspace.
 - Use `logs/` for temporary local artifacts (for example command output captures); do not write temporary files outside this folder.
+- When redirecting command output (`>`, `2>`, `&>`), write captures under `logs/` (for example `logs/build.log`) rather than `/tmp`.
 - If a change modifies architecture, tooling, or style guidance, update AI documentation in the same PR.
+- Treat `src/assets/logo-white-bg.svg` as the source image for application icons. Any change to that file must regenerate `src/assets/icons/icon.png`, `src/assets/icons/icon.ico`, and `src/assets/icons/icon.icns` in the same change set.

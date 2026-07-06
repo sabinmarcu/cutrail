@@ -5,7 +5,7 @@ Repository tool skillbook: setup, intent, and operational commands.
 ## Project Identity
 
 - Product name: `cutrail`
-- Repository name: `video-trimmer`
+- Repository name: `cutrail`
 - Current delivery phase: Early Phase 1 single-video clipping MVP with timeline-based editing.
 
 ## External Package Documentation
@@ -152,6 +152,7 @@ Packaging notes:
 
 - `electron-builder` is configured in `package.json` under `build`.
 - Platform icon assets are stored in `src/assets/icons` (`icon.png`, `icon.ico`, `icon.icns`).
+- `src/assets/logo-white-bg.svg` is the source image for platform icons; when it changes, regenerate all icon files under `src/assets/icons` in the same change set.
 
 Current source layout baseline:
 
@@ -208,6 +209,7 @@ Core lint command:
 - `yarn lint:fix` (autofix)
 - Agent workflow rule: prefer `yarn lint:fix` before checks, then run `yarn lint` and `yarn typecheck`, and manually fix only non-autofixable issues.
 - Agent temporary-output rule: write temporary command outputs/artifacts under `logs/`.
+- Redirection rule: for shell redirects (`>`, `2>`, `&>`), capture logs to `logs/*.log` and avoid `/tmp` paths.
 
 ## Yarn script policy
 

@@ -12,7 +12,7 @@ This folder contains the initial AUR packaging skeleton for `cutrail-bin`.
 The package consumes the GitHub release AppImage artifact:
 
 - `Cutrail-<version>.AppImage`
-- URL pattern: `https://github.com/sabinmarcu/video-trimmer/releases/download/v<version>/Cutrail-<version>.AppImage`
+- URL pattern: `https://github.com/sabinmarcu/cutrail/releases/download/v<version>/Cutrail-<version>.AppImage`
 
 ## Updating For A New Release
 

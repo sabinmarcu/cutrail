@@ -20,7 +20,7 @@ Optional for AUR packaging maintenance:
 
 ```bash
 git clone <repository-url>
-cd video-trimmer
+cd cutrail
 ```
 
 2. Install toolchain versions from `.prototools`:

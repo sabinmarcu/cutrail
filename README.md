@@ -1,6 +1,6 @@
 # cutrail
 
-Repository: `video-trimmer`
+Repository: `cutrail`
 
 ## Purpose
 
@@ -104,7 +104,7 @@ Node runtime note:
 1. Clone repository:
 	- `git clone <repository-url>`
 2. Enter project directory:
-	- `cd video-trimmer`
+	- `cd cutrail`
 
 ### Install Toolchain
 
