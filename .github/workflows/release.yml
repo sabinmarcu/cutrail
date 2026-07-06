@@ -182,8 +182,8 @@ jobs:
             exit 1
           fi
 
-          gh release upload "${TAG_NAME}" "${files[@]}" --clobber
+          gh release upload "${TAG_NAME}" "${files[@]}" --clobber --repo "${GITHUB_REPOSITORY}"
 
       - name: Publish release
-        run: gh release edit "${TAG_NAME}" --draft=false
+        run: gh release edit "${TAG_NAME}" --draft=false --repo "${GITHUB_REPOSITORY}"
 

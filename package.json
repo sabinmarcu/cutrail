@@ -80,6 +80,9 @@
   "build": {
     "appId": "com.sabinmarcu.cutrail",
     "productName": "Cutrail",
+    "asarUnpack": [
+      "node_modules/@ffmpeg-installer/**/*"
+    ],
     "files": [
       "dist/renderer/**/*",
       "src/main/**/*",

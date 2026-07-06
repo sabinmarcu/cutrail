@@ -48,4 +48,33 @@ describe('resolveFfmpegPath', () => {
       source: 'BUNDLED',
     });
   });
+
+  it('rewrites bundled app.asar ffmpeg path to app.asar.unpacked when executable', () => {
+    const bundledAsarPath = '/opt/Cutrail/resources/app.asar/node_modules/@ffmpeg-installer/linux-x64/ffmpeg';
+    const bundledUnpackedPath = '/opt/Cutrail/resources/app.asar.unpacked/node_modules/@ffmpeg-installer/linux-x64/ffmpeg';
+    const canExecuteImpl = vi.fn((candidate) => candidate === bundledUnpackedPath);
+
+    expect(resolveFfmpegPath({
+      env: {},
+      bundledPath: bundledAsarPath,
+      canExecuteImpl,
+    })).toMatchObject({
+      path: bundledUnpackedPath,
+      source: 'BUNDLED',
+    });
+  });
+
+  it('falls back to system path when bundled app.asar.unpacked ffmpeg is unavailable', () => {
+    const bundledAsarPath = '/opt/Cutrail/resources/app.asar/node_modules/@ffmpeg-installer/linux-x64/ffmpeg';
+    const canExecuteImpl = vi.fn(() => false);
+
+    expect(resolveFfmpegPath({
+      env: {},
+      bundledPath: bundledAsarPath,
+      canExecuteImpl,
+    })).toMatchObject({
+      path: 'ffmpeg',
+      source: 'SYSTEM_PATH',
+    });
+  });
 });
