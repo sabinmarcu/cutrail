@@ -50,6 +50,7 @@ This file defines how coding agents should work in this repository.
 	- `.github/instructions/styling-guide.instructions.md`
 	- `.github/instructions/renderer-architecture.instructions.md`
 	- `.github/instructions/core-modules.instructions.md`
+	- `.github/instructions/release-flow.instructions.md`
 
 ## Planning Priority
 
@@ -62,7 +63,7 @@ This file defines how coding agents should work in this repository.
 
 ## Component And Styling Rules
 
-Agents must follow `docs/styling-guide.md`, `.github/instructions/styling-guide.instructions.md`, `.github/instructions/renderer-architecture.instructions.md`, and `.github/instructions/core-modules.instructions.md` as hard requirements.
+Agents must follow `docs/styling-guide.md`, `.github/instructions/styling-guide.instructions.md`, `.github/instructions/renderer-architecture.instructions.md`, `.github/instructions/core-modules.instructions.md`, and `.github/instructions/release-flow.instructions.md` as hard requirements.
 
 Required constraints:
 
@@ -93,6 +94,7 @@ Maintenance rule:
 - Any styling convention change must update `docs/styling-guide.md` in the same change set.
 - Any renderer structure convention change must update `.github/instructions/renderer-architecture.instructions.md` in the same change set.
 - Any non-renderer module boundary convention change must update `.github/instructions/core-modules.instructions.md` in the same change set.
+- Any release/versioning convention change must update `.github/instructions/release-flow.instructions.md` in the same change set.
 
 ## Lint And Commit Workflow
 
@@ -104,6 +106,7 @@ Maintenance rule:
 - Build renderer assets with `proto run yarn -- build`.
 - Build unpacked app artifacts with `proto run yarn -- package`.
 - Build distributable artifacts with `proto run yarn -- dist`.
+- GitHub Releases are created from tag pushes through `.github/workflows/release.yml`; tags must be `vX.Y.Z` and match `package.json` version.
 - Run unit tests with `proto run yarn -- test`.
 - Run lint checks with `proto run yarn -- lint`.
 - Run autofix with `proto run yarn -- lint:fix`.

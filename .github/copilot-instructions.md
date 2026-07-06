@@ -31,6 +31,7 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 	- `.github/instructions/styling-guide.instructions.md`
 	- `.github/instructions/renderer-architecture.instructions.md`
 	- `.github/instructions/core-modules.instructions.md`
+	- `.github/instructions/release-flow.instructions.md`
 - After selecting a phase from `docs/phased-implementation-plan.md`, use the corresponding file under `docs/phases/` for detailed milestones, validation, and scope boundaries.
 - Treat `docs/phased-implementation-plan.md` as the primary roadmap for deciding implementation order and the current delivery phase.
 - Use `docs/publishing-access-and-manual-steps.md` whenever release automation touches GitHub permissions, AUR setup, or other maintainer-only actions.
@@ -39,6 +40,7 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - Use `.github/instructions/styling-guide.instructions.md` for enforceable renderer styling rules.
 - Use `.github/instructions/renderer-architecture.instructions.md` for enforceable renderer window/component layout rules.
 - Use `.github/instructions/core-modules.instructions.md` for enforceable non-renderer module boundaries and file sizing rules.
+- Use `.github/instructions/release-flow.instructions.md` for release automation, SemVer tagging, and packaging-channel policy.
 - `@sabinmarcu/*` package documentation source is https://github.com/sabinmarcu/omnirepo.
 - For local machine overrides of external docs/paths, read `AI_LOCAL_OVERRIDES.md` at repository root when present.
 - Toolchain policy: always use `proto` for Node/Yarn tool resolution; never use `corepack`.
@@ -49,6 +51,7 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - Command redirection policy: when capturing command output with shell redirection (`>`, `2>`, `&>`), write to files under `logs/` (for example `logs/lint.log`) and do not use `/tmp`.
 - Runtime config policy: type and validate environment/config values with `zod` in main-process config modules, even when implementation is JavaScript (`.mjs`), to keep runtime behavior explicit and future TypeScript migration-ready.
 - Asset policy: treat `src/assets/logo-white-bg.svg` as the source of truth for app icons; when it changes, regenerate `src/assets/icons/icon.png`, `src/assets/icons/icon.ico`, and `src/assets/icons/icon.icns` in the same change.
+- Release policy: GitHub Releases are tag-driven via `.github/workflows/release.yml`; release tags must follow `vX.Y.Z` and match `package.json` version exactly.
 
 ## Commands
 

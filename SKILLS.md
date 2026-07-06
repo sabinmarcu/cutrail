@@ -44,6 +44,7 @@ Discovery and planning files to reference in AI workflows:
 - `.github/instructions/styling-guide.instructions.md`
 - `.github/instructions/renderer-architecture.instructions.md`
 - `.github/instructions/core-modules.instructions.md`
+- `.github/instructions/release-flow.instructions.md`
 - `docs/phases/phase-0-foundation-validation.md`
 - `docs/phases/phase-1-single-video-clipping-mvp.md`
 - `docs/phases/phase-2-source-library-and-workflow-maturity.md`
@@ -64,6 +65,11 @@ Planning priority for agents:
 - Use `.github/instructions/core-modules.instructions.md` for enforceable non-renderer module sizing and boundary rules.
 
 Rule of thumb: if a human contributor would need to know it to work correctly, AI docs should be updated in the same change.
+
+## Local Custom Skills
+
+- `.github/skills/github-release-flow/SKILL.md`: stable GitHub release flow (tag creation/push, tag-version parity, release workflow expectations).
+- `.github/skills/aur-release-flow/SKILL.md`: `cutrail-bin` AUR release update flow after successful GitHub Release validation.
 
 Styling governance rule:
 
@@ -122,6 +128,10 @@ Current documented proto MCP capabilities include:
 
 - Tools: `install_tool`, `uninstall_tool`, `list_tool_versions`, `get_config`
 - Resources: `proto://config`, `proto://env`, `proto://tools`
+
+Release automation note:
+
+- Tag-driven release workflows should enforce `vX.Y.Z` tag parity with `package.json` version (for example via `yarn check:tag-version`) before building and publishing release assets.
 
 ## Yarn (Berry 4.x, node_modules linker)
 

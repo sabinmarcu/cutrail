@@ -13,6 +13,7 @@ The package consumes the GitHub release AppImage artifact:
 
 - `Cutrail-<version>.AppImage`
 - URL pattern: `https://github.com/sabinmarcu/cutrail/releases/download/v<version>/Cutrail-<version>.AppImage`
+- Required parity: release tag `v<version>` must match `package.json` version `<version>`.
 
 ## Updating For A New Release
 

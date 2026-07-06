@@ -27,6 +27,7 @@
     "typecheck:renderer": "yarn typecheck:web",
     "mcp:electron-debug": "yarn --cwd node_modules/electron-debug-mcp run build && node node_modules/electron-debug-mcp/build/index.js",
     "verify:ffmpeg": "node scripts/verify-ffmpeg-runtime.mjs",
+    "check:tag-version": "node scripts/check-tag-version.mjs",
     "aur:printsrcinfo": "bash -lc 'cd packaging/aur/cutrail-bin && makepkg --printsrcinfo > .SRCINFO'",
     "test": "vitest run",
     "lint": "yarn lint:eslint",
