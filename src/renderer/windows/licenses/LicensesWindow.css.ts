@@ -1,0 +1,43 @@
+import { style } from '@vanilla-extract/css';
+import { theme } from '@sabinmarcu/theme';
+
+export const panel = style({
+  background: '#020805',
+  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderRadius: 0,
+  padding: theme.grid.s,
+});
+
+export const heading = style({
+  color: theme.colors.primary.base,
+  fontSize: '0.84rem',
+  letterSpacing: '0.1em',
+  marginBlockStart: '0',
+  marginInline: '0',
+  marginBlockEnd: `${theme.grid.xs}`,
+  textTransform: 'uppercase',
+});
+
+export const meta = style({
+  color: theme.colors.secondary.emphasis,
+  fontSize: '0.78rem',
+  lineHeight: 1.4,
+  margin: 0,
+});
+
+export const runtime = style({
+  background: '#000f0a',
+  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderRadius: 0,
+  color: theme.colors.primary.emphasis,
+  margin: 0,
+  overflowInline: 'auto',
+  padding: theme.grid.s,
+  whiteSpace: 'pre-wrap',
+});

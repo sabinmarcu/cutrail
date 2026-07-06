@@ -6,7 +6,7 @@ Repository: `video-trimmer`
 
 cutrail is a desktop utility focused on clipping segments from longer videos with a clean, maintainable architecture.
 
-The project is currently in Phase 0 (foundation validation), with an initial Electron + React runtime scaffold in place.
+The project is currently in early Phase 1 (single-video clipping MVP), with a timeline-driven clipping workflow and a custom renderer-managed About window in place.
 
 Product name: **cutrail**.
 
@@ -17,35 +17,73 @@ Project planning documents:
 - [Phased implementation plan](docs/phased-implementation-plan.md)
 - [Publishing access and manual steps](docs/publishing-access-and-manual-steps.md)
 - [Release and update research](docs/release-and-update-research.md)
+- [Styling guide](docs/styling-guide.md)
 - Detailed phase plans live under `docs/phases/`.
 
 ## Usage And How It Works
 
-At this stage, usage is centered on developer workflow and foundation validation rather than end-user features.
+At this stage, usage is centered on a focused single-video clipping workflow while continuing active development.
 
 How it currently functions:
 
-1. Tooling is version-pinned through `.prototools` (`node ~26`, `yarn ~4`) for reproducible environments.
-2. Package management uses Yarn Berry with the `node-modules` linker for Electron compatibility.
-3. Runtime stack is bootstrapped with:
+1. Tooling is version-pinned through `.prototools` (`node ~22`, `yarn ~4`) for reproducible environments.
+2. Toolchain execution policy is proto-first: use `proto` for Node/Yarn resolution and do not use `corepack`.
+3. Package management uses Yarn Berry with the `node-modules` linker for Electron compatibility.
+4. Electron main and preload code use ESM `.mjs` modules, with `src/main/main.mjs` as the app entrypoint.
+5. Renderer source is TypeScript-first (`.ts` / `.tsx`) with alias imports (`@renderer/*`, `@assets/*`).
+6. Electron `.mjs` modules are JavaScript with `// @ts-check` and explicit JSDoc types for exported APIs.
+7. Runtime stack uses:
 	- Electron main process entrypoint under `src/main`
 	- Preload bridge under `src/preload`
-	- React renderer under `src/renderer`
-4. Code quality is enforced through ESLint flat config and pre-commit checks:
+	- React renderer under `src/renderer` with a splash entry window (`app`), an editor workflow window (`editor`), and separate utility windows (for example About/Options/Diagnostics/Licenses)
+	- Renderer imports use path aliases like `@renderer/*` and `@assets/*` instead of deep relative paths
+	- Renderer-managed window chrome with shared minimize, maximize, and close controls on non-splash windows
+	- editor clipping state/logic under `src/renderer/core/clipping` using Context API
+	- editor-only timeline UI modules under `src/renderer/windows/editor/components/TimelineEditor`
+	- grouped core feature files and barrel exports for renderer core modules
+8. Styling architecture:
+	- `vanilla-extract` for component-scoped styles
+	- `@sabinmarcu/theme` as the primary token source for colors and spacing
+	- shared renderer window patterns should be implemented as shared wrapper components with co-located styles
+	- reusable primitives (for example generic buttons) should live in shared renderer component modules
+9. Video processing runtime behavior:
+	- The app resolves ffmpeg from a bundled binary via `@ffmpeg-installer/ffmpeg` when available.
+	- If an explicit path is needed, set `CUTRAIL_FFMPEG_PATH`.
+	- If neither bundled nor override paths are available, the app falls back to system `ffmpeg` on PATH.
+	- ffmpeg attribution and licensing notes are documented in `THIRD_PARTY_NOTICES.md`.
+10. Code quality is enforced through ESLint flat config, TypeScript checks, and pre-commit checks:
 	- `yarn lint`
 	- `yarn lint:fix`
 	- `yarn lint:staged`
-5. Tests run with Vitest:
+	- `yarn typecheck:renderer`
+	- `yarn typecheck:electron-jsdoc`
+	- Workflow policy: run `yarn lint:fix` before strict checks, then run `yarn lint` and `yarn typecheck`; manually fix only issues that remain after autofix.
+11. Tests run with Vitest:
 	- `yarn test`
-6. Commit messages are enforced with Commitlint using the Conventional Commits spec.
-7. Husky runs:
+12. Commit messages are enforced with Commitlint using the Conventional Commits spec.
+13. Husky runs:
 	- `pre-commit` -> `yarn lint:staged`
 	- `commit-msg` -> `yarn commitlint --edit`
-8. AI-assisted development is configured through:
+14. AI-assisted development is configured through:
 	- `README.md` (human-oriented project documentation)
 	- `.github/copilot-instructions.md`
+	- `.github/instructions/styling-guide.instructions.md`
+	- `.github/instructions/renderer-architecture.instructions.md`
+	- `.github/instructions/core-modules.instructions.md`
 	- `AGENTS.md`
 	- `SKILLS.md`
+	- `docs/styling-guide.md` (hard rules for renderer/component styling and structure)
+
+Current workflow boundaries:
+- Source video selection is triggered from File menu actions and splash-entry actions.
+- Each selected source video opens its own independent editor window.
+- Editor windows focus on timeline editing and export only.
+- Output directory management is configured in the Options utility window.
+- Shared button primitive lives under `src/renderer/components/button`.
+
+Main architecture boundaries:
+- IPC handlers are split one-per-file under `src/main/ipc/handlers`.
+- Main-process window modules are grouped under `src/main/windows`.
 
 ## Startup Guide (Build From Source)
 
@@ -75,16 +113,41 @@ Node runtime note:
 ### Install Dependencies
 
 1. Install project dependencies:
-	- `yarn install`
+	- `proto run yarn -- install`
 
 ### Verify Source Build
 
 Current bootstrap verification commands:
-- `yarn lint`
-- `yarn lint:fix`
-- `yarn test`
-- `yarn dev`
-- `yarn commitlint --help`
+- `proto run yarn -- lint`
+- `proto run yarn -- lint:fix`
+- `proto run yarn -- test`
+- `proto run yarn -- verify:ffmpeg`
+- `proto run yarn -- dev`
+- `proto run yarn -- commitlint --help`
+
+### Environment Variables
+
+The application supports the following runtime environment variables:
+
+1. `CUTRAIL_FFMPEG_PATH`
+- Purpose: Overrides ffmpeg binary resolution with an explicit executable path.
+- Default: unset (bundled ffmpeg first, then system PATH fallback).
+- Example:
+	- `CUTRAIL_FFMPEG_PATH=/usr/bin/ffmpeg proto run yarn -- dev`
+
+2. `CUTRAIL_OPEN_DEVTOOLS`
+- Purpose: Opens Electron DevTools automatically when windows are created.
+- Enabled values: `1`, `true`, `yes`, `on` (case-insensitive).
+- Default: unset or any other value (DevTools do not auto-open).
+- Example:
+	- `CUTRAIL_OPEN_DEVTOOLS=1 proto run yarn -- dev`
+
+3. `VITE_DEV_SERVER_URL`
+- Purpose: In development mode, points Electron windows to an explicit renderer dev-server URL.
+- Expected value: a valid absolute URL.
+- Default: unset (production load path is used, or scripts provide this in dev).
+- Example:
+	- `VITE_DEV_SERVER_URL=http://localhost:5173 proto run yarn -- dev:electron`
 
 ### Commit Message Convention
 
@@ -101,13 +164,15 @@ Use a short imperative summary after the type. Keep each commit focused on one c
 
 ### Current Status
 
-- A Phase 0 desktop shell is scaffolded and runnable through Electron.
+- A Phase 1 desktop workflow is runnable through Electron with timeline-based range editing.
 - Core source layout now exists:
 	- `src/main`
 	- `src/preload`
 	- `src/renderer`
 	- `src/domain`
 	- `src/infra`
+- Main clipping UI now embeds video playback and a synchronized interactive timeline.
+- About and license details are presented in a separate Electron utility window.
 - The next milestones are documented in:
   - [docs/technical-background-and-plan.md](docs/technical-background-and-plan.md)
 	- [docs/phased-implementation-plan.md](docs/phased-implementation-plan.md)
@@ -122,21 +187,25 @@ Use a short imperative summary after the type. Keep each commit focused on one c
 	- `proto install node`
 	- `proto install yarn`
 3. Install project dependencies:
-	- `yarn install`
+	- `proto run yarn -- install`
 
 ### Build
 
 Current available commands:
 
-- `yarn dev` to run Vite renderer + Electron main process together.
-- `yarn build` to build the renderer into `dist/renderer`.
-- `yarn start` to run Electron against the local project entrypoint.
-- `yarn lint` for strict static validation.
-- `yarn lint:fix` for autofixable issues.
-- `yarn test` to run unit tests with Vitest.
+- `proto run yarn -- dev` to run Vite renderer + Electron main process together.
+- `proto run yarn -- build` to build the renderer into `dist/renderer`.
+- `proto run yarn -- start` to run Electron against the local project entrypoint.
+- `proto run yarn -- package` to create an unpacked Electron app bundle via `electron-builder`.
+- `proto run yarn -- dist` to create packaged distribution artifacts via `electron-builder`.
+- `proto run yarn -- lint` for strict static validation.
+- `proto run yarn -- lint:fix` for autofixable issues.
+- `proto run yarn -- test` to run unit tests with Vitest.
 
 ## License And Contributing
 
 - License: `LICENSE`
 	- MIT License.
+- Third-party notices: `THIRD_PARTY_NOTICES.md`
+	- Includes FFmpeg attribution and bundled-binary licensing notes.
 - Contribution guide: `CONTRIBUTING.md`

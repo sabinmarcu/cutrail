@@ -7,6 +7,14 @@
         "mcp"
       ],
       "cwd": "${workspaceFolder}"
+    },
+    "electron-debug": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": [
+        "mcp:electron-debug"
+      ],
+      "cwd": "${workspaceFolder}"
     }
   }
 }

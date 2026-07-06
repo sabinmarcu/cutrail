@@ -7,6 +7,11 @@ This file defines how coding agents should work in this repository.
 - Product name: `cutrail`
 - Repository name: `video-trimmer`
 
+## External Package Docs
+
+- `@sabinmarcu/*` package documentation source: https://github.com/sabinmarcu/omnirepo
+- If present, consult local machine overrides in `AI_LOCAL_OVERRIDES.md` for filesystem paths that mirror remote docs/repositories.
+
 ## Project Direction
 
 - Build UI with React.
@@ -18,6 +23,15 @@ This file defines how coding agents should work in this repository.
 	- `src/renderer`
 	- `src/domain`
 	- `src/infra`
+- Electron main and preload modules are ESM `.mjs` files, with `src/main/main.mjs` as the application entrypoint.
+- Renderer now has multiple runtime modes from the same entrypoint:
+	- Main clipping workflow window
+	- About utility window
+	- Options, diagnostics, and licenses utility windows
+- Renderer shared imports should use `@renderer/*` and `@assets/*` aliases instead of long relative paths.
+- Editor workflow windows are multi-instance: each selected source video should open its own independent editor window.
+- Main clipping workflow should prefer embedded video + interactive timeline editing over manual numeric range inputs.
+- ffmpeg runtime policy for this repository is bundled-first (`@ffmpeg-installer/ffmpeg`), with optional `CUTRAIL_FFMPEG_PATH` override and system-path fallback.
 
 ## AI Documentation Sync Policy
 
@@ -32,6 +46,10 @@ This file defines how coding agents should work in this repository.
 	- `docs/phased-implementation-plan.md`
 	- `docs/publishing-access-and-manual-steps.md`
 	- `docs/release-and-update-research.md`
+	- `docs/styling-guide.md`
+	- `.github/instructions/styling-guide.instructions.md`
+	- `.github/instructions/renderer-architecture.instructions.md`
+	- `.github/instructions/core-modules.instructions.md`
 
 ## Planning Priority
 
@@ -42,34 +60,57 @@ This file defines how coding agents should work in this repository.
 - Use `docs/release-and-update-research.md` to guide release tool selection, changelog generation, and updater choices.
 - If implementation sequencing changes materially, update `docs/phased-implementation-plan.md` in the same change.
 
-## Component File Layout
+## Component And Styling Rules
 
-For each component, prefer this layout:
+Agents must follow `docs/styling-guide.md`, `.github/instructions/styling-guide.instructions.md`, `.github/instructions/renderer-architecture.instructions.md`, and `.github/instructions/core-modules.instructions.md` as hard requirements.
 
-- `Component.tsx` (required)
-- `Component.css.ts` (required when styled)
-- `Component.utils.ts` (optional)
-- `Component.utils.type.ts` (optional type tests)
-- `Component.spec.ts` (optional)
-- `Component.stories.ts` (optional)
+Required constraints:
 
-Notes:
+- Keep files between 1 and 200 lines whenever possible; split when larger.
+- One React component per file.
+- Child components used by only one master/page should use `MasterComponent.ChildComponent.tsx` naming.
+- Renderer windows live under `src/renderer/windows/X`.
+- Cross-window shared components live under `src/renderer/components`.
+- Window-specific exception path is allowed at `src/renderer/windows/components/X`.
+- Styles are co-located with components and shared only when tightly related.
+- For shared window-level UI patterns, prefer shared wrapper components over shared style-only modules.
+- Prefer CSS cascade for common styling behavior.
+- Keep splash (`app`), editor (`editor`), and options (`options`) responsibilities in separate window modules.
+- Source selection belongs to File/splash entry actions; output-directory configuration belongs to options window UI.
+- Shared utility components used by multiple windows must live under `src/renderer/components/*`.
+- Editor-only timeline components must live under `src/renderer/windows/editor/components/TimelineEditor/*`.
+- Clipping state/logic must live under `src/renderer/core/clipping/*` using Context API.
+- Core feature modules should use grouped naming (`feature.ts`, `feature.context.tsx`, `feature.provider.tsx`, etc.) with barrel exports.
+- Shared button primitive should live under `src/renderer/components/button/button.tsx` with `button.css.ts`.
+- Keyboard controls intended for regular users should include Vim-style equivalents where practical.
+- Renderer windows should be frameless and use shared custom chrome with minimize, maximize, and close controls; splash windows must stay decoration-free and expose only an in-app close button.
+- Main-process IPC handlers must be split one-per-file under `src/main/ipc/handlers`.
+- Main-process window modules must live under `src/main/windows`.
+- Main/preload `.mjs` modules must keep `// @ts-check` enabled and use explicit JSDoc typings on exported APIs.
 
-- Storybook and unit tests are optional by feature.
-- `*.type.ts` files are type-level tests intended to be validated by ESLint tooling (`eslint-plugin-expect-type` through the shared ESLint preset).
-- When utility functions have meaningful type contracts, add or update matching type tests (for example, `Component.utils.type.ts`).
+Maintenance rule:
+
+- Any styling convention change must update `docs/styling-guide.md` in the same change set.
+- Any renderer structure convention change must update `.github/instructions/renderer-architecture.instructions.md` in the same change set.
+- Any non-renderer module boundary convention change must update `.github/instructions/core-modules.instructions.md` in the same change set.
 
 ## Lint And Commit Workflow
 
-- Start local desktop runtime with `yarn dev`.
-- Build renderer assets with `yarn build`.
-- Run unit tests with `yarn test`.
-- Run lint checks with `yarn lint`.
-- Run autofix with `yarn lint:fix`.
-- Staged files are linted with fix via `yarn lint:staged`.
-- Pre-commit hook runs `yarn lint:staged` through Husky.
+- Use `proto` for all tool execution in this repository; never use `corepack`.
+- Use `@sabinmarcu/eslint-config` as the required ESLint flat-config baseline in `eslint.config.mjs`; do not replace it with ad-hoc standalone rule sets.
+- Type and validate runtime environment/config values with `zod` in main-process config modules.
+- Start local desktop runtime with `proto run yarn -- dev`.
+- Build renderer assets with `proto run yarn -- build`.
+- Build unpacked app artifacts with `proto run yarn -- package`.
+- Build distributable artifacts with `proto run yarn -- dist`.
+- Run unit tests with `proto run yarn -- test`.
+- Run lint checks with `proto run yarn -- lint`.
+- Run autofix with `proto run yarn -- lint:fix`.
+- Agent lint workflow rule: run `proto run yarn -- lint:fix` first, then run `proto run yarn -- lint` and `proto run yarn -- typecheck`; only manually fix issues that remain after autofix.
+- Staged files are linted with fix via `proto run yarn -- lint:staged`.
+- Pre-commit hook runs `proto run yarn -- lint:staged` through Husky.
 - Commit messages are validated with Commitlint against Conventional Commits.
-- Commit-msg hook runs `yarn commitlint --edit "$1"` through Husky.
+- Commit-msg hook runs `proto run yarn -- commitlint --edit "$1"` through Husky.
 
 ## Agent Expectations
 
@@ -77,4 +118,5 @@ Notes:
 - Prefer modifying files under `src` unless adjusting root configuration.
 - Keep root config changes explicit and minimal.
 - Do not introduce additional formatters; ESLint is the formatter/linter authority in this workspace.
+- Use `logs/` for temporary local artifacts (for example command output captures); do not write temporary files outside this folder.
 - If a change modifies architecture, tooling, or style guidance, update AI documentation in the same PR.

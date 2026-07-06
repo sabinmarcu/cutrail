@@ -13,20 +13,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup proto toolchain
+        uses: moonrepo/setup-toolchain@v0
         with:
-          node-version: '26'
-          cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
+          auto-install: true
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: proto run yarn -- install --immutable
 
       - name: Lint
-        run: yarn lint
+        run: proto run yarn -- lint
 
       - name: Test
-        run: yarn test
+        run: proto run yarn -- test
+
+  verify-ffmpeg-runtime:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup proto toolchain
+        uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Install dependencies
+        run: proto run yarn -- install --immutable
+
+      - name: Verify ffmpeg runtime
+        run: proto run yarn -- verify:ffmpeg

@@ -19,7 +19,7 @@ Thanks for your interest in contributing to cutrail (repository: `video-trimmer`
 1. Install toolchain dependencies:
    - `proto install`
 2. Install project dependencies:
-   - `yarn install`
+   - `proto run yarn -- install`
 
 ## Branching And Commits
 
@@ -32,8 +32,8 @@ Thanks for your interest in contributing to cutrail (repository: `video-trimmer`
 
 Before opening a pull request, run:
 
-- `yarn lint`
-- `yarn lint:fix` (if needed)
+- `proto run yarn -- lint`
+- `proto run yarn -- lint:fix` (if needed)
 
 Pre-commit hooks run lint-staged automatically, but do not rely on hooks alone.
 Commit messages are also validated locally against the conventional commit rules.

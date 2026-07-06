@@ -19,3 +19,7 @@ node_modules
 # Build outputs
 dist
 coverage
+logs/
+
+# Local AI overrides (machine-specific, do not commit)
+AI_LOCAL_OVERRIDES.md

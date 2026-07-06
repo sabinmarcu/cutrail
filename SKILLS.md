@@ -6,7 +6,14 @@ Repository tool skillbook: setup, intent, and operational commands.
 
 - Product name: `cutrail`
 - Repository name: `video-trimmer`
-- Current delivery phase: Phase 0 foundation validation with Electron + React bootstrap.
+- Current delivery phase: Early Phase 1 single-video clipping MVP with timeline-based editing.
+
+## External Package Documentation
+
+ Electron main and preload code use ESM `.mjs` modules, with `src/main/main.mjs` as the entrypoint.
+ Renderer code is TypeScript-first (`.ts` / `.tsx`).
+ Electron `.mjs` modules are JS with `// @ts-check` and explicit JSDoc typing on exported APIs.
+ Runtime environment/config values in main process should be validated with `zod`.
 
 ## AI Documentation Maintenance
 
@@ -32,6 +39,10 @@ Discovery and planning files to reference in AI workflows:
 - `docs/phased-implementation-plan.md`
 - `docs/publishing-access-and-manual-steps.md`
 - `docs/release-and-update-research.md`
+- `docs/styling-guide.md`
+- `.github/instructions/styling-guide.instructions.md`
+- `.github/instructions/renderer-architecture.instructions.md`
+- `.github/instructions/core-modules.instructions.md`
 - `docs/phases/phase-0-foundation-validation.md`
 - `docs/phases/phase-1-single-video-clipping-mvp.md`
 - `docs/phases/phase-2-source-library-and-workflow-maturity.md`
@@ -46,8 +57,29 @@ Planning priority for agents:
 - Use the other planning docs as supporting references for product intent, technical constraints, and distribution choices.
 - Use `docs/publishing-access-and-manual-steps.md` when release work depends on GitHub permissions, AUR credentials, or maintainer-only approvals.
 - Use `docs/release-and-update-research.md` when release work depends on changelog policy, Conventional-Commit release engines, or Electron updater tradeoffs.
+- Use `docs/styling-guide.md` for renderer structure, component file sizing, child component naming, and style co-location rules.
+- Use `.github/instructions/styling-guide.instructions.md` for enforceable renderer styling rules.
+- Use `.github/instructions/renderer-architecture.instructions.md` for enforceable renderer layout and component-placement rules.
+- Use `.github/instructions/core-modules.instructions.md` for enforceable non-renderer module sizing and boundary rules.
 
 Rule of thumb: if a human contributor would need to know it to work correctly, AI docs should be updated in the same change.
+
+Styling governance rule:
+
+- Agents must treat `docs/styling-guide.md` as a hard-rule instruction file for renderer/component styling and structure.
+- Any styling-system or style-convention change must update `docs/styling-guide.md` in the same change set.
+- Agents must also treat `.github/instructions/styling-guide.instructions.md` and `.github/instructions/renderer-architecture.instructions.md` as hard-rule instruction files.
+- Agents must also treat `.github/instructions/core-modules.instructions.md` as a hard-rule instruction file.
+- For shared renderer window patterns, agents must prefer shared wrapper components with co-located styles over shared style-only modules.
+- For renderer workflow boundaries, agents must keep splash, editor, and options concerns in distinct window modules and avoid mixing source/output controls into editor-local chrome.
+- Agents must place shared cross-window utility components under `src/renderer/components/*`.
+- Agents must place editor-only timeline modules under `src/renderer/windows/editor/components/TimelineEditor/*`.
+- Agents must keep clipping workflow state and logic in Context API modules under `src/renderer/core/clipping/*`.
+- Agents must use grouped core feature naming with barrel exports for renderer core modules.
+- Agents must keep shared button primitives under `src/renderer/components/button/*` with co-located styles.
+- Agents must keep IPC handlers split one-per-file under `src/main/ipc/handlers` and window modules under `src/main/windows`.
+- Agents must create renderer windows frameless and use shared custom chrome with minimize, maximize, and close controls; splash windows must remain decoration-free and include only an in-app close control.
+- Agents should prefer `@renderer/*` and `@assets/*` aliases for renderer imports instead of long relative paths.
 
 ## proto (moonrepo)
 
@@ -60,6 +92,7 @@ Current repository pinning is defined in `.prototools`:
 
 - Pins Node and Yarn versions for consistent local/CI behavior.
 - Enables predictable tool resolution based on the repository configuration.
+- Repository policy: use proto instead of corepack at all times.
 
 ### Setup and usage
 
@@ -103,14 +136,22 @@ Behavior and conventions:
 
 Core commands:
 
-- `yarn install`
-- `yarn commitlint --help`
-- `yarn dev`
-- `yarn build`
-- `yarn test`
-- `yarn lint`
-- `yarn lint:fix`
-- `yarn lint:staged`
+- `proto run yarn -- install`
+- `proto run yarn -- commitlint --help`
+- `proto run yarn -- dev`
+- `proto run yarn -- build`
+- `proto run yarn -- package`
+- `proto run yarn -- dist`
+- `proto run yarn -- test`
+- `proto run yarn -- verify:ffmpeg`
+- `proto run yarn -- lint`
+- `proto run yarn -- lint:fix`
+- `proto run yarn -- lint:staged`
+
+Packaging notes:
+
+- `electron-builder` is configured in `package.json` under `build`.
+- Platform icon assets are stored in `src/assets/icons` (`icon.png`, `icon.ico`, `icon.icns`).
 
 Current source layout baseline:
 
@@ -119,6 +160,19 @@ Current source layout baseline:
 - `src/renderer` for React UI shell.
 - `src/domain` for pure clip/timeline logic.
 - `src/infra` for ffmpeg process integration.
+
+Current renderer architecture notes:
+
+- Main clipping workflow and About view are separate renderer modes selected at runtime.
+- Renderer styling uses `vanilla-extract` with `@sabinmarcu/theme` tokens.
+- Clip editing UX is timeline-first with embedded video synchronization.
+
+FFmpeg runtime policy:
+
+- Prefer bundled ffmpeg from `@ffmpeg-installer/ffmpeg`.
+- Allow explicit override through `CUTRAIL_FFMPEG_PATH`.
+- Fall back to system `ffmpeg` only when bundled/override binaries are unavailable.
+- Keep attribution and compliance notes in `THIRD_PARTY_NOTICES.md`.
 
 Linker note:
 
@@ -152,6 +206,8 @@ Core lint command:
 
 - `yarn lint` (strict; max warnings 0)
 - `yarn lint:fix` (autofix)
+- Agent workflow rule: prefer `yarn lint:fix` before checks, then run `yarn lint` and `yarn typecheck`, and manually fix only non-autofixable issues.
+- Agent temporary-output rule: write temporary command outputs/artifacts under `logs/`.
 
 ## Yarn script policy
 

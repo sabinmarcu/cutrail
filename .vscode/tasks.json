@@ -1,0 +1,443 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "validate-protocol-fix",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-media-protocol-rewrite",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-media-protocol-rewrite-2",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-file-protocol-mapping",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-source-file-guard",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-export-audio-compat-fix",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-accurate-trim-fix",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-trim-mode-and-progress",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-menu-and-outputdir-persistence",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "check-electron-icon-paths",
+			"type": "shell",
+			"command": "ls -la node_modules/electron && ls -la node_modules/electron/dist/resources/default_app || true",
+			"isBackground": false
+		},
+		{
+			"label": "list-electron-dist-resources",
+			"type": "shell",
+			"command": "ls -la node_modules/electron/dist/resources && ls -la node_modules/electron/dist/resources/*",
+			"isBackground": false
+		},
+		{
+			"label": "validate-about-window-blank-fix",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-cutrail-diagnostics-window",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "revalidate-cutrail-diagnostics-window",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "final-validate-cutrail-diagnostics-window",
+			"type": "shell",
+			"command": "yarn lint && yarn build && yarn test",
+			"isBackground": false
+		},
+		{
+			"label": "validate-window-split-and-menu",
+			"type": "shell",
+			"command": "yarn test && yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-assets-icon-move",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-shared-assets-move",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-logo-icon-switch",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "check-icon-tools",
+			"type": "shell",
+			"command": "command -v convert || true; command -v magick || true; command -v inkscape || true; command -v iconutil || true; command -v icotool || true",
+			"isBackground": false
+		},
+		{
+			"label": "test-icon-convert",
+			"type": "shell",
+			"command": "mkdir -p .tmp/icons-test && magick src/assets/logo-white-bg.svg -resize 1024x1024 .tmp/icons-test/icon.png && magick .tmp/icons-test/icon.png -define icon:auto-resize=16,24,32,48,64,128,256 .tmp/icons-test/icon.ico && magick .tmp/icons-test/icon.png .tmp/icons-test/icon.icns && ls -la .tmp/icons-test",
+			"isBackground": false
+		},
+		{
+			"label": "generate-packaging-icons",
+			"type": "shell",
+			"command": "mkdir -p src/assets/icons && magick src/assets/logo-white-bg.svg -resize 1024x1024 src/assets/icons/icon.png && magick src/assets/icons/icon.png -define icon:auto-resize=16,24,32,48,64,128,256 src/assets/icons/icon.ico && magick src/assets/icons/icon.png src/assets/icons/icon.icns && ls -la src/assets/icons",
+			"isBackground": false
+		},
+		{
+			"label": "install-after-packaging-config",
+			"type": "shell",
+			"command": "yarn install",
+			"isBackground": false
+		},
+		{
+			"label": "validate-packaging-icons",
+			"type": "shell",
+			"command": "yarn lint && yarn package --linux",
+			"isBackground": false
+		},
+		{
+			"label": "validate-package-linux-after-metadata",
+			"type": "shell",
+			"command": "yarn package --linux",
+			"isBackground": false
+		},
+		{
+			"label": "status-packaging-setup",
+			"type": "shell",
+			"command": "git status --short",
+			"isBackground": false
+		},
+		{
+			"label": "cleanup-temp-icons",
+			"type": "shell",
+			"command": "rm -rf .tmp/icons-test",
+			"isBackground": false
+		},
+		{
+			"label": "final-validate-icon-setup",
+			"type": "shell",
+			"command": "yarn lint && yarn package --linux",
+			"isBackground": false
+		},
+		{
+			"label": "validate-mainframe-theme",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "find-theme-defaults",
+			"type": "shell",
+			"command": "rg -n \"setupTheme|primary:\\s*\\{|background:\\s*\\{\" ~/Projects/omnirepo -g \"*theme*\" -g \"*.ts\" -g \"*.js\" | head -n 80",
+			"isBackground": false
+		},
+		{
+			"label": "validate-mainframe-theme-v2",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-sketch-layout",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "revalidate-sketch-layout",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-second-pass-layout",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "revalidate-second-pass-layout",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "src-line-audit",
+			"type": "shell",
+			"command": "find src -type f \\( -name '*.js' -o -name '*.mjs' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css.ts' \\) -print0 | xargs -0 -I{} sh -c 'wc -l \"{}\"' | sort -nr",
+			"isBackground": false
+		},
+		{
+			"label": "post-refactor-audit",
+			"type": "shell",
+			"command": "find src -type f \\( -name '*.js' -o -name '*.mjs' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css.ts' \\) -print0 | xargs -0 -I{} sh -c 'wc -l \"{}\"' | sort -nr",
+			"isBackground": false
+		},
+		{
+			"label": "validate-large-refactor",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "second-line-audit",
+			"type": "shell",
+			"command": "find src -type f \\( -name '*.js' -o -name '*.mjs' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css.ts' \\) -print0 | xargs -0 -I{} sh -c 'wc -l \"{}\"' | sort -nr | head -n 20",
+			"isBackground": false
+		},
+		{
+			"label": "validate-after-splits",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "third-line-audit",
+			"type": "shell",
+			"command": "find src -type f \\( -name '*.js' -o -name '*.mjs' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css.ts' \\) -print0 | xargs -0 -I{} sh -c 'wc -l \"{}\"' | sort -nr | head -n 12",
+			"isBackground": false
+		},
+		{
+			"label": "validate-after-drag-hook",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "final-verify-restrictions-rollout",
+			"type": "shell",
+			"command": "yarn lint && yarn build && find src -type f \\( -name '*.js' -o -name '*.mjs' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css.ts' \\) -print0 | xargs -0 -I{} sh -c 'wc -l \"{}\"' | sort -nr | head -n 10",
+			"isBackground": false
+		},
+		{
+			"label": "validate-window-folder-move",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "check-window-tree",
+			"type": "shell",
+			"command": "find src/renderer/windows -maxdepth 3 -type f | sort",
+			"isBackground": false
+		},
+		{
+			"label": "validate-window-reorg",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "verify-window-layout",
+			"type": "shell",
+			"command": "find src/renderer/windows -maxdepth 3 -type f | sort && rg -n \"from './(App|DiagnosticsApp|LicensesApp)'|from \\\"\\./(App|DiagnosticsApp|LicensesApp)\\\"\" src/renderer/main.jsx src/renderer -g '*.jsx' -g '*.js'",
+			"isBackground": false
+		},
+		{
+			"label": "validate-after-utility-component-rule",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "check-line-limits-updated-files",
+			"type": "shell",
+			"command": "wc -l src/renderer/windows/components/utility/UtilityWindow.jsx src/renderer/windows/components/utility/UtilityWindow.css.ts src/renderer/windows/diagnostics/DiagnosticsWindow.jsx src/renderer/windows/diagnostics/DiagnosticsWindow.css.ts src/renderer/windows/licenses/LicensesWindow.jsx src/renderer/windows/licenses/LicensesWindow.css.ts",
+			"isBackground": false
+		},
+		{
+			"label": "validate-play-overlay-seek-export-pause",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "revalidate-after-overlay-lint-fix",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "check-line-counts-core-refactor",
+			"type": "shell",
+			"command": "wc -l src/main/windows/windowManager.mjs src/main/ipc.mjs src/main/menu.mjs src/main/main.mjs src/preload/preload.mjs src/renderer/windows/editor/EditorWindow.useWorkflow.js src/renderer/windows/editor/EditorWindow.css.ts src/renderer/windows/app/AppWindow.css.ts",
+			"isBackground": false
+		},
+		{
+			"label": "validate-splash-editor-options-refactor",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "check-line-counts-after-split",
+			"type": "shell",
+			"command": "wc -l src/main/windows/windowManager.mjs src/main/windows/windowLoad.mjs src/main/windows/windowDefaults.mjs src/renderer/windows/editor/EditorWindow.jsx src/renderer/windows/editor/EditorWindow.useWorkflow.js src/renderer/windows/options/OptionsWindow.jsx",
+			"isBackground": false
+		},
+		{
+			"label": "recheck-line-count-window-manager",
+			"type": "shell",
+			"command": "wc -l src/main/windows/windowManager.mjs src/renderer/windows/editor/EditorWindow.useWorkflow.js",
+			"isBackground": false
+		},
+		{
+			"label": "revalidate-after-fixes",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "final-validation-after-doc-sync",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-after-arch-moves",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "line-audit-restructured-files",
+			"type": "shell",
+			"command": "wc -l src/main/ipc.mjs src/main/ipc/registerHandlers.mjs src/main/ipc/handlers/*.mjs src/main/windows/*.mjs src/renderer/core/clipping/*.js src/renderer/core/clipping/*.jsx src/renderer/windows/editor/components/TimelineEditor/* src/renderer/components/utility/*",
+			"isBackground": false
+		},
+		{
+			"label": "final-validate-refined-architecture",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "final-line-audit",
+			"type": "shell",
+			"command": "wc -l src/renderer/core/clipping/* src/main/ipc/handlers/*.mjs src/main/windows/*.mjs && rg -n \"windows/components/utility|components/TimelineEditor|EditorWindow.useWorkflow|src/main/windows/windowManager.mjs|src/main/windows/windowDefaults.mjs|src/main/windows/windowLoad.mjs\" src",
+			"isBackground": false
+		},
+		{
+			"label": "revalidate-after-immutability-fix",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "validate-after-playback-sync-adjust",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"isBackground": false
+		},
+		{
+			"label": "structure-audit-pass",
+			"type": "shell",
+			"command": "find src/renderer -maxdepth 6 -type f | sort && find src/main -maxdepth 4 -type f | sort",
+			"isBackground": false
+		},
+		{
+			"label": "global-line-limit-audit",
+			"type": "shell",
+			"command": "find src -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.mjs' -o -name '*.ts' -o -name '*.tsx' -o -name '*.css.ts' \\) -print0 | xargs -0 wc -l | awk '$1>200{print}'",
+			"isBackground": false
+		},
+		{
+			"label": "validate:lint-build",
+			"type": "shell",
+			"command": "yarn",
+			"args": [
+				"lint",
+				"&&",
+				"yarn",
+				"build"
+			],
+			"group": "build"
+		},
+		{
+			"label": "validate:lint-build-after-ffmpeg-fix",
+			"type": "shell",
+			"command": "yarn",
+			"args": [
+				"lint",
+				"&&",
+				"yarn",
+				"build"
+			],
+			"group": "build"
+		},
+		{
+			"label": "validate:editor-layout-pass",
+			"type": "shell",
+			"command": "yarn",
+			"args": [
+				"lint",
+				"&&",
+				"yarn",
+				"build"
+			],
+			"group": "build"
+		},
+		{
+			"label": "validate-proto-lint",
+			"type": "shell",
+			"command": "proto run yarn -- lint",
+			"group": "build"
+		},
+		{
+			"label": "validate-multi-editor-windows",
+			"type": "shell",
+			"command": "yarn lint && yarn build",
+			"group": "build"
+		}
+	]
+}

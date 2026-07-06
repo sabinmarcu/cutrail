@@ -1,0 +1,1 @@
+export { SegmentedSwitch } from './segmentedSwitch';

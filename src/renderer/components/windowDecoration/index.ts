@@ -1,0 +1,1 @@
+export { WindowDecoration } from './windowDecoration';
