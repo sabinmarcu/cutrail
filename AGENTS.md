@@ -124,5 +124,6 @@ Maintenance rule:
 - Do not introduce additional formatters; ESLint is the formatter/linter authority in this workspace.
 - Use `logs/` for temporary local artifacts (for example command output captures); do not write temporary files outside this folder.
 - When redirecting command output (`>`, `2>`, `&>`), write captures under `logs/` (for example `logs/build.log`) rather than `/tmp`.
+- Announce skill usage explicitly before running a custom/local skill flow (for example, "Using skill: github-release-flow").
 - If a change modifies architecture, tooling, or style guidance, update AI documentation in the same PR.
 - Treat `src/assets/logo-white-bg.svg` as the source image for application icons. Any change to that file must regenerate `src/assets/icons/icon.png`, `src/assets/icons/icon.ico`, and `src/assets/icons/icon.icns` in the same change set.

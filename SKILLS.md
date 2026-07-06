@@ -66,6 +66,10 @@ Planning priority for agents:
 
 Rule of thumb: if a human contributor would need to know it to work correctly, AI docs should be updated in the same change.
 
+Skill communication rule:
+
+- When an agent invokes a custom/local skill flow, it should announce the exact skill name to the user before executing skill-driven steps.
+
 ## Local Custom Skills
 
 - `.github/skills/github-release-flow/SKILL.md`: stable GitHub release flow (tag creation/push, tag-version parity, release workflow expectations).
