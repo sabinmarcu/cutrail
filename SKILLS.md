@@ -23,6 +23,7 @@ Required updates:
 
 - Architecture/tooling updates (examples: adding TypeScript, changing build system, replacing lint tooling, changing package manager strategy).
 - Guidance/style updates (examples: file-structure conventions, test expectations, utility/type-test rules).
+- User-facing docs command formatting: document runnable scripts as direct `yarn ...` commands rather than `proto run yarn -- ...`.
 
 Files to keep synchronized:
 

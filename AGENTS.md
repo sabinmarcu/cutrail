@@ -98,6 +98,7 @@ Maintenance rule:
 
 - Use `proto` for all tool execution in this repository; never use `corepack`.
 - Use `@sabinmarcu/eslint-config` as the required ESLint flat-config baseline in `eslint.config.mjs`; do not replace it with ad-hoc standalone rule sets.
+- When authoring user-facing documentation (for example `README.md`, `BUILD.md`, `CONTRIBUTING.md`), use direct script commands (`yarn ...`) instead of `proto run yarn -- ...`.
 - Type and validate runtime environment/config values with `zod` in main-process config modules.
 - Start local desktop runtime with `proto run yarn -- dev`.
 - Build renderer assets with `proto run yarn -- build`.

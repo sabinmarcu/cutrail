@@ -115,17 +115,17 @@ Node runtime note:
 ### Install Dependencies
 
 1. Install project dependencies:
-	- `proto run yarn -- install`
+	- `yarn install`
 
 ### Verify Source Build
 
 Current bootstrap verification commands:
-- `proto run yarn -- lint`
-- `proto run yarn -- lint:fix`
-- `proto run yarn -- test`
-- `proto run yarn -- verify:ffmpeg`
-- `proto run yarn -- dev`
-- `proto run yarn -- commitlint --help`
+- `yarn lint`
+- `yarn lint:fix`
+- `yarn test`
+- `yarn verify:ffmpeg`
+- `yarn dev`
+- `yarn commitlint --help`
 
 ### Environment Variables
 
@@ -135,21 +135,21 @@ The application supports the following runtime environment variables:
 - Purpose: Overrides ffmpeg binary resolution with an explicit executable path.
 - Default: unset (bundled ffmpeg first, then system PATH fallback).
 - Example:
-	- `CUTRAIL_FFMPEG_PATH=/usr/bin/ffmpeg proto run yarn -- dev`
+	- `CUTRAIL_FFMPEG_PATH=/usr/bin/ffmpeg yarn dev`
 
 2. `CUTRAIL_OPEN_DEVTOOLS`
 - Purpose: Opens Electron DevTools automatically when windows are created.
 - Enabled values: `1`, `true`, `yes`, `on` (case-insensitive).
 - Default: unset or any other value (DevTools do not auto-open).
 - Example:
-	- `CUTRAIL_OPEN_DEVTOOLS=1 proto run yarn -- dev`
+	- `CUTRAIL_OPEN_DEVTOOLS=1 yarn dev`
 
 3. `VITE_DEV_SERVER_URL`
 - Purpose: In development mode, points Electron windows to an explicit renderer dev-server URL.
 - Expected value: a valid absolute URL.
 - Default: unset (production load path is used, or scripts provide this in dev).
 - Example:
-	- `VITE_DEV_SERVER_URL=http://localhost:5173 proto run yarn -- dev:electron`
+	- `VITE_DEV_SERVER_URL=http://localhost:5173 yarn dev:electron`
 
 ### Commit Message Convention
 
@@ -189,21 +189,21 @@ Use a short imperative summary after the type. Keep each commit focused on one c
 	- `proto install node`
 	- `proto install yarn`
 3. Install project dependencies:
-	- `proto run yarn -- install`
+	- `yarn install`
 
 ### Build
 
 Current available commands:
 
-- `proto run yarn -- dev` to run Vite renderer + Electron main process together.
-- `proto run yarn -- build` to build the renderer into `dist/renderer`.
-- `proto run yarn -- start` to run Electron against the local project entrypoint.
-- `proto run yarn -- package` to create an unpacked Electron app bundle via `electron-builder`.
-- `proto run yarn -- dist` to create packaged distribution artifacts via `electron-builder`.
-- `proto run yarn -- dist:appimage` to build a Linux AppImage locally.
-- `proto run yarn -- lint` for strict static validation.
-- `proto run yarn -- lint:fix` for autofixable issues.
-- `proto run yarn -- test` to run unit tests with Vitest.
+- `yarn dev` to run Vite renderer + Electron main process together.
+- `yarn build` to build the renderer into `dist/renderer`.
+- `yarn start` to run Electron against the local project entrypoint.
+- `yarn package` to create an unpacked Electron app bundle via `electron-builder`.
+- `yarn dist` to create packaged distribution artifacts via `electron-builder`.
+- `yarn dist:appimage` to build a Linux AppImage locally.
+- `yarn lint` for strict static validation.
+- `yarn lint:fix` for autofixable issues.
+- `yarn test` to run unit tests with Vitest.
 
 ## License And Contributing
 

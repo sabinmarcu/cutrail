@@ -42,6 +42,7 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - `@sabinmarcu/*` package documentation source is https://github.com/sabinmarcu/omnirepo.
 - For local machine overrides of external docs/paths, read `AI_LOCAL_OVERRIDES.md` at repository root when present.
 - Toolchain policy: always use `proto` for Node/Yarn tool resolution; never use `corepack`.
+- User-facing documentation command style policy: when writing docs intended for users (for example `README.md`, `BUILD.md`, `CONTRIBUTING.md`), use direct script commands like `yarn lint` instead of `proto run yarn -- lint`.
 - Lint policy: `eslint.config.mjs` must extend `@sabinmarcu/eslint-config` as the baseline shared flat config.
 - Lint workflow policy: run `proto run yarn -- lint:fix` before running strict checks (`proto run yarn -- lint`, `proto run yarn -- typecheck`), and only apply manual code fixes for issues that remain after autofix.
 - Temporary-file policy: use `logs/` for local temporary outputs and artifacts instead of writing temporary files elsewhere in the repository.
