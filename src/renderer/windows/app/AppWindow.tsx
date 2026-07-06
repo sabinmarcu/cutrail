@@ -42,7 +42,7 @@ const parseFileUri = (candidate: string): string | null => {
 };
 
 const hasFilePayload = (event: DragEvent<HTMLElement>): boolean => {
-  const dataTransfer = event.dataTransfer;
+  const { dataTransfer } = event;
 
   if (!dataTransfer) {
     return false;
@@ -52,54 +52,50 @@ const hasFilePayload = (event: DragEvent<HTMLElement>): boolean => {
     return true;
   }
 
-  if (Array.from(dataTransfer.items).some((item) => item.kind === 'file')) {
+  if ([...dataTransfer.items].some((item) => item.kind === 'file')) {
     return true;
   }
 
-  return Array.from(dataTransfer.types).includes('Files');
+  return [...dataTransfer.types].includes('Files');
 };
 
 const getDroppedFilePaths = (event: DragEvent<HTMLElement>): string[] => {
   const paths = new Set<string>();
-  const dataTransfer = event.dataTransfer;
+  const { dataTransfer } = event;
 
   if (!dataTransfer) {
     return [];
   }
 
-  for (const nextFile of Array.from(dataTransfer.files)) {
-    const resolvedFromBridge = window.cutrail?.getPathForFile?.(nextFile);
+  for (const nextFile of dataTransfer.files) {
+    const resolvedFromBridge = globalThis.cutrail?.getPathForFile?.(nextFile);
 
     if (typeof resolvedFromBridge === 'string' && resolvedFromBridge.length > 0) {
       paths.add(resolvedFromBridge);
-      continue;
-    }
+    } else {
+      const electronFile = nextFile as ElectronDropFile;
 
-    const electronFile = nextFile as ElectronDropFile;
-
-    if (typeof electronFile.path === 'string' && electronFile.path.length > 0) {
-      paths.add(electronFile.path);
+      if (typeof electronFile.path === 'string' && electronFile.path.length > 0) {
+        paths.add(electronFile.path);
+      }
     }
   }
 
-  for (const nextItem of Array.from(dataTransfer.items)) {
+  for (const nextItem of dataTransfer.items) {
     const itemFile = nextItem.getAsFile?.();
 
-    if (!itemFile) {
-      continue;
-    }
+    if (itemFile) {
+      const resolvedFromBridge = globalThis.cutrail?.getPathForFile?.(itemFile);
 
-    const resolvedFromBridge = window.cutrail?.getPathForFile?.(itemFile);
+      if (typeof resolvedFromBridge === 'string' && resolvedFromBridge.length > 0) {
+        paths.add(resolvedFromBridge);
+      } else {
+        const electronItemFile = itemFile as ElectronDropFile;
 
-    if (typeof resolvedFromBridge === 'string' && resolvedFromBridge.length > 0) {
-      paths.add(resolvedFromBridge);
-      continue;
-    }
-
-    const electronItemFile = itemFile as ElectronDropFile;
-
-    if (typeof electronItemFile.path === 'string' && electronItemFile.path.length > 0) {
-      paths.add(electronItemFile.path);
+        if (typeof electronItemFile.path === 'string' && electronItemFile.path.length > 0) {
+          paths.add(electronItemFile.path);
+        }
+      }
     }
   }
 
@@ -120,15 +116,12 @@ const getDroppedFilePaths = (event: DragEvent<HTMLElement>): string[] => {
 
     if (parsedPath) {
       paths.add(parsedPath);
-      continue;
-    }
-
-    if (candidate.startsWith('/')) {
+    } else if (candidate.startsWith('/')) {
       paths.add(candidate);
     }
   }
 
-  return Array.from(paths);
+  return [...paths];
 };
 
 export const AppWindow = () => {
@@ -179,7 +172,7 @@ export const AppWindow = () => {
 
         void (async () => {
           for (const sourcePath of sourcePaths) {
-            await window.cutrail?.openVideoEditor?.({ sourcePath });
+            await globalThis.cutrail?.openVideoEditor?.({ sourcePath });
           }
         })();
       }}
@@ -195,7 +188,7 @@ export const AppWindow = () => {
             variant="primary"
             className={noDrag}
             onClick={() => {
-              void window.cutrail?.openVideoEditor?.();
+              void globalThis.cutrail?.openVideoEditor?.();
             }}
           >
             Select Video File
@@ -206,7 +199,7 @@ export const AppWindow = () => {
             type="button"
             variant="secondary"
             className={noDrag}
-            onClick={() => void window.cutrail?.closeWindow?.()}
+            onClick={() => void globalThis.cutrail?.closeWindow?.()}
           >
             Close
           </Button>
