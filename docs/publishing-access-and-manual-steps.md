@@ -121,7 +121,8 @@ If Release Please is adopted:
 4. Verify the intended package name is available, with `cutrail-bin` as the preferred first package.
 5. Clone the empty or newly created AUR repository for the selected package name.
 6. Perform the initial push to the AUR repository to establish the package.
-7. If later choosing CI-assisted AUR publishing, add the private SSH key as a GitHub Actions secret and review the security tradeoff before enabling writes from automation.
+7. Add the private SSH key as a GitHub Actions secret named `AUR_SSH_PRIVATE_KEY` if CI will publish AUR updates.
+8. Optionally add the AUR host key block as `AUR_KNOWN_HOSTS` to pin `aur.archlinux.org`.
 
 ### Exact AUR setup sequence
 
@@ -141,8 +142,8 @@ Use a maintainer machine for these steps:
 
 Before enabling any CI write access to AUR, explicitly decide:
 
-- whether the repository will keep AUR pushes semi-manual
-- whether a separate AUR packaging repo will be used
+- whether CI should publish `cutrail`, `cutrail-bin`, and `cutrail-git`
+- whether `cutrail-git` should stay on the rolling `master` branch only
 - who is allowed to rotate the AUR deploy key
 
 ### Notes
@@ -167,8 +168,10 @@ If the repository automation is set up well, the routine release flow can stay s
 
 1. Confirm the GitHub release artifact URL and checksum.
 2. Review the generated or updated `PKGBUILD` and `.SRCINFO`.
-3. Push the update to the AUR package repository, either manually or by approving the semi-automated path you have configured.
+3. Let the AUR workflow push the update after the release workflow succeeds.
 4. Verify installation with an AUR helper or `makepkg` flow.
+
+See [docs/aur-packaging.md](docs/aur-packaging.md) for local package testing instructions.
 
 ## One-Time Setup For Future In-App Updates
 

@@ -7,7 +7,18 @@
   "license": "MIT",
   "main": "src/main/main.mjs",
   "type": "module",
-  "packageManager": "yarn@4.17.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "~22",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "yarn",
+      "version": "4.17.0",
+      "onFail": "error"
+    }
+  },
   "engines": {
     "node": ">=22 <23"
   },
@@ -28,7 +39,9 @@
     "mcp:electron-debug": "yarn --cwd node_modules/electron-debug-mcp run build && node node_modules/electron-debug-mcp/build/index.js",
     "verify:ffmpeg": "node scripts/verify-ffmpeg-runtime.mjs",
     "check:tag-version": "node scripts/check-tag-version.mjs",
-    "aur:printsrcinfo": "bash -lc 'cd packaging/aur/cutrail-bin && makepkg --printsrcinfo > .SRCINFO'",
+    "aur:printsrcinfo": "bash -lc 'for pkg in cutrail cutrail-bin cutrail-git; do (cd packaging/aur/$pkg && makepkg --printsrcinfo > .SRCINFO); done'",
+    "aur:sync-toolchain": "node scripts/sync-aur-toolchain.mjs --write",
+    "aur:check-toolchain": "node scripts/sync-aur-toolchain.mjs --check",
     "test": "vitest run",
     "lint": "yarn lint:eslint",
     "lint:eslint": "eslint --max-warnings=0 --no-error-on-unmatched-pattern --ignore-pattern \"**/*.d.ts\" \"src/**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}\" \"eslint.config.{js,cjs,mjs,ts,cts,mts}\" \"*.config.{js,cjs,mjs,ts,cts,mts}\" \".*rc.{js,cjs,mjs,ts,cts,mts}\"",

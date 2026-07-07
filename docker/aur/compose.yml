@@ -1,0 +1,138 @@
+services:
+  cutrail:
+    build:
+      context: ../..
+      dockerfile: docker/aur/Dockerfile
+    image: cutrail-aur-test:latest
+    working_dir: /workspace/packaging/aur/cutrail
+    volumes:
+      - ../..:/workspace:rw
+    command:
+      - bash
+      - -lc
+      - |
+        set -euo pipefail
+        src_dir="$$PWD"
+        build_dir="/tmp/aur-cutrail"
+        rm -rf "$$build_dir"
+        mkdir -p "$$build_dir"
+        cp -a "$$src_dir"/. "$$build_dir"/
+        cd "$$build_dir"
+        git init -q
+        git config user.name "aur-test"
+        git config user.email "aur-test@local"
+        git add -A
+        git commit -qm "temp build context"
+        source PKGBUILD
+        deps=("$${depends[@]}" "$${makedepends[@]}")
+        if [[ $${#deps[@]} -gt 0 ]]; then
+          yay -S --needed --noconfirm --asdeps "$${deps[@]}"
+        fi
+        debug_artifacts() {
+          echo "[debug] Built package artifacts for cutrail:"
+          mapfile -t pkg_files < <(find . -maxdepth 1 -type f -name '*.pkg.tar*' | sort)
+          if [[ $${#pkg_files[@]} -eq 0 ]]; then
+            echo "[debug] No package artifacts found in $$PWD"
+            return 0
+          fi
+          for pkg_file in "$${pkg_files[@]}"; do
+            echo "[debug] Artifact: $${pkg_file}"
+            ls -lh "$${pkg_file}"
+            sha256sum "$${pkg_file}"
+            pacman -Qip "$${pkg_file}" || true
+          done
+        }
+        trap 'exit_code=$$?; echo "[debug] cutrail build exit code: $$exit_code"; debug_artifacts; exit $$exit_code' EXIT
+        makepkg -si --noconfirm --needed
+
+  cutrail-bin:
+    build:
+      context: ../..
+      dockerfile: docker/aur/Dockerfile
+    image: cutrail-aur-test:latest
+    working_dir: /workspace/packaging/aur/cutrail-bin
+    volumes:
+      - ../..:/workspace:rw
+    command:
+      - bash
+      - -lc
+      - |
+        set -euo pipefail
+        src_dir="$$PWD"
+        build_dir="/tmp/aur-cutrail-bin"
+        rm -rf "$$build_dir"
+        mkdir -p "$$build_dir"
+        cp -a "$$src_dir"/. "$$build_dir"/
+        cd "$$build_dir"
+        git init -q
+        git config user.name "aur-test"
+        git config user.email "aur-test@local"
+        git add -A
+        git commit -qm "temp build context"
+        source PKGBUILD
+        deps=("$${depends[@]}" "$${makedepends[@]}")
+        if [[ $${#deps[@]} -gt 0 ]]; then
+          yay -S --needed --noconfirm --asdeps "$${deps[@]}"
+        fi
+        debug_artifacts() {
+          echo "[debug] Built package artifacts for cutrail-bin:"
+          mapfile -t pkg_files < <(find . -maxdepth 1 -type f -name '*.pkg.tar*' | sort)
+          if [[ $${#pkg_files[@]} -eq 0 ]]; then
+            echo "[debug] No package artifacts found in $$PWD"
+            return 0
+          fi
+          for pkg_file in "$${pkg_files[@]}"; do
+            echo "[debug] Artifact: $${pkg_file}"
+            ls -lh "$${pkg_file}"
+            sha256sum "$${pkg_file}"
+            pacman -Qip "$${pkg_file}" || true
+          done
+        }
+        trap 'exit_code=$$?; echo "[debug] cutrail-bin build exit code: $$exit_code"; debug_artifacts; exit $$exit_code' EXIT
+        makepkg -si --noconfirm --needed
+
+  cutrail-git:
+    build:
+      context: ../..
+      dockerfile: docker/aur/Dockerfile
+    image: cutrail-aur-test:latest
+    working_dir: /workspace/packaging/aur/cutrail-git
+    volumes:
+      - ../..:/workspace:rw
+    command:
+      - bash
+      - -lc
+      - |
+        set -euo pipefail
+        src_dir="$$PWD"
+        build_dir="/tmp/aur-cutrail-git"
+        rm -rf "$$build_dir"
+        mkdir -p "$$build_dir"
+        cp -a "$$src_dir"/. "$$build_dir"/
+        cd "$$build_dir"
+        git init -q
+        git config user.name "aur-test"
+        git config user.email "aur-test@local"
+        git add -A
+        git commit -qm "temp build context"
+        source PKGBUILD
+        deps=("$${depends[@]}" "$${makedepends[@]}")
+        if [[ $${#deps[@]} -gt 0 ]]; then
+          yay -S --needed --noconfirm --asdeps "$${deps[@]}"
+        fi
+        debug_artifacts() {
+          echo "[debug] Built package artifacts for cutrail-git:"
+          mapfile -t pkg_files < <(find . -maxdepth 1 -type f -name '*.pkg.tar*' | sort)
+          if [[ $${#pkg_files[@]} -eq 0 ]]; then
+            echo "[debug] No package artifacts found in $$PWD"
+            return 0
+          fi
+          for pkg_file in "$${pkg_files[@]}"; do
+            echo "[debug] Artifact: $${pkg_file}"
+            ls -lh "$${pkg_file}"
+            sha256sum "$${pkg_file}"
+            pacman -Qip "$${pkg_file}" || true
+          done
+        }
+        trap 'exit_code=$$?; echo "[debug] cutrail-git build exit code: $$exit_code"; debug_artifacts; exit $$exit_code' EXIT
+        makepkg -si --noconfirm --needed

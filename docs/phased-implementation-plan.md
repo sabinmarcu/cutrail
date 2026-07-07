@@ -65,7 +65,8 @@ Confirm that the repository can support the chosen Electron, React, Yarn, and pa
 
 - Add the lightest useful CI baseline for lint and packaging validation.
 - Add preview GitHub Releases once packaging proof-of-life exists.
-- Treat AUR `cutrail-bin` as an early follow-up only after artifact naming and checksums stabilize.
+- Treat AUR packaging as a separate workflow once artifact naming and checksums stabilize.
+- Keep release-tied `cutrail`/`cutrail-bin` and rolling `cutrail-git` publishing separate from the GitHub Release workflow.
 
 ### Exit criteria
 
@@ -86,7 +87,7 @@ Ship the first useful version: open one video, define multiple ranges, and expor
 - Users can define, edit, validate, and remove multiple clip ranges.
 - Users can export all ranges with clear success and failure reporting.
 - Fast trim mode works first, with explicit room for accurate trimming.
-- The first Arch install path exists through `cutrail-bin`.
+- The first Arch install path exists through `cutrail-bin`, with `cutrail` and `cutrail-git` available through the same AUR pipeline.
 
 ### Workstreams
 
@@ -116,15 +117,15 @@ Ship the first useful version: open one video, define multiple ranges, and expor
 #### Early Arch distribution
 
 - Stabilize the published binary artifact contract used by downstream packaging.
-- Publish `cutrail-bin` as the first AUR package for Arch users.
-- Keep the package flow semi-manual until later release hardening.
+- Publish the AUR package set for Arch users: `cutrail`, `cutrail-bin`, and `cutrail-git`.
+- Keep release-tagged packages and the rolling branch package on separate automation paths.
 
 ### Exit criteria
 
 - A user can produce multiple clips from a single source file in one session.
 - Core domain utilities and ffmpeg command generation are covered by tests.
 - Failures are visible and actionable instead of surfacing as raw process errors.
-- Arch users can install the MVP through `cutrail-bin`.
+- Arch users can install the MVP through `cutrail-bin`, with `cutrail` and `cutrail-git` maintained alongside it.
 
 ## Phase 2: Source Library And Workflow Maturity
 
@@ -268,7 +269,7 @@ Improve product quality and evaluate broader platform reach without destabilizin
 3. Deliver the single-video multi-range export workflow end to end.
 4. Add library and persistence only after the MVP workflow is stable.
 5. Add accurate trimming and presets after fast trim mode is trustworthy.
-6. Harden release automation and Linux distribution once the product loop is reliable.
+6. Harden release automation and the AUR package workflow once the product loop is reliable.
 
 ## Agent Usage Notes
 

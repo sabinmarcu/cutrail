@@ -1,6 +1,6 @@
 # cutrail-bin (AUR)
 
-This folder contains the initial AUR packaging skeleton for `cutrail-bin`.
+This folder contains the AUR packaging skeleton for `cutrail-bin`.
 
 ## Files
 
@@ -14,6 +14,7 @@ The package consumes the GitHub release AppImage artifact:
 - `Cutrail-<version>.AppImage`
 - URL pattern: `https://github.com/sabinmarcu/cutrail/releases/download/v<version>/Cutrail-<version>.AppImage`
 - Required parity: release tag `v<version>` must match `package.json` version `<version>`.
+- Runtime dependency: `fuse2` is required on Arch to run the AppImage.
 
 ## Updating For A New Release
 
@@ -22,7 +23,7 @@ The package consumes the GitHub release AppImage artifact:
 3. Regenerate `.SRCINFO`:
 
 ```bash
-proto run yarn -- aur:printsrcinfo
+yarn aur:printsrcinfo
 ```
 
 4. Validate package build on Arch:

@@ -18,6 +18,7 @@ Project planning documents:
 - [Phased implementation plan](docs/phased-implementation-plan.md)
 - [Publishing access and manual steps](docs/publishing-access-and-manual-steps.md)
 - [Release and update research](docs/release-and-update-research.md)
+- [AUR packaging](docs/aur-packaging.md)
 - [Styling guide](docs/styling-guide.md)
 - Detailed phase plans live under `docs/phases/`.
 
@@ -82,6 +83,7 @@ Current workflow boundaries:
 - Output directory management is configured in the Options utility window.
 - Shared button primitive lives under `src/renderer/components/button`.
 - AUR packaging skeleton for `cutrail-bin` now lives under `packaging/aur/cutrail-bin`.
+- AUR packaging skeletons for `cutrail`, `cutrail-bin`, and `cutrail-git` now live under `packaging/aur/`.
 
 Main architecture boundaries:
 - IPC handlers are split one-per-file under `src/main/ipc/handlers`.
@@ -212,6 +214,16 @@ Current available commands:
 - Release assets include Linux AppImage/deb/rpm, macOS dmg, and Windows nsis `.exe` installer.
 - Release tags must match `package.json` version exactly (`vX.Y.Z` tag for `X.Y.Z` package version).
 - If a release already exists for the same tag, the workflow deletes it first and recreates it from the current run outputs.
+
+## AUR Packages
+
+A separate workflow in [`.github/workflows/aur-packages.yml`](.github/workflows/aur-packages.yml) publishes the Arch packages:
+
+- `cutrail` for source-built release installs
+- `cutrail-bin` for prebuilt release installs
+- `cutrail-git` for the rolling `master` branch
+
+`cutrail-bin` requires `fuse2` on Arch because it installs the upstream AppImage directly. Local test steps live in [docs/aur-packaging.md](docs/aur-packaging.md).
 
 ## License And Contributing
 

@@ -41,6 +41,7 @@ Phase 4 converts an early publishing path into a maintainable release pipeline. 
 
 #### Tasks
 
+- Keep the source-built and prebuilt AUR package contracts aligned with the GitHub release artifact names.
 - Finalize packaging configuration in the repository.
 - Produce Linux build artifacts in a local or CI-safe flow.
 - Confirm runtime expectations around ffmpeg and any external dependencies.
@@ -76,8 +77,9 @@ Phase 4 converts an early publishing path into a maintainable release pipeline. 
 
 #### Tasks
 
-- Promote `cutrail-bin` from an early/manual path into a documented and maintainable flow.
 - Document release-asset checksum updates and `.SRCINFO` expectations.
+- Keep `cutrail`, `cutrail-bin`, and `cutrail-git` on explicit automation paths.
+- Promote `cutrail-bin` from an early/manual path into a documented and maintainable flow.
 - Add source-build packaging only if the build chain is stable enough.
 
 #### Deliverables

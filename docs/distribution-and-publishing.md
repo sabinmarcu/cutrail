@@ -51,17 +51,16 @@ For Arch-first users, AppImage + AUR is usually sufficient initially.
 
 ### Package naming and variants
 
-Recommended AUR base package name:
-- `cutrail`
+Recommended AUR package set:
 
-Potential variants:
-- `cutrail` (build from source)
-- `cutrail-bin` (prebuilt release artifact)
-- `cutrail-git` (VCS head)
+- `cutrail` - source-built package that tracks tagged GitHub releases
+- `cutrail-bin` - prebuilt AppImage package that tracks tagged GitHub releases
+- `cutrail-git` - rolling package that tracks the `master` branch
 
 Follow AUR naming guidelines:
 - `-bin` for prebuilt upstream artifacts.
 - `-git` for VCS packages.
+- `cutrail-bin` requires `fuse2` on Arch because it installs an AppImage.
 
 ### Submission checklist (important)
 
@@ -119,18 +118,14 @@ Release note policy:
 
 ## AUR sync flow
 
-Two practical models:
+The repository now uses a split workflow model:
 
-1. Manual promotion (recommended early)
-- Release first on GitHub.
-- Update AUR `pkgver`/checksums manually.
-- Push after verification.
+1. GitHub Release assets are published from the stable tag workflow.
+2. `.github/workflows/aur-packages.yml` updates `cutrail` and `cutrail-bin` after the release workflow succeeds.
+3. The same AUR workflow updates `cutrail-git` from `master` branch pushes.
+4. Maintainers still need to provision the AUR SSH key and approve the first publication run.
 
-2. Semi-automated update
-- CI opens PR to an AUR packaging repo branch.
-- Maintainer reviews and pushes to AUR.
-
-Avoid fully unattended AUR publishing until versioning, checksums, and source URLs are very stable.
+Local package testing lives in [docs/aur-packaging.md](docs/aur-packaging.md).
 
 ## Auto-update strategy
 

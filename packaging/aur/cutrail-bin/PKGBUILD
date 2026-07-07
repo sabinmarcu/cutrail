@@ -5,10 +5,10 @@ pkgdesc='Desktop video clipping utility for batch range exports'
 arch=('x86_64')
 url='https://github.com/sabinmarcu/cutrail'
 license=('MIT')
-depends=('glibc' 'gtk3' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 'libdrm' 'alsa-lib')
+depends=('fuse2' 'glibc' 'gtk3' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 'libdrm' 'alsa-lib')
 optdepends=('ffmpeg: fallback ffmpeg binary for diagnostics and overrides')
 provides=('cutrail')
-conflicts=('cutrail')
+conflicts=('cutrail' 'cutrail-git')
 source_x86_64=("cutrail-${pkgver}.AppImage::https://github.com/sabinmarcu/cutrail/releases/download/v${pkgver}/Cutrail-${pkgver}.AppImage")
 sha256sums_x86_64=('SKIP')
 

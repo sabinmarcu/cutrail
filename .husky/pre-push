@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+yarn aur:sync-toolchain
+
+if ! git diff --quiet -- packaging/aur/cutrail/PKGBUILD packaging/aur/cutrail/.SRCINFO packaging/aur/cutrail-git/PKGBUILD packaging/aur/cutrail-git/.SRCINFO; then
+  echo "AUR toolchain metadata was updated. Commit the updated AUR files before pushing."
+  exit 1
+fi

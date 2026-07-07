@@ -12,7 +12,7 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 - Build a reliable fast-trim export path around ffmpeg.
 - Expose a focused editor and queue workflow in the UI.
 - Make failures understandable enough for iteration and early use.
-- Publish the first installable Arch package as `cutrail-bin` once the MVP artifact contract is stable.
+- Publish the Arch package set as `cutrail`, `cutrail-bin`, and `cutrail-git`, with `cutrail-bin` as the first install path once the MVP artifact contract is stable.
 
 ## Scope
 
@@ -24,6 +24,7 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 - Progress and completion feedback.
 - Basic export mode selection with fast trim as default.
 - Initial `cutrail-bin` packaging based on the GitHub-hosted binary artifact.
+- AUR publishing for the release-tagged and rolling package set.
 
 ### Out of scope
 
@@ -31,7 +32,6 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 - Automatic project/session persistence.
 - Rich presets or broad transcoding features.
 - Full frame-accurate export as the default path.
-- Source-build AUR packaging.
 
 ## Dependencies And Inputs
 
@@ -129,18 +129,18 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 
 #### Outcomes
 
-- Arch users can install the first usable binary build through AUR without waiting for later release hardening.
+- Arch users can install the package set through AUR without waiting for later release hardening.
 
 #### Tasks
 
 - Stabilize the GitHub release artifact name, URL pattern, and checksum output used by the package.
-- Prepare `cutrail-bin` packaging files around the published binary artifact.
-- Keep the AUR flow semi-manual at first so package changes can track fast iteration safely.
-- Validate that the package installs and launches on an Arch-based environment.
+- Prepare `cutrail`, `cutrail-bin`, and `cutrail-git` packaging files around the published release and rolling artifacts.
+- Keep the AUR workflow separate from the GitHub release workflow so stable and rolling channels do not overlap.
+- Validate that each package installs and launches on an Arch-based environment.
 
 #### Deliverables
 
-- Initial `cutrail-bin` package path.
+- Initial `cutrail`/`cutrail-bin`/`cutrail-git` package path.
 
 ## Recommended Execution Sequence
 
@@ -149,7 +149,7 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 3. Add main/preload APIs for file selection and export orchestration.
 4. Build the editor and queue UI around the validated contracts.
 5. Harden validation and error display with end-to-end checks.
-6. Publish and verify the first `cutrail-bin` package once the artifact contract stops moving.
+6. Publish and verify the AUR package set once the artifact contract stops moving.
 
 ## Validation Checklist
 
@@ -158,7 +158,7 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 - A user can open one video, add multiple ranges, and export clips locally.
 - Failed exports show normalized application errors.
 - The published binary artifact is stable enough to back `cutrail-bin`.
-- `cutrail-bin` installs and launches on an Arch-based system.
+- `cutrail-bin` installs and launches on an Arch-based system, and the AUR workflow can keep `cutrail` and `cutrail-git` in sync.
 
 ## Risks And Mitigations
 
@@ -176,10 +176,10 @@ The goal is not visual polish or broad library management. The goal is a trustwo
 - The app can produce multiple clips from one source video in a single export run.
 - Core export logic is covered by tests and separated from UI concerns.
 - The workflow is useful enough to demonstrate the product’s core value.
-- `cutrail-bin` exists as the first supported Arch install path for the MVP.
+- The Arch package set exists with `cutrail-bin` as the first supported install path and `cutrail`/`cutrail-git` maintained alongside it.
 
 ## Agent Notes
 
 - Do not widen scope into source libraries or persistence during this phase unless it unblocks the MVP directly.
 - Prefer correctness and observability in the export pipeline over visual polish.
-- Treat `cutrail-bin` as the only AUR target in this phase; leave source-build packaging for later.
+- Treat the AUR package set as release-adjacent work in this phase; keep the release-tagged packages and rolling package contracts aligned with the GitHub release workflow.
