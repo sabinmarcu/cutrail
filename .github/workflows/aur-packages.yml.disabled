@@ -1,6 +1,14 @@
 name: aur-packages
 
 on:
+  workflow_run:
+    workflows:
+      - release
+    types:
+      - completed
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
@@ -12,12 +20,13 @@ concurrency:
 
 jobs:
   publish-release-packages:
-    if: false
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     env:
-      AUR_SSH_PRIVATE_KEY: ''
-      AUR_KNOWN_HOSTS: ''
+      AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+      AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,11 +101,11 @@ jobs:
           done
 
   publish-git-package:
-    if: false
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
-      AUR_SSH_PRIVATE_KEY: ''
-      AUR_KNOWN_HOSTS: ''
+      AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+      AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

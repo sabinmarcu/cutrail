@@ -222,7 +222,7 @@ Current available commands:
 
 AUR package definitions are kept in this repository, but automated publishing is temporarily disabled while AUR registrations are closed.
 
-The previous workflow was renamed to [`.github/workflows/aur-packages.disabled.yml`](.github/workflows/aur-packages.disabled.yml) so it can be restored quickly later.
+The previous workflow was renamed to [`.github/workflows/aur-packages.yml.disabled`](.github/workflows/aur-packages.yml.disabled) so it can be restored quickly later.
 
 When enabled again, the flow publishes these Arch packages:
 

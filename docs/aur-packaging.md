@@ -6,7 +6,7 @@ cutrail maintains three AUR package definitions:
 - `cutrail-bin` - prebuilt AppImage package that tracks tagged GitHub releases
 - `cutrail-git` - rolling package that tracks the `master` branch
 
-Automated AUR publishing is currently disabled while AUR registrations are closed. The workflow file has been parked at `.github/workflows/aur-packages.disabled.yml` and can be restored when publishing resumes.
+Automated AUR publishing is currently disabled while AUR registrations are closed. The workflow file has been parked at `.github/workflows/aur-packages.yml.disabled` and can be restored when publishing resumes.
 
 Stable release integration policy:
 

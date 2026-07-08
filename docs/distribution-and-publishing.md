@@ -127,7 +127,7 @@ Current implementation shape:
 The repository keeps a split workflow model design, but AUR automation is temporarily disabled while AUR registrations are closed.
 
 1. GitHub Release assets are published from the stable tag workflow.
-2. The AUR workflow has been renamed to `.github/workflows/aur-packages.disabled.yml` so it does not run.
+2. The AUR workflow has been renamed to `.github/workflows/aur-packages.yml.disabled` so it does not run.
 3. Re-enabling it restores release-driven updates for `cutrail`/`cutrail-bin` and rolling updates for `cutrail-git`.
 4. Maintainers still need to provision the AUR SSH key and approve the first publication run when re-enabled.
 5. The disabled workflow now includes a release-asset existence check before it attempts AUR pushes.

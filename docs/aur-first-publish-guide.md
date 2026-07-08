@@ -2,7 +2,7 @@
 
 This guide covers the first-time bootstrap for publishing `cutrail`, `cutrail-git`, and `cutrail-bin` to AUR, using 1Password-managed SSH keys.
 
-Status note: automated GitHub Actions publishing is currently paused while AUR registrations are closed. The parked workflow is `.github/workflows/aur-packages.disabled.yml`.
+Status note: automated GitHub Actions publishing is currently paused while AUR registrations are closed. The parked workflow is `.github/workflows/aur-packages.yml.disabled`.
 
 ## Prerequisites
 
