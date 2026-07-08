@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/sabinmarcu/cutrail/compare/v0.2.0...v0.3.0) (2026-07-08)
+
+
+### Features
+
+* **linux:** add standalone AppImage install/uninstall launcher actions ([b6a9eba](https://github.com/sabinmarcu/cutrail/commit/b6a9eba8fa75db5246272d3c139cf5503e6f2c57))
+
+
+### Bug Fixes
+
+* **app:** restore splash drag and full drop-zone behavior ([0475c07](https://github.com/sabinmarcu/cutrail/commit/0475c07d29ba90764396adc5c8230977b40b6786))
+* **main:** refresh standalone menu state after install or uninstall ([e7ee0a7](https://github.com/sabinmarcu/cutrail/commit/e7ee0a70c9e1114ef8cddf16dd6b5132152b0b07))
+
 ## [0.2.0](https://github.com/sabinmarcu/cutrail/compare/v0.1.0...v0.2.0) (2026-07-08)
 
 
