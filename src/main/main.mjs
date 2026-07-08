@@ -16,6 +16,11 @@ import {
   RENDERER_ENTRY,
 } from './paths.mjs';
 import {
+  getStandaloneMenuAction,
+  installStandaloneAppImage,
+  uninstallStandaloneAppImage,
+} from './linuxStandaloneInstall.mjs';
+import {
   getPersistedOutputDirectory,
   setPersistedOutputDirectory,
 } from './settings.mjs';
@@ -38,10 +43,12 @@ const windows = createWindowManager({
   rendererEntry: RENDERER_ENTRY,
 });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) {
     app.dock.setIcon(APP_ICON_PATH);
   }
+
+  const standaloneAction = await getStandaloneMenuAction();
 
   registerMediaProtocol();
   registerIpcHandlers({
@@ -52,6 +59,9 @@ app.whenReady().then(() => {
   });
   createAppMenu({
     checkForUpdates: () => updater.checkForUpdates({ manual: true }),
+    installStandaloneAppImage: () => installStandaloneAppImage({ appIconPath: APP_ICON_PATH }),
+    standaloneAction,
+    uninstallStandaloneAppImage,
     isUpdateCheckEnabled: updater.isEnabled,
     openAboutWindow: windows.openAboutWindow,
     openDiagnosticsWindow: windows.openDiagnosticsWindow,

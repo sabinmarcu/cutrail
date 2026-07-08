@@ -9,6 +9,9 @@ import {
 /**
  * @typedef {{
  *   checkForUpdates: () => Promise<boolean>,
+ *   installStandaloneAppImage: () => Promise<void>,
+ *   uninstallStandaloneAppImage: () => Promise<void>,
+ *   standaloneAction: 'install' | 'uninstall' | null,
  *   isUpdateCheckEnabled: boolean,
  *   updateCheckLabel: string,
  *   openAboutWindow: () => Promise<boolean> | boolean,
@@ -19,13 +22,15 @@ import {
  *   selectSourceVideo: () => Promise<string | null>
  * }} AppMenuDependencies
  */
-
 /**
  * @param {AppMenuDependencies} deps
  * @returns {void}
  */
 const createAppMenu = ({
   checkForUpdates,
+  installStandaloneAppImage,
+  uninstallStandaloneAppImage,
+  standaloneAction,
   isUpdateCheckEnabled,
   openAboutWindow,
   openDiagnosticsWindow,
@@ -43,6 +48,24 @@ const createAppMenu = ({
       openEditorWindow(sourcePath);
     }
   };
+  const sharedFileActions = [
+    {
+      label: 'Open Video...',
+      accelerator: 'CmdOrCtrl+O',
+      click: () => { void openVideoFromDialog(); },
+    },
+    {
+      label: 'Options',
+      accelerator: 'CmdOrCtrl+,',
+      click: () => { openOptionsWindow(); },
+    },
+    {
+      label: 'Close Window',
+      accelerator: 'CmdOrCtrl+W',
+      click: () => { BrowserWindow.getFocusedWindow()?.close(); },
+    },
+    { type: 'separator' },
+  ];
 
   const template = [
     ...(isMac
@@ -80,47 +103,12 @@ const createAppMenu = ({
             { type: 'separator' },
           ]
           : []),
+        ...sharedFileActions,
         ...(isMac
           ? [
             {
-              label: 'Open Video...',
-              accelerator: 'CmdOrCtrl+O',
-              click: () => { void openVideoFromDialog(); },
-            },
-            {
-              label: 'Options',
-              accelerator: 'CmdOrCtrl+,',
-              click: () => { openOptionsWindow(); },
-            },
-            {
-              label: 'Close Window',
-              accelerator: 'CmdOrCtrl+W',
-              click: () => { BrowserWindow.getFocusedWindow()?.close(); },
-            },
-            { type: 'separator' },
-            {
               label: 'Licenses & Notices',
               click: () => { openLicensesWindow(); },
-            },
-            { type: 'separator' },
-          ]
-          : []),
-        ...(!isMac
-          ? [
-            {
-              label: 'Open Video...',
-              accelerator: 'CmdOrCtrl+O',
-              click: () => { void openVideoFromDialog(); },
-            },
-            {
-              label: 'Options',
-              accelerator: 'CmdOrCtrl+,',
-              click: () => { openOptionsWindow(); },
-            },
-            {
-              label: 'Close Window',
-              accelerator: 'CmdOrCtrl+W',
-              click: () => { BrowserWindow.getFocusedWindow()?.close(); },
             },
             { type: 'separator' },
           ]
@@ -177,6 +165,24 @@ const createAppMenu = ({
     {
       label: 'Help',
       submenu: [
+        ...(standaloneAction === 'install'
+          ? [
+            {
+              label: 'Install Standalone Shortcut (Linux AppImage)...',
+              click: () => { void installStandaloneAppImage(); },
+            },
+            { type: 'separator' },
+          ]
+          : (standaloneAction === 'uninstall'
+            ? [
+              {
+                label: 'Uninstall Standalone Shortcut (Linux AppImage)...',
+                click: () => { void uninstallStandaloneAppImage(); },
+              },
+              { type: 'separator' },
+            ]
+            : [])
+        ),
         {
           label: updateCheckLabel,
           enabled: isUpdateCheckEnabled,
