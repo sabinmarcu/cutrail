@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/sabinmarcu/cutrail/compare/v0.1.0...v0.2.0) (2026-07-08)
+
+
+### Features
+
+* add github-release in-app updater flow ([b57ff07](https://github.com/sabinmarcu/cutrail/commit/b57ff0716353c3ed353424eb3df9cdd7aaccccc9))
+
+
+### Bug Fixes
+
+* **aur:** stabilize proto-based package builds and publishing flow ([a077cf9](https://github.com/sabinmarcu/cutrail/commit/a077cf988c9eed88d6826304831b59571a245fed))
+* fallback to github release notes in updater ([9a6a836](https://github.com/sabinmarcu/cutrail/commit/9a6a83607c471d5792dfd55dc8c9be5f3de29f53))
+* use electron-updater cjs interop and update vscode terminal approvals ([180bb5c](https://github.com/sabinmarcu/cutrail/commit/180bb5c6577335f510903259783a3123af2d8a94))
+
 ## [0.1.0] (2026-07-06)
 
 ### Features
