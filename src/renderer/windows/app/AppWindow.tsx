@@ -130,7 +130,7 @@ export const AppWindow = () => {
 
   return (
     <main
-      className={`${page} ${noDrag}`}
+      className={page}
       onDragEnter={(event) => {
         if (!hasFilePayload(event)) {
           return;
@@ -178,7 +178,7 @@ export const AppWindow = () => {
       }}
     >
       <section className={shell}>
-        <section className={`${content} ${isDragActive ? dragActive : ''}`}>
+          <section className={`${content} ${noDrag} ${isDragActive ? dragActive : ''}`}>
           <img className={logo} src={logoPath} alt="Cutrail" />
           <h1 className={title}>Cutrail</h1>
           <p className={subtitle}>Open a source video to begin editing clips.</p>

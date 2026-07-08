@@ -4,6 +4,7 @@ import {
 } from '@vanilla-extract/css';
 import { theme } from '@sabinmarcu/theme';
 
+const dragAppRegion = { WebkitAppRegion: 'drag' } as any;
 const noDragAppRegion = { WebkitAppRegion: 'no-drag' } as any;
 
 export const page = style({
@@ -26,6 +27,7 @@ globalStyle(`#root > .${page}`, {
 });
 
 export const shell = style({
+  ...dragAppRegion,
   background: '#020805',
   display: 'grid',
   gridTemplateRows: 'minmax(0, 1fr) auto',
