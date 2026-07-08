@@ -90,6 +90,7 @@ If scripts are missing, propose adding only the minimum required scripts in `pac
 - Keep main-process IPC handlers under `src/main/ipc/handlers` (one handler per file).
 - Keep main-process window modules under `src/main/windows`.
 - Keep Electron main/preload modules as ESM `.mjs` files with `// @ts-check` enabled and explicit JSDoc type annotations for exported APIs.
+- Keep in-app updates on `electron-updater` for packaged GitHub-release installs; on Linux, only allow self-update when running as AppImage and keep AUR installs package-manager-driven.
 
 ## Pull Request Expectations
 

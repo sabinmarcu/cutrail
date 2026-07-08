@@ -190,6 +190,12 @@ FFmpeg runtime policy:
 - Fall back to system `ffmpeg` only when bundled/override binaries are unavailable.
 - Keep attribution and compliance notes in `THIRD_PARTY_NOTICES.md`.
 
+Updater runtime policy:
+
+- Use `electron-updater` for packaged GitHub-release installs.
+- Allow Linux self-update only for AppImage installs.
+- Keep AUR/system-package installs package-manager driven (no in-app self-update).
+
 Linker note:
 
 - Electron and related tooling are more reliable with `node_modules` layout in this repository.

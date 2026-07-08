@@ -254,9 +254,9 @@ The implementation details can vary, but the behavioral policy should not.
 
 ### Updater rollout
 
-- Do not implement updater behavior in Phase 0 or Phase 1.
-- Decide packaging details first.
-- Add `electron-updater` only after packaged GitHub Release artifacts are stable and reproducible.
+- Initial updater behavior is now implemented for packaged GitHub-release installs using `electron-updater`.
+- Keep Linux self-update behavior AppImage-only.
+- Continue hardening release artifact stability before expanding updater UX.
 - Keep AUR outside the updater path permanently.
 
 ## What This Research Does Not Yet Decide
@@ -288,7 +288,7 @@ Those should be resolved during implementation, not by reopening the higher-leve
 
 - Harden Release Please plus packaging workflow into the stable release path.
 - Ensure `CHANGELOG.md` and GitHub Release notes are generated from the same Conventional Commit history.
-- Implement or prototype `electron-updater` for GitHub-release-installed builds.
+- Harden and validate `electron-updater` behavior for GitHub-release-installed builds.
 - Ensure the app disables self-updates when distributed through AUR.
 
 ### Phase 5

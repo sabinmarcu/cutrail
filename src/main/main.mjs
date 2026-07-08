@@ -19,11 +19,16 @@ import {
   getPersistedOutputDirectory,
   setPersistedOutputDirectory,
 } from './settings.mjs';
+import { createAppUpdater } from './updater.mjs';
 import { createWindowManager } from './windows/windowManager.mjs';
 
 registerMediaSchemes();
 
 const runtimeConfig = getRuntimeConfig();
+const updater = createAppUpdater();
+const updaterUnavailableReason = updater
+  .getDisableReason()
+  ?.replace(/\.$/, '') ?? 'Unavailable in this build';
 
 const windows = createWindowManager({
   appIconPath: APP_ICON_PATH,
@@ -46,14 +51,20 @@ app.whenReady().then(() => {
     setPersistedOutputDirectory,
   });
   createAppMenu({
+    checkForUpdates: () => updater.checkForUpdates({ manual: true }),
+    isUpdateCheckEnabled: updater.isEnabled,
     openAboutWindow: windows.openAboutWindow,
     openDiagnosticsWindow: windows.openDiagnosticsWindow,
     openEditorWindow: windows.openEditorWindow,
     openLicensesWindow: windows.openLicensesWindow,
     openOptionsWindow: windows.openOptionsWindow,
     selectSourceVideo: () => selectValidSourceVideo(null),
+    updateCheckLabel: updater.isEnabled
+      ? 'Check for Updates...'
+      : `Check for Updates (${updaterUnavailableReason})`,
   });
   windows.createMainWindow();
+  void updater.checkForUpdates();
 
   app.on('activate', () => {
     if (windows.getWindowCount() === 0) {

@@ -131,6 +131,11 @@ Local package testing lives in [docs/aur-packaging.md](docs/aur-packaging.md).
 
 For GitHub-release-installed binaries, the most promising long-term path is an Electron-native self-update flow based on `electron-builder` packaging and `electron-updater`, because it supports Linux targets including AppImage, rpm, and deb.
 
+Current implementation status:
+- In-app updater checks are now wired in the Electron main process for packaged builds.
+- Linux self-updates are enabled only when running as AppImage.
+- AUR/system-managed installs should keep updates package-manager-driven.
+
 For AUR installs, updates should remain package-manager-driven. The application should not try to replace files owned by the system package manager.
 
 The simpler `update.electronjs.org` plus `update-electron-app` path is useful to know about, but it is primarily a macOS/Windows solution and is not sufficient as the primary updater plan for a Linux-first app.

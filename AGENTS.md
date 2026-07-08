@@ -32,6 +32,7 @@ This file defines how coding agents should work in this repository.
 - Editor workflow windows are multi-instance: each selected source video should open its own independent editor window.
 - Main clipping workflow should prefer embedded video + interactive timeline editing over manual numeric range inputs.
 - ffmpeg runtime policy for this repository is bundled-first (`@ffmpeg-installer/ffmpeg`), with optional `CUTRAIL_FFMPEG_PATH` override and system-path fallback.
+- Updater policy for this repository is `electron-updater` for packaged GitHub-release installs; Linux self-update should be AppImage-only, and AUR installs must remain package-manager updated.
 
 ## AI Documentation Sync Policy
 

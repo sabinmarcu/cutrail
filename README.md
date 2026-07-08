@@ -212,6 +212,9 @@ Current available commands:
 - GitHub release publishing is tag-driven through `.github/workflows/release.yml`.
 - Pushing a tag like `v0.1.0` triggers cross-platform artifact builds and release publication.
 - Release assets include Linux AppImage/deb/rpm, macOS dmg, and Windows nsis `.exe` installer.
+- Release jobs also publish updater metadata artifacts (`latest.yml`, `latest-mac.yml`, `latest-linux.yml`) used by in-app update checks.
+- In-app self-update checks are enabled for packaged GitHub-release installs; on Linux, self-update applies only to AppImage installs.
+- AUR/system package installs should remain package-manager updated and should not self-update from inside the app.
 - Release tags must match `package.json` version exactly (`vX.Y.Z` tag for `X.Y.Z` package version).
 - If a release already exists for the same tag, the workflow deletes it first and recreates it from the current run outputs.
 

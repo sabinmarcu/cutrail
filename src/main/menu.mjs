@@ -8,6 +8,9 @@ import {
 
 /**
  * @typedef {{
+ *   checkForUpdates: () => Promise<boolean>,
+ *   isUpdateCheckEnabled: boolean,
+ *   updateCheckLabel: string,
  *   openAboutWindow: () => Promise<boolean> | boolean,
  *   openDiagnosticsWindow: () => boolean,
  *   openEditorWindow: (sourcePath: string) => boolean,
@@ -22,12 +25,15 @@ import {
  * @returns {void}
  */
 const createAppMenu = ({
+  checkForUpdates,
+  isUpdateCheckEnabled,
   openAboutWindow,
   openDiagnosticsWindow,
   openEditorWindow,
   openLicensesWindow,
   openOptionsWindow,
   selectSourceVideo,
+  updateCheckLabel,
 }) => {
   const isMac = process.platform === 'darwin';
   const openVideoFromDialog = async () => {
@@ -166,6 +172,16 @@ const createAppMenu = ({
         { role: 'zoomOut' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: updateCheckLabel,
+          enabled: isUpdateCheckEnabled,
+          click: () => { void checkForUpdates(); },
+        },
       ],
     },
   ];
