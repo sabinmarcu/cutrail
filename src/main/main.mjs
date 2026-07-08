@@ -48,7 +48,32 @@ app.whenReady().then(async () => {
     app.dock.setIcon(APP_ICON_PATH);
   }
 
-  const standaloneAction = await getStandaloneMenuAction();
+  const syncAppMenu = async () => {
+    const standaloneAction = await getStandaloneMenuAction();
+
+    createAppMenu({
+      checkForUpdates: () => updater.checkForUpdates({ manual: true }),
+      installStandaloneAppImage: async () => {
+        await installStandaloneAppImage({ appIconPath: APP_ICON_PATH });
+        await syncAppMenu();
+      },
+      standaloneAction,
+      uninstallStandaloneAppImage: async () => {
+        await uninstallStandaloneAppImage();
+        await syncAppMenu();
+      },
+      isUpdateCheckEnabled: updater.isEnabled,
+      openAboutWindow: windows.openAboutWindow,
+      openDiagnosticsWindow: windows.openDiagnosticsWindow,
+      openEditorWindow: windows.openEditorWindow,
+      openLicensesWindow: windows.openLicensesWindow,
+      openOptionsWindow: windows.openOptionsWindow,
+      selectSourceVideo: () => selectValidSourceVideo(null),
+      updateCheckLabel: updater.isEnabled
+        ? 'Check for Updates...'
+        : `Check for Updates (${updaterUnavailableReason})`,
+    });
+  };
 
   registerMediaProtocol();
   registerIpcHandlers({
@@ -57,22 +82,7 @@ app.whenReady().then(async () => {
     readThirdPartyNotices,
     setPersistedOutputDirectory,
   });
-  createAppMenu({
-    checkForUpdates: () => updater.checkForUpdates({ manual: true }),
-    installStandaloneAppImage: () => installStandaloneAppImage({ appIconPath: APP_ICON_PATH }),
-    standaloneAction,
-    uninstallStandaloneAppImage,
-    isUpdateCheckEnabled: updater.isEnabled,
-    openAboutWindow: windows.openAboutWindow,
-    openDiagnosticsWindow: windows.openDiagnosticsWindow,
-    openEditorWindow: windows.openEditorWindow,
-    openLicensesWindow: windows.openLicensesWindow,
-    openOptionsWindow: windows.openOptionsWindow,
-    selectSourceVideo: () => selectValidSourceVideo(null),
-    updateCheckLabel: updater.isEnabled
-      ? 'Check for Updates...'
-      : `Check for Updates (${updaterUnavailableReason})`,
-  });
+  await syncAppMenu();
   windows.createMainWindow();
   void updater.checkForUpdates();
 
