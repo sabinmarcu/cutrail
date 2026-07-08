@@ -5,6 +5,7 @@ import {
   dialog,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import { fetchReleaseNotesFromGitHub } from './releaseNotes.mjs';
 
 /**
  * @typedef {{
@@ -16,9 +17,9 @@ import { autoUpdater } from 'electron-updater';
 
 /**
  * @param {import('electron-updater').UpdateInfo} updateInfo
- * @returns {string}
+ * @returns {Promise<string>}
  */
-const formatReleaseNotes = (updateInfo) => {
+const formatReleaseNotes = async (updateInfo) => {
   const { releaseNotes } = updateInfo;
 
   if (typeof releaseNotes === 'string' && releaseNotes.trim().length > 0) {
@@ -34,6 +35,12 @@ const formatReleaseNotes = (updateInfo) => {
     if (text.length > 0) {
       return text;
     }
+  }
+
+  const fallbackReleaseNotes = await fetchReleaseNotesFromGitHub(updateInfo.version || '');
+
+  if (fallbackReleaseNotes) {
+    return fallbackReleaseNotes;
   }
 
   return 'Release notes are not available for this version.';
@@ -96,7 +103,7 @@ const createAppUpdater = () => {
 
   autoUpdater.on('update-available', async (updateInfo) => {
     const version = updateInfo.version || 'a newer version';
-    const releaseNotes = formatReleaseNotes(updateInfo);
+    const releaseNotes = await formatReleaseNotes(updateInfo);
 
     const response = await dialog.showMessageBox({
       type: 'info',
