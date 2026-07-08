@@ -85,10 +85,6 @@ export const footer = style({
 });
 
 export const logo = style({
-  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
-  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
-  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
-  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
   borderRadius: '14px',
   blockSize: '8.5rem',
   inlineSize: '8.5rem',
