@@ -99,6 +99,16 @@ If Release Please is adopted:
 2. If using the Action, review the workflow file once it is added and confirm repository permissions are sufficient.
 3. If using the App, install it for the repository and confirm it has access to the correct repository scope.
 4. Review the first release PR manually before merging it.
+5. Create repository secret `RELEASE_PLEASE_TOKEN` and use it in `.github/workflows/release-please.yml`.
+
+Recommended token model for this repository:
+
+- Use a fine-grained personal access token scoped to repository `sabinmarcu/cutrail`.
+- Grant repository permissions:
+	- Contents: Read and write
+	- Pull requests: Read and write
+	- Workflows: Read and write
+- Store it as Actions secret `RELEASE_PLEASE_TOKEN`.
 
 ### Notes
 
