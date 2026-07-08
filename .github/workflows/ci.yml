@@ -8,6 +8,7 @@ on:
 
 jobs:
   lint-and-test:
+    if: ${{ github.event_name != 'pull_request' || !startsWith(github.head_ref, 'release-please--branches--') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,6 +29,7 @@ jobs:
         run: proto run yarn -- test
 
   verify-ffmpeg-runtime:
+    if: ${{ github.event_name != 'pull_request' || !startsWith(github.head_ref, 'release-please--branches--') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
