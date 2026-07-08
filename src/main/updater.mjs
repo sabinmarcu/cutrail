@@ -4,8 +4,10 @@ import {
   app,
   dialog,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import electronUpdater from 'electron-updater';
 import { fetchReleaseNotesFromGitHub } from './releaseNotes.mjs';
+
+const { autoUpdater } = electronUpdater;
 
 /**
  * @typedef {{
