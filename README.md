@@ -217,7 +217,11 @@ Current available commands:
 
 ## AUR Packages
 
-A separate workflow in [`.github/workflows/aur-packages.yml`](.github/workflows/aur-packages.yml) publishes the Arch packages:
+AUR package definitions are kept in this repository, but automated publishing is temporarily disabled while AUR registrations are closed.
+
+The previous workflow was renamed to [`.github/workflows/aur-packages.disabled.yml`](.github/workflows/aur-packages.disabled.yml) so it can be restored quickly later.
+
+When enabled again, the flow publishes these Arch packages:
 
 - `cutrail` for source-built release installs
 - `cutrail-bin` for prebuilt release installs

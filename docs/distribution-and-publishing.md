@@ -118,12 +118,12 @@ Release note policy:
 
 ## AUR sync flow
 
-The repository now uses a split workflow model:
+The repository keeps a split workflow model design, but AUR automation is temporarily disabled while AUR registrations are closed.
 
 1. GitHub Release assets are published from the stable tag workflow.
-2. `.github/workflows/aur-packages.yml` updates `cutrail` and `cutrail-bin` after the release workflow succeeds.
-3. The same AUR workflow updates `cutrail-git` from `master` branch pushes.
-4. Maintainers still need to provision the AUR SSH key and approve the first publication run.
+2. The AUR workflow has been renamed to `.github/workflows/aur-packages.disabled.yml` so it does not run.
+3. Re-enabling it restores release-driven updates for `cutrail`/`cutrail-bin` and rolling updates for `cutrail-git`.
+4. Maintainers still need to provision the AUR SSH key and approve the first publication run when re-enabled.
 
 Local package testing lives in [docs/aur-packaging.md](docs/aur-packaging.md).
 
