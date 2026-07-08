@@ -8,6 +8,12 @@ cutrail maintains three AUR package definitions:
 
 Automated AUR publishing is currently disabled while AUR registrations are closed. The workflow file has been parked at `.github/workflows/aur-packages.disabled.yml` and can be restored when publishing resumes.
 
+Stable release integration policy:
+
+- Release Please is the stable release engine (`.github/workflows/release-please.yml`) and owns version/changelog/release-note generation.
+- `.github/workflows/release.yml` attaches packaged artifacts to the stable GitHub Release tag.
+- The disabled AUR workflow listens for successful completion of the `release` workflow and updates `cutrail`/`cutrail-bin` from that tag context.
+
 ## Package Notes
 
 - `cutrail-bin` requires `fuse2` on Arch because it installs the upstream AppImage directly.

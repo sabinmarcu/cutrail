@@ -135,7 +135,7 @@ Current documented proto MCP capabilities include:
 
 Release automation note:
 
-- Tag-driven release workflows should enforce `vX.Y.Z` tag parity with `package.json` version (for example via `yarn check:tag-version`) before building and publishing release assets.
+- Stable releases should be orchestrated by Release Please (`.github/workflows/release-please.yml`) so `CHANGELOG.md`, `package.json`, and GitHub Release notes are generated together; tag-driven packaging workflows should still enforce `vX.Y.Z` parity before attaching release assets.
 
 ## Yarn (Berry 4.x, node_modules linker)
 

@@ -207,16 +207,16 @@ Current available commands:
 - `yarn lint:fix` for autofixable issues.
 - `yarn test` to run unit tests with Vitest.
 
-## Tag Releases
+## Releases
 
-- GitHub release publishing is tag-driven through `.github/workflows/release.yml`.
-- Pushing a tag like `v0.1.0` triggers cross-platform artifact builds and release publication.
+- Stable versioning and changelog generation are managed by `.github/workflows/release-please.yml`.
+- Release Please opens a release PR that updates `package.json` and `CHANGELOG.md`, then creates the stable tag and GitHub Release after merge.
+- `.github/workflows/release.yml` remains tag-driven and builds cross-platform artifacts for tags like `v0.1.0`.
+- The release workflow uploads artifacts to the existing GitHub Release for that tag (it does not recreate the release body).
 - Release assets include Linux AppImage/deb/rpm, macOS dmg, and Windows nsis `.exe` installer.
 - Release jobs also publish updater metadata artifacts (`latest.yml`, `latest-mac.yml`, `latest-linux.yml`) used by in-app update checks.
 - In-app self-update checks are enabled for packaged GitHub-release installs; on Linux, self-update applies only to AppImage installs.
 - AUR/system package installs should remain package-manager updated and should not self-update from inside the app.
-- Release tags must match `package.json` version exactly (`vX.Y.Z` tag for `X.Y.Z` package version).
-- If a release already exists for the same tag, the workflow deletes it first and recreates it from the current run outputs.
 
 ## AUR Packages
 

@@ -11,6 +11,12 @@ This document captures the current research-backed options for:
 
 It is intended to guide implementation decisions in Phase 0 and Phase 4.
 
+## Current Repository Status
+
+- Stable versioning/changelog/release-note generation is now wired through Release Please.
+- Tag-driven packaging remains in `.github/workflows/release.yml` and attaches artifacts to the existing GitHub Release for the tag.
+- AUR automation remains disabled, but its parked workflow keeps release-driven update wiring for later re-enable.
+
 ## Recommended Implementation For This Repository
 
 Unless later repository constraints force a change, the release and update stack for cutrail should be:

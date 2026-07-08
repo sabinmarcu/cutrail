@@ -103,7 +103,8 @@ If Release Please is adopted:
 ### Notes
 
 - For same-repository GitHub Releases, a dedicated personal access token is often unnecessary if `GITHUB_TOKEN` permissions are configured correctly.
-- The maintainer still needs to create or push the release tag unless another approved workflow performs versioning.
+- With Release Please enabled, stable tags are created by the Release Please workflow after the release PR is merged.
+- The tag-driven release workflow should focus on packaging and artifact attachment rather than release-note generation.
 
 ## One-Time Manual Steps For AUR
 

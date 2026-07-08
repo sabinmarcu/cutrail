@@ -98,12 +98,13 @@ Implementation guidance:
 
 ## GitHub Actions release flow
 
-- Trigger: version tag (for example `v0.1.0`).
+- Stable release PR/tag engine: `.github/workflows/release-please.yml`.
+- Packaging trigger: version tag (for example `v0.1.0`) in `.github/workflows/release.yml`.
 - Jobs:
   - install deps
-  - lint/tests
+  - verify release context
   - build/package
-  - upload release artifacts
+  - attach release artifacts to existing GitHub Release
 
 Artifacts:
 - Linux AppImage
@@ -116,6 +117,11 @@ Release note policy:
 - The GitHub Release body must contain generated release notes derived from Conventional Commits.
 - Release artifacts should always be attached to the corresponding GitHub Release.
 
+Current implementation shape:
+
+- Release Please owns stable version bumps, `CHANGELOG.md`, and release note generation.
+- The tag-driven release workflow uploads packaged artifacts and updater metadata to the already-created release.
+
 ## AUR sync flow
 
 The repository keeps a split workflow model design, but AUR automation is temporarily disabled while AUR registrations are closed.
@@ -124,6 +130,7 @@ The repository keeps a split workflow model design, but AUR automation is tempor
 2. The AUR workflow has been renamed to `.github/workflows/aur-packages.disabled.yml` so it does not run.
 3. Re-enabling it restores release-driven updates for `cutrail`/`cutrail-bin` and rolling updates for `cutrail-git`.
 4. Maintainers still need to provision the AUR SSH key and approve the first publication run when re-enabled.
+5. The disabled workflow now includes a release-asset existence check before it attempts AUR pushes.
 
 Local package testing lives in [docs/aur-packaging.md](docs/aur-packaging.md).
 

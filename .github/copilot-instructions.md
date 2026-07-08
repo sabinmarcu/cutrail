@@ -51,7 +51,7 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - Command redirection policy: when capturing command output with shell redirection (`>`, `2>`, `&>`), write to files under `logs/` (for example `logs/lint.log`) and do not use `/tmp`.
 - Runtime config policy: type and validate environment/config values with `zod` in main-process config modules, even when implementation is JavaScript (`.mjs`), to keep runtime behavior explicit and future TypeScript migration-ready.
 - Asset policy: treat `src/assets/logo-white-bg.svg` as the source of truth for app icons; when it changes, regenerate `src/assets/icons/icon.png`, `src/assets/icons/icon.ico`, and `src/assets/icons/icon.icns` in the same change.
-- Release policy: GitHub Releases are tag-driven via `.github/workflows/release.yml`; release tags must follow `vX.Y.Z` and match `package.json` version exactly.
+- Release policy: stable releases are managed by Release Please via `.github/workflows/release-please.yml` (version bump + changelog + release notes), while `.github/workflows/release.yml` remains tag-driven for packaging and artifact attachment.
 - Skill usage announcement policy: when using a custom/local skill workflow, explicitly announce the skill name to the user before executing it.
 
 ## Commands

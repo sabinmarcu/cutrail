@@ -25,6 +25,7 @@ jobs:
     env:
       AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
       AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
     steps:
       - name: Checkout
@@ -36,6 +37,18 @@ jobs:
           set -euo pipefail
           if [[ ! "$RELEASE_TAG" =~ ^v[0-9] ]]; then
             echo "Expected workflow_run head branch to be a stable release tag, got: ${RELEASE_TAG}"
+            exit 1
+          fi
+
+      - name: Validate release assets exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          required_appimage="Cutrail-${version}.AppImage"
+
+          if ! gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" --json assets --jq '.assets[].name' | grep -Fx "${required_appimage}" >/dev/null; then
+            echo "Missing required release asset: ${required_appimage}"
             exit 1
           fi
 

@@ -107,7 +107,7 @@ Maintenance rule:
 - Build renderer assets with `proto run yarn -- build`.
 - Build unpacked app artifacts with `proto run yarn -- package`.
 - Build distributable artifacts with `proto run yarn -- dist`.
-- GitHub Releases are created from tag pushes through `.github/workflows/release.yml`; tags must be `vX.Y.Z` and match `package.json` version.
+- Stable GitHub Releases should be created by Release Please through `.github/workflows/release-please.yml`; `.github/workflows/release.yml` should package assets for the emitted `vX.Y.Z` tag and attach them to the existing release.
 - Run unit tests with `proto run yarn -- test`.
 - Run lint checks with `proto run yarn -- lint`.
 - Run autofix with `proto run yarn -- lint:fix`.
