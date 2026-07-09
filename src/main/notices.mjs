@@ -14,6 +14,8 @@ const __dirname = path.dirname(__filename);
 const readThirdPartyNotices = async () => {
   const candidatePaths = [
     path.resolve(app.getAppPath(), 'THIRD_PARTY_NOTICES.md'),
+    path.resolve(process.resourcesPath, 'THIRD_PARTY_NOTICES.md'),
+    path.resolve(path.dirname(process.execPath), 'THIRD_PARTY_NOTICES.md'),
     path.resolve(__dirname, '../../THIRD_PARTY_NOTICES.md'),
   ];
 
