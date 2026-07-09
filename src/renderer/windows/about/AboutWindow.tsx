@@ -1,7 +1,7 @@
 import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
-import { Button } from '@renderer/components/button';
-import { WindowDecoration } from '@renderer/components/windowDecoration';
+import { Button } from '@renderer/components/Button';
+import { WindowDecoration } from '@renderer/components/WindowDecoration';
 import {
   footer,
   hero,

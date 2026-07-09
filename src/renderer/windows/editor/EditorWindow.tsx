@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import '@renderer/windows/globalReset.css';
 import { ClippingProvider } from '@renderer/core/clipping';
-import { WindowDecoration } from '@renderer/components/windowDecoration';
+import { WindowDecoration } from '@renderer/components/WindowDecoration';
 import {
   editorColumn,
   page,

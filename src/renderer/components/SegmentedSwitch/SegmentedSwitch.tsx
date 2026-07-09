@@ -1,7 +1,7 @@
 import {
   optionButton,
   root,
-} from './segmentedSwitch.css';
+} from './SegmentedSwitch.css';
 
 export const SegmentedSwitch = ({
   ariaLabel, onChange, options, value,

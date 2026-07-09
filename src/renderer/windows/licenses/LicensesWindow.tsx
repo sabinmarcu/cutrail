@@ -4,7 +4,7 @@ import {
 } from 'react';
 import ReactMarkdown from 'react-markdown';
 import '@renderer/windows/globalReset.css';
-import { Button } from '@renderer/components/button';
+import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
   heading,

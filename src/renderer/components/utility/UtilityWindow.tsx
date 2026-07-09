@@ -1,4 +1,4 @@
-import { WindowDecoration } from '@renderer/components/windowDecoration';
+import { WindowDecoration } from '@renderer/components/WindowDecoration';
 import {
   actions,
   body,

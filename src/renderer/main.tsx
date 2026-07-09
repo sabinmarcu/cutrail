@@ -7,6 +7,7 @@ import { DiagnosticsWindow } from '@renderer/windows/diagnostics/DiagnosticsWind
 import { EditorWindow } from '@renderer/windows/editor/EditorWindow';
 import { LicensesWindow } from '@renderer/windows/licenses/LicensesWindow';
 import { OptionsWindow } from '@renderer/windows/options/OptionsWindow';
+import { UpdatesWindow } from '@renderer/windows/updates/UpdatesWindow';
 
 const getRendererMode = () => {
   const search = new URLSearchParams(globalThis.location.search);
@@ -35,6 +36,10 @@ const getRendererApp = () => {
 
   if (mode === 'options') {
     return <OptionsWindow />;
+  }
+
+  if (mode === 'updates') {
+    return <UpdatesWindow />;
   }
 
   return <AppWindow />;

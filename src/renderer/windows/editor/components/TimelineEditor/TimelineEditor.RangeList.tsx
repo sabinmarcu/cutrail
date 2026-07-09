@@ -1,4 +1,4 @@
-import { Button } from '@renderer/components/button';
+import { Button } from '@renderer/components/Button';
 import { useClippingContext } from '@renderer/core/clipping';
 import {
   rangeLabel,

@@ -14,38 +14,40 @@ Follow these rules as hard requirements for all renderer styling work.
 2. Keep one React component per file.
 - Move helpers and utilities into separate files.
 
-3. Use child component naming for local-only children.
+3. Keep component files and component names CamelCase.
+
+4. Use child component naming for local-only children.
 - Pattern: `MasterComponent.ChildComponent.tsx`.
 - Use for components consumed by only one page/master component.
 
-4. Co-locate styles with each component.
+5. Co-locate styles with each component.
 - Prefer `Component.css.ts` beside `Component.tsx`.
 
-5. Minimize style sharing.
+6. Minimize style sharing.
 - Share style files only when components are tightly related.
 - Prefer natural CSS cascade for common style behavior.
 - Prefer shared wrapper components over shared style files.
 - If two windows need common layout/styling behavior, create a shared React component and keep styles co-located with that component.
 - Do not consume broad cross-window style token files directly from window entry components.
 
-6. Enforce separation of concerns in renderer UI.
+7. Enforce separation of concerns in renderer UI.
 - Keep splash/entry UI styling isolated from editor workflow styling.
 - Keep options/configuration styling isolated from editing workflow styling.
 - Place reusable primitives (for example generic button components) under shared renderer component paths.
 
-7. Utility and timeline styling placement rules.
+8. Utility and timeline styling placement rules.
 - Styles for components shared across windows must be co-located under shared component paths (for example `src/renderer/components/utility`).
 - Timeline editor styles used only by editor must be co-located under `src/renderer/windows/editor/components/TimelineEditor`.
 
 9. Shared button component naming rule.
-- Use `src/renderer/components/button/button.tsx` and co-located `button.css.ts` for the shared button primitive.
+- Use `src/renderer/components/Button/Button.tsx` and co-located `Button.css.ts` for the shared button primitive.
 - Avoid split naming where the component and style file live under unrelated names/paths.
 
-8. Clipping state architecture styling rule.
+10. Clipping state architecture styling rule.
 - Keep clipping workflow state and behavior in Context API modules under `src/renderer/core/clipping`.
 - UI component style files should consume context-provided state, not duplicate clipping business logic.
 
-10. Current visual direction (global)
+11. Current visual direction (global)
 - Follow a flat terminal-inspired style: deep near-black surfaces with phosphor-green and cyan accents.
 - Avoid gradients, shadows, and raised/elevated surface effects.
 - Exception: scanline overlays for video/timeline tracks are allowed using subtle repeating-line patterns.
@@ -55,14 +57,14 @@ Follow these rules as hard requirements for all renderer styling work.
 - Use uppercase mono typography for headings and controls with clear letter-spacing.
 - Keep contrast readable; decorative glow must never reduce text legibility.
 
-11. Editor video edge alignment
+12. Editor video edge alignment
 - In editor mode, the video region should be flush with the editor content edge (no extra margin/padding wrappers around the video frame).
 
-12. Global reset stylesheet
+13. Global reset stylesheet
 - Keep global CSS constraints in a dedicated reset stylesheet under renderer windows and import it from renderer bootstrap.
 - Include at least: universal `box-sizing: border-box`, full-height root sizing, and baseline body defaults.
 
-13. Vanilla-extract selector rules
+14. Vanilla-extract selector rules
 - In `style({...})` blocks, use `selectors` only when the selector still targets the current class via `&`.
 - Do not target descendant elements from `selectors` (for example `& button` or `& a[href]`), as this is invalid in vanilla-extract style blocks.
 - If descendant/global targeting is needed, use `globalStyle(`${scopedClass} ...`, {...})` instead.

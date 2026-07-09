@@ -37,6 +37,7 @@ type CutrailBridge = {
   getOutputDirectory: () => Promise<string | null>;
   getFfmpegDiagnostics: () => Promise<any>;
   getThirdPartyNotices: () => Promise<string>;
+  getUpdateDialogState: () => Promise<any>;
   getPathForFile: (file: File | null | undefined) => string | null;
   openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>;
   selectSourceVideo: () => Promise<string | null>;
@@ -45,9 +46,11 @@ type CutrailBridge = {
   checkFfmpeg: () => Promise<any>;
   createExportPlan: (payload: CreateExportPlanPayload) => Promise<any>;
   runExportPlan: (payload: RunExportPlanPayload) => Promise<any>;
+  submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: any) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: any) => void) => () => void;
   onExportProgress: (listener: (payload: any) => void) => () => void;
+  onUpdateDialogState: (listener: (payload: any) => void) => () => void;
 };
 
 declare global {

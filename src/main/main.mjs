@@ -30,11 +30,6 @@ import { createWindowManager } from './windows/windowManager.mjs';
 registerMediaSchemes();
 
 const runtimeConfig = getRuntimeConfig();
-const updater = createAppUpdater();
-const updaterUnavailableReason = updater
-  .getDisableReason()
-  ?.replace(/\.$/, '') ?? 'Unavailable in this build';
-
 const windows = createWindowManager({
   appIconPath: APP_ICON_PATH,
   devServerUrl: runtimeConfig.devServerUrl,
@@ -42,6 +37,13 @@ const windows = createWindowManager({
   preloadEntry: PRELOAD_ENTRY,
   rendererEntry: RENDERER_ENTRY,
 });
+const updater = createAppUpdater({
+  openUpdateDialog: windows.openUpdateDialog,
+  updateUpdateDialogState: windows.updateUpdateDialogState,
+});
+const updaterUnavailableReason = updater
+  .getDisableReason()
+  ?.replace(/\.$/, '') ?? 'Unavailable in this build';
 
 app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) {
@@ -78,8 +80,10 @@ app.whenReady().then(async () => {
   registerMediaProtocol();
   registerIpcHandlers({
     getPersistedOutputDirectory,
+    getUpdateDialogState: windows.getUpdateDialogState,
     openEditorWindow: windows.openEditorWindow,
     readThirdPartyNotices,
+    submitUpdateDialogAction: windows.submitUpdateDialogAction,
     setPersistedOutputDirectory,
   });
   await syncAppMenu();

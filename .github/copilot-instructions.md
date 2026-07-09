@@ -80,13 +80,15 @@ If scripts are missing, propose adding only the minimum required scripts in `pac
 - Use `vanilla-extract` styles alongside `@sabinmarcu/theme` tokens for renderer styling work.
 - Use `@renderer/*` and `@assets/*` aliases for renderer imports instead of deep relative paths.
 - Keep renderer source in TypeScript (`.ts` / `.tsx`) and migrate legacy renderer JavaScript incrementally to TypeScript.
+- Keep component file names and component names CamelCase.
 - For shared window UI patterns, prefer shared wrapper components with co-located styles over shared style-only modules.
 - Keep splash, editor, and options responsibilities separated into distinct window modules.
+- Related windows that belong to the same flow may live together in one folder, such as `src/renderer/windows/updates`.
 - Prefer shared reusable primitives in `src/renderer/components` (for example generic button components).
 - Keep clipping workflow state/logic in `src/renderer/core/clipping` using Context API.
 - Use grouped core feature file naming and barrel exports for renderer core modules.
 - Keep editor-only timeline UI modules under `src/renderer/windows/editor/components/TimelineEditor`.
-- Keep shared button primitive under `src/renderer/components/button/button.tsx` with co-located `button.css.ts`.
+- Keep shared button primitive under `src/renderer/components/Button/Button.tsx` with co-located `Button.css.ts`.
 - Keep main-process IPC handlers under `src/main/ipc/handlers` (one handler per file).
 - Keep main-process window modules under `src/main/windows`.
 - Keep Electron main/preload modules as ESM `.mjs` files with `// @ts-check` enabled and explicit JSDoc type annotations for exported APIs.

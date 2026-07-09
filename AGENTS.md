@@ -31,6 +31,7 @@ This file defines how coding agents should work in this repository.
 - Renderer shared imports should use `@renderer/*` and `@assets/*` aliases instead of long relative paths.
 - Editor workflow windows are multi-instance: each selected source video should open its own independent editor window.
 - Main clipping workflow should prefer embedded video + interactive timeline editing over manual numeric range inputs.
+- Component file names and component names should use CamelCase.
 - ffmpeg runtime policy for this repository is bundled-first (`@ffmpeg-installer/ffmpeg`), with optional `CUTRAIL_FFMPEG_PATH` override and system-path fallback.
 - Updater policy for this repository is `electron-updater` for packaged GitHub-release installs; Linux self-update should be AppImage-only, and AUR installs must remain package-manager updated.
 
@@ -80,10 +81,11 @@ Required constraints:
 - Keep splash (`app`), editor (`editor`), and options (`options`) responsibilities in separate window modules.
 - Source selection belongs to File/splash entry actions; output-directory configuration belongs to options window UI.
 - Shared utility components used by multiple windows must live under `src/renderer/components/*`.
+- Related windows that belong to one flow may share a folder, such as `src/renderer/windows/updates`.
 - Editor-only timeline components must live under `src/renderer/windows/editor/components/TimelineEditor/*`.
 - Clipping state/logic must live under `src/renderer/core/clipping/*` using Context API.
 - Core feature modules should use grouped naming (`feature.ts`, `feature.context.tsx`, `feature.provider.tsx`, etc.) with barrel exports.
-- Shared button primitive should live under `src/renderer/components/button/button.tsx` with `button.css.ts`.
+- Shared button primitive should live under `src/renderer/components/Button/Button.tsx` with `Button.css.ts`.
 - Keyboard controls intended for regular users should include Vim-style equivalents where practical.
 - Renderer windows should be frameless and use shared custom chrome with minimize, maximize, and close controls; splash windows must stay decoration-free and expose only an in-app close button.
 - Main-process IPC handlers must be split one-per-file under `src/main/ipc/handlers`.

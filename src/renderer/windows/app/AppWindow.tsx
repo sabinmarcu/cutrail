@@ -5,7 +5,7 @@ import {
 } from 'react';
 import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
-import { Button } from '@renderer/components/button';
+import { Button } from '@renderer/components/Button';
 import {
   dragActive,
   dropHint,

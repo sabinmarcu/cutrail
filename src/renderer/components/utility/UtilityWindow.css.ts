@@ -26,6 +26,7 @@ export const body = style({
 
 export const actions = style({
   display: 'flex',
+  gap: theme.grid.xs,
   justifyContent: 'flex-end',
   marginBlockStart: 'auto',
 });

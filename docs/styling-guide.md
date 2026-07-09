@@ -12,23 +12,30 @@ This file is the source of truth for renderer styling and component-structure ru
 - Define one React component per file.
 - Keep helper utilities in separate files.
 
-3. Child component naming
+3. CamelCase component files
+- Keep component files and component names CamelCase.
+
+4. Child component naming
 - If a component is used by only one page or one master component, use:
   - `MasterComponent.ChildComponent.tsx`
 - Keep the child component near its master component.
 
-4. Window layout structure
+5. Window layout structure
 - Renderer windows must live under:
   - `src/renderer/windows/X`
 - Components shared across multiple windows must live under:
   - `src/renderer/components`
 
-5. Window-level exception
+6. Related windows can share a folder
+- Windows that belong to the same flow may live together in one folder when that improves cohesion.
+- Example: update-related dialogs may live under `src/renderer/windows/updates`.
+
+7. Window-level exception
 - A window may group local components in a sibling folder when that improves maintainability:
   - `src/renderer/windows/components/X`
 - Use this exception only for components local to one window domain.
 
-6. Style co-location
+8. Style co-location
 - Co-locate styles with their component.
 - Prefer `Component.css.ts` next to `Component.tsx`.
 
@@ -69,8 +76,8 @@ This file is the source of truth for renderer styling and component-structure ru
 - Use grouped feature naming for core modules (for example `clipping.ts`, `clipping.context.tsx`, `clipping.provider.tsx`, `clipping.actions.ts`, `clipping.state.ts`, `clipping.subscriptions.ts`).
 - Provide barrel exports for core feature folders and a top-level core barrel.
 
-15. Shared button primitive placement
-- Keep the reusable button primitive under `src/renderer/components/button/button.tsx` with co-located `button.css.ts`.
+16. Shared button primitive placement
+- Keep the reusable button primitive under `src/renderer/components/Button/Button.tsx` with co-located `Button.css.ts`.
 
 16. Multi-instance editor workflow
 - Opening a source video should open an independent editor window for that source.

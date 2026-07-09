@@ -1,1 +1,0 @@
-export { WindowDecoration } from './windowDecoration';

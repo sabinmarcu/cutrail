@@ -2,7 +2,6 @@
 
 import {
   app,
-  dialog,
 } from 'electron';
 import electronUpdater from 'electron-updater';
 import { fetchReleaseNotesFromGitHub } from './releaseNotes.mjs';
@@ -18,6 +17,35 @@ const { autoUpdater } = electronUpdater;
  */
 
 /**
+ * @typedef {{
+ *   openUpdateDialog: (state: {
+ *     title: string,
+ *     subtitle?: string,
+ *     message: string,
+ *     detail?: string,
+ *     actions: Array<{ id: string, label: string, variant?: 'primary' | 'secondary' }>,
+ *     cancelAction?: string,
+ *     progressPercent?: number,
+ *     progressLabel?: string,
+ *     showProgress?: boolean,
+ *     persistOnActions?: string[]
+ *   }, options?: { reuseExistingWindow?: boolean }) => Promise<string>,
+ *   updateUpdateDialogState: (patch: {
+ *     title?: string,
+ *     subtitle?: string,
+ *     message?: string,
+ *     detail?: string,
+ *     actions?: Array<{ id: string, label: string, variant?: 'primary' | 'secondary' }>,
+ *     cancelAction?: string,
+ *     progressPercent?: number,
+ *     progressLabel?: string,
+ *     showProgress?: boolean,
+ *     persistOnActions?: string[]
+ *   }) => boolean
+ * }} CreateAppUpdaterDeps
+ */
+
+/**
  * @param {import('electron-updater').UpdateInfo} updateInfo
  * @returns {Promise<string>}
  */
@@ -30,7 +58,7 @@ const formatReleaseNotes = async (updateInfo) => {
 
   if (Array.isArray(releaseNotes)) {
     const text = releaseNotes
-      .map((entry) => entry?.note ?? '')
+      .map((entry) => (typeof entry?.note === 'string' ? entry.note.trim() : ''))
       .filter((entry) => entry.trim().length > 0)
       .join('\n\n');
 
@@ -73,9 +101,13 @@ const getUpdaterAvailability = () => {
 };
 
 /**
+ * @param {CreateAppUpdaterDeps} deps
  * @returns {AppUpdater}
  */
-const createAppUpdater = () => {
+const createAppUpdater = ({
+  openUpdateDialog,
+  updateUpdateDialogState,
+}) => {
   const availability = getUpdaterAvailability();
 
   if (!availability.enabled) {
@@ -83,10 +115,15 @@ const createAppUpdater = () => {
       isEnabled: false,
       checkForUpdates: async ({ manual = false } = {}) => {
         if (manual && availability.reason) {
-          await dialog.showMessageBox({
-            type: 'info',
+          await openUpdateDialog({
             title: 'Cutrail Updates',
             message: availability.reason,
+            actions: [{
+              id: 'ok',
+              label: 'Close',
+              variant: 'primary',
+            }],
+            cancelAction: 'ok',
           });
         }
 
@@ -107,22 +144,67 @@ const createAppUpdater = () => {
     const version = updateInfo.version || 'a newer version';
     const releaseNotes = await formatReleaseNotes(updateInfo);
 
-    const response = await dialog.showMessageBox({
-      type: 'info',
+    const action = await openUpdateDialog({
       title: 'Update Available',
       message: `Cutrail ${version} is available.`,
       detail: releaseNotes,
-      buttons: ['Download Update', 'Later'],
-      defaultId: 0,
-      cancelId: 1,
+      showProgress: false,
+      progressPercent: 0,
+      progressLabel: '0%',
+      actions: [
+        {
+          id: 'download',
+          label: 'Download Update',
+          variant: 'primary',
+        },
+        {
+          id: 'later',
+          label: 'Later',
+          variant: 'secondary',
+        },
+      ],
+      persistOnActions: ['download'],
+      cancelAction: 'later',
     });
 
     manualCheckPending = false;
 
-    if (response.response === 0 && !isDownloading) {
+    if (action === 'download' && !isDownloading) {
       isDownloading = true;
+      updateUpdateDialogState({
+        title: 'Downloading Update',
+        subtitle: 'Downloading release package',
+        message: 'Downloading update package. You can continue using Cutrail while this completes.',
+        showProgress: true,
+        progressPercent: 0,
+        progressLabel: '0%',
+        actions: [
+          {
+            id: 'later',
+            label: 'Later',
+            variant: 'secondary',
+          },
+        ],
+        persistOnActions: [],
+        cancelAction: 'later',
+      });
       void autoUpdater.downloadUpdate();
     }
+  });
+
+  autoUpdater.on('download-progress', (progressInfo) => {
+    if (!isDownloading) {
+      return;
+    }
+
+    const rawPercent = typeof progressInfo?.percent === 'number' ? progressInfo.percent : 0;
+    const progressPercent = Math.max(0, Math.min(100, Number(rawPercent.toFixed(1))));
+
+    updateUpdateDialogState({
+      showProgress: true,
+      progressPercent,
+      progressLabel: `${progressPercent.toFixed(1)}%`,
+    });
   });
 
   autoUpdater.on('update-not-available', async () => {
@@ -132,10 +214,15 @@ const createAppUpdater = () => {
 
     manualCheckPending = false;
 
-    await dialog.showMessageBox({
-      type: 'info',
+    await openUpdateDialog({
       title: 'No Updates Available',
       message: 'Cutrail is already up to date.',
+      actions: [{
+        id: 'ok',
+        label: 'Close',
+        variant: 'primary',
+      }],
+      cancelAction: 'ok',
     });
   });
 
@@ -144,32 +231,56 @@ const createAppUpdater = () => {
     manualCheckPending = false;
     isDownloading = false;
 
+    updateUpdateDialogState({
+      showProgress: false,
+      progressPercent: 0,
+      progressLabel: '',
+    });
+
     if (!shouldShowDialog) {
       return;
     }
 
-    await dialog.showMessageBox({
-      type: 'error',
+    await openUpdateDialog({
       title: 'Update Check Failed',
       message: 'Could not check for updates.',
       detail: String(error?.message ?? error),
+      actions: [{
+        id: 'ok',
+        label: 'Close',
+        variant: 'primary',
+      }],
+      cancelAction: 'ok',
     });
   });
 
   autoUpdater.on('update-downloaded', async () => {
     isDownloading = false;
 
-    const response = await dialog.showMessageBox({
-      type: 'info',
+    const action = await openUpdateDialog({
       title: 'Update Ready',
+      subtitle: 'Install update',
       message: 'An update has been downloaded and is ready to install.',
       detail: 'Restart Cutrail now to apply the update.',
-      buttons: ['Restart and Install', 'Later'],
-      defaultId: 0,
-      cancelId: 1,
-    });
+      showProgress: false,
+      progressPercent: 100,
+      progressLabel: '100%',
+      actions: [
+        {
+          id: 'restart',
+          label: 'Restart and Install',
+          variant: 'primary',
+        },
+        {
+          id: 'later',
+          label: 'Later',
+          variant: 'secondary',
+        },
+      ],
+      cancelAction: 'later',
+    }, { reuseExistingWindow: true });
 
-    if (response.response === 0) {
+    if (action === 'restart') {
       autoUpdater.quitAndInstall();
     }
   });

@@ -3,7 +3,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { Button } from '@renderer/components/button';
+import { Button } from '@renderer/components/Button';
 import {
   clamp,
   useClippingContext,

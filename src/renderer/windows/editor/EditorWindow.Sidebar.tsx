@@ -1,5 +1,5 @@
-import { Button } from '@renderer/components/button';
-import { SegmentedSwitch } from '@renderer/components/segmentedSwitch';
+import { Button } from '@renderer/components/Button';
+import { SegmentedSwitch } from '@renderer/components/SegmentedSwitch';
 import { useClippingContext } from '@renderer/core/clipping';
 import {
   clipPanel,

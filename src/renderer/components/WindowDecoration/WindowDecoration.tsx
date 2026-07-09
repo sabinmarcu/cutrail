@@ -12,7 +12,7 @@ import {
   title,
   titleGroup,
   windowButton,
-} from './windowDecoration.css';
+} from './WindowDecoration.css';
 
 const closeWindow = () => {
   void globalThis.cutrail?.closeWindow?.();

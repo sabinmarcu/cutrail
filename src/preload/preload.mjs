@@ -47,6 +47,7 @@ import {
  *   getOutputDirectory: () => Promise<string | null>,
  *   getFfmpegDiagnostics: () => Promise<unknown>,
  *   getThirdPartyNotices: () => Promise<string>,
+ *   getUpdateDialogState: () => Promise<unknown>,
  *   getPathForFile: (file: File | null | undefined) => string | null,
  *   openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>,
  *   selectSourceVideo: () => Promise<string | null>,
@@ -55,9 +56,11 @@ import {
  *   checkFfmpeg: () => Promise<unknown>,
  *   createExportPlan: (payload: CreateExportPlanPayload) => Promise<unknown>,
  *   runExportPlan: (payload: RunExportPlanPayload) => Promise<unknown>,
+ *   submitUpdateDialogAction: (action: string) => Promise<boolean>,
  *   onSourceVideoSelected: (listener: (payload: unknown) => void) => () => void,
  *   onOutputDirectoryUpdated: (listener: (payload: unknown) => void) => () => void,
- *   onExportProgress: (listener: (payload: unknown) => void) => () => void
+ *   onExportProgress: (listener: (payload: unknown) => void) => () => void,
+ *   onUpdateDialogState: (listener: (payload: unknown) => void) => () => void
  * }} CutrailBridge
  */
 
@@ -86,6 +89,7 @@ const cutrailBridge = {
   getOutputDirectory: () => ipcRenderer.invoke('cutrail:get-output-directory'),
   getFfmpegDiagnostics: () => ipcRenderer.invoke('cutrail:get-ffmpeg-diagnostics'),
   getThirdPartyNotices: () => ipcRenderer.invoke('cutrail:get-third-party-notices'),
+  getUpdateDialogState: () => ipcRenderer.invoke('cutrail:get-update-dialog-state'),
   getPathForFile: (file) => {
     if (!file) {
       return null;
@@ -106,6 +110,7 @@ const cutrailBridge = {
   checkFfmpeg: () => ipcRenderer.invoke('cutrail:check-ffmpeg'),
   createExportPlan: (payload) => ipcRenderer.invoke('cutrail:create-export-plan', payload),
   runExportPlan: (payload) => ipcRenderer.invoke('cutrail:run-export-plan', payload),
+  submitUpdateDialogAction: (action) => ipcRenderer.invoke('cutrail:submit-update-dialog-action', action),
   onSourceVideoSelected: (listener) => {
     if (typeof listener !== 'function') {
       throw new TypeError('listener must be a function');
@@ -152,6 +157,22 @@ const cutrailBridge = {
 
     return () => {
       ipcRenderer.removeListener('cutrail:export-progress', wrappedListener);
+    };
+  },
+  onUpdateDialogState: (listener) => {
+    if (typeof listener !== 'function') {
+      throw new TypeError('listener must be a function');
+    }
+
+    /** @param {import('electron').IpcRendererEvent} _event @param {unknown} payload */
+    const wrappedListener = (_event, payload) => {
+      listener(payload);
+    };
+
+    ipcRenderer.on('cutrail:update-dialog-state', wrappedListener);
+
+    return () => {
+      ipcRenderer.removeListener('cutrail:update-dialog-state', wrappedListener);
     };
   },
 };

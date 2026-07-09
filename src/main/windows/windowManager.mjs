@@ -3,6 +3,7 @@
 import { BrowserWindow } from 'electron';
 import { buildWindowOptions } from './windowDefaults.mjs';
 import { loadRendererWindow } from './windowLoad.mjs';
+import { createUpdateDialogController } from './updateDialogController.mjs';
 import { getWindowPlacement } from './windowPlacement.mjs';
 
 /**
@@ -18,12 +19,16 @@ import { getWindowPlacement } from './windowPlacement.mjs';
 /**
  * @typedef {{
  *   createMainWindow: () => void,
+ *   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown,
  *   getWindowCount: () => number,
  *   openAboutWindow: () => Promise<boolean>,
  *   openDiagnosticsWindow: () => boolean,
  *   openEditorWindow: (sourcePath?: string) => boolean,
  *   openLicensesWindow: () => boolean,
- *   openOptionsWindow: () => boolean
+ *   openOptionsWindow: () => boolean,
+ *   openUpdateDialog: (state: unknown, options?: unknown) => Promise<string>,
+ *   updateUpdateDialogState: (patch: unknown) => boolean,
+ *   submitUpdateDialogAction: (senderWindow: BrowserWindow | null, action: string) => boolean
  * }} WindowManagerApi
  */
 
@@ -113,6 +118,8 @@ const createWindowManager = ({
 
     return next;
   };
+
+  const updateDialogController = createUpdateDialogController({ createStandardWindow });
 
   /** @returns {Promise<boolean>} */
   const openAboutWindow = async () => {
@@ -291,12 +298,16 @@ const createWindowManager = ({
 
   return {
     createMainWindow,
+    getUpdateDialogState: updateDialogController.getUpdateDialogState,
     getWindowCount,
     openAboutWindow,
     openDiagnosticsWindow,
     openEditorWindow,
     openLicensesWindow,
     openOptionsWindow,
+    openUpdateDialog: updateDialogController.openUpdateDialog,
+    updateUpdateDialogState: updateDialogController.updateUpdateDialogState,
+    submitUpdateDialogAction: updateDialogController.submitUpdateDialogAction,
   };
 };
 
