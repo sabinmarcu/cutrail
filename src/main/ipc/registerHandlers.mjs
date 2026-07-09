@@ -8,6 +8,7 @@ import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.mjs';
 import { registerGetUpdateDialogStateHandler } from './handlers/getUpdateDialogState.mjs';
 import { registerOpenVideoEditorHandler } from './handlers/openVideoEditor.mjs';
+import { registerStartFileDragHandler } from './handlers/startFileDrag.mjs';
 import { registerRunExportPlanHandler } from './handlers/runExportPlan.mjs';
 import { registerSelectOutputDirectoryHandler } from './handlers/selectOutputDirectory.mjs';
 import { registerSelectSourceVideoHandler } from './handlers/selectSourceVideo.mjs';
@@ -43,6 +44,7 @@ const registerHandlers = (deps) => {
   registerCreateExportPlanHandler();
   registerCheckFfmpegHandler();
   registerRunExportPlanHandler();
+  registerStartFileDragHandler();
   registerSubmitUpdateDialogActionHandler(deps);
   registerWindowControlsHandler();
 };

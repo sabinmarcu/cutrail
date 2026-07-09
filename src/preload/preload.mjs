@@ -35,6 +35,10 @@ import {
  */
 
 /**
+ * @typedef {{ filePath?: string }} StartFileDragPayload
+ */
+
+/**
  * @typedef {{ sourcePath?: string }} OpenVideoEditorPayload
  */
 
@@ -57,6 +61,7 @@ import {
  *   checkFfmpeg: () => Promise<unknown>,
  *   createExportPlan: (payload: CreateExportPlanPayload) => Promise<unknown>,
  *   runExportPlan: (payload: RunExportPlanPayload) => Promise<unknown>,
+ *   startFileDrag: (payload: StartFileDragPayload) => Promise<boolean>,
  *   submitUpdateDialogAction: (action: string) => Promise<boolean>,
  *   onSourceVideoSelected: (listener: (payload: unknown) => void) => () => void,
  *   onOutputDirectoryUpdated: (listener: (payload: unknown) => void) => () => void,
@@ -112,6 +117,7 @@ const cutrailBridge = {
   checkFfmpeg: () => ipcRenderer.invoke('cutrail:check-ffmpeg'),
   createExportPlan: (payload) => ipcRenderer.invoke('cutrail:create-export-plan', payload),
   runExportPlan: (payload) => ipcRenderer.invoke('cutrail:run-export-plan', payload),
+  startFileDrag: (payload) => ipcRenderer.invoke('cutrail:start-file-drag', payload),
   submitUpdateDialogAction: (action) => ipcRenderer.invoke('cutrail:submit-update-dialog-action', action),
   onSourceVideoSelected: (listener) => {
     if (typeof listener !== 'function') {

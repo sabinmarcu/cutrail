@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Button } from '@renderer/components/Button';
 import { SegmentedSwitch } from '@renderer/components/SegmentedSwitch';
 import { useClippingContext } from '@renderer/core/clipping';
+import { TimelineEditorGeneratedClipPreview } from './components/TimelineEditor/TimelineEditor.GeneratedClipPreview';
 import {
   clipPanel,
   clipItem,
@@ -16,10 +18,20 @@ import {
   sideColumn,
 } from './EditorWindow.css';
 
+type PlannedClipJob = {
+  id?: string;
+  outputPath?: string;
+};
+
 export const EditorWindowSidebar = () => {
   const {
-    clipStatusMap, errorMessage, progressById, ranges, readyToStart, setTrimMode, startExport, trimMode,
+    clipStatusMap, errorMessage, plan, progressById, ranges, readyToStart, setTrimMode, startExport, trimMode,
   } = useClippingContext();
+  const clipJobById = useMemo(() => new Map<string, PlannedClipJob>(plan.jobs.map((job) => {
+    const nextJob = job as PlannedClipJob;
+
+    return [String(nextJob.id ?? ''), nextJob];
+  })), [plan.jobs]);
 
   return (
     <aside className={sideColumn}>
@@ -30,6 +42,7 @@ export const EditorWindowSidebar = () => {
           {ranges.map((range) => {
             const progress = progressById[range.id]?.ratio;
             const status = clipStatusMap[range.id] ?? 'DRAFT';
+            const clipJob = clipJobById.get(range.id);
 
             return (
               <li key={range.id} className={clipItem}>
@@ -38,6 +51,12 @@ export const EditorWindowSidebar = () => {
                 <div className={clipMeta}>
                   Progress: {progress === undefined || progress === null ? 'pending' : `${Math.round(progress * 100)}%`}
                 </div>
+                {status === 'COMPLETED' && clipJob && (
+                  <TimelineEditorGeneratedClipPreview
+                    filePath={clipJob.outputPath}
+                    title={range.id}
+                  />
+                )}
               </li>
             );
           })}

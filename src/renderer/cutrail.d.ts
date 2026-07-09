@@ -25,6 +25,10 @@ type RunExportPlanPayload = {
   jobs?: ExportJobLike[];
 };
 
+type StartFileDragPayload = {
+  filePath?: string;
+};
+
 type OpenVideoEditorPayload = {
   sourcePath?: string;
 };
@@ -52,6 +56,7 @@ type CutrailBridge = {
   checkFfmpeg: () => Promise<any>;
   createExportPlan: (payload: CreateExportPlanPayload) => Promise<any>;
   runExportPlan: (payload: RunExportPlanPayload) => Promise<any>;
+  startFileDrag: (payload: StartFileDragPayload) => Promise<boolean>;
   submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: any) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: any) => void) => () => void;
