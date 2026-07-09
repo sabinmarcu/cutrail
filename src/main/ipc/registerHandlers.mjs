@@ -1,6 +1,7 @@
 // @ts-check
 
 import { registerCheckFfmpegHandler } from './handlers/checkFfmpeg.mjs';
+import { registerClipFileActionsHandler } from './handlers/clipFileActions.mjs';
 import { registerCreateExportPlanHandler } from './handlers/createExportPlan.mjs';
 import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.mjs';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.mjs';
@@ -45,6 +46,7 @@ const registerHandlers = (deps) => {
   registerCheckFfmpegHandler();
   registerRunExportPlanHandler();
   registerStartFileDragHandler();
+  registerClipFileActionsHandler();
   registerSubmitUpdateDialogActionHandler(deps);
   registerWindowControlsHandler();
 };

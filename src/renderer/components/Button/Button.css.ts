@@ -17,10 +17,15 @@ export const button = recipe({
     paddingBlock: `${theme.grid.xs}`,
     paddingInline: `${theme.grid.m}`,
     textTransform: 'uppercase',
-    transition: 'border-color 140ms ease, background-color 140ms ease',
+    transition: 'border-color 140ms ease, background-color 140ms ease, transform 80ms ease',
     ':hover': {
       borderColor: theme.colors.secondary.base,
       background: theme.colors.background.elevated,
+    },
+    ':active': {
+      borderColor: theme.colors.secondary.emphasis,
+      background: theme.colors.background.elevated,
+      transform: 'translateY(1px)',
     },
     ':focus-visible': {
       outline: `1px solid ${theme.colors.secondary.emphasis}`,

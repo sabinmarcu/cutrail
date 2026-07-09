@@ -43,6 +43,10 @@ import {
  */
 
 /**
+ * @typedef {{ ok: boolean, method: string, error?: string }} ClipFileActionResult
+ */
+
+/**
  * @typedef {{
  *   getRuntimeInfo: () => { electron?: string, chrome?: string, node?: string },
  *   getAppMetadata: () => Promise<{ version: string, copyright: string, attribution: string, license: string }>,
@@ -61,7 +65,10 @@ import {
  *   checkFfmpeg: () => Promise<unknown>,
  *   createExportPlan: (payload: CreateExportPlanPayload) => Promise<unknown>,
  *   runExportPlan: (payload: RunExportPlanPayload) => Promise<unknown>,
- *   startFileDrag: (payload: StartFileDragPayload) => Promise<boolean>,
+ *   startFileDrag: (payload: StartFileDragPayload) => void,
+ *   copyClipFile: (filePath: string) => Promise<ClipFileActionResult>,
+ *   copyClipPath: (filePath: string) => Promise<ClipFileActionResult>,
+ *   revealClip: (filePath: string) => Promise<ClipFileActionResult>,
  *   submitUpdateDialogAction: (action: string) => Promise<boolean>,
  *   onSourceVideoSelected: (listener: (payload: unknown) => void) => () => void,
  *   onOutputDirectoryUpdated: (listener: (payload: unknown) => void) => () => void,
@@ -117,7 +124,19 @@ const cutrailBridge = {
   checkFfmpeg: () => ipcRenderer.invoke('cutrail:check-ffmpeg'),
   createExportPlan: (payload) => ipcRenderer.invoke('cutrail:create-export-plan', payload),
   runExportPlan: (payload) => ipcRenderer.invoke('cutrail:run-export-plan', payload),
-  startFileDrag: (payload) => ipcRenderer.invoke('cutrail:start-file-drag', payload),
+  startFileDrag: (payload) => ipcRenderer.send('cutrail:start-file-drag', payload),
+  copyClipFile: (filePath) => ipcRenderer.invoke('cutrail:clip-file-action', {
+    action: 'copy-file',
+    filePath,
+  }),
+  copyClipPath: (filePath) => ipcRenderer.invoke('cutrail:clip-file-action', {
+    action: 'copy-path',
+    filePath,
+  }),
+  revealClip: (filePath) => ipcRenderer.invoke('cutrail:clip-file-action', {
+    action: 'reveal',
+    filePath,
+  }),
   submitUpdateDialogAction: (action) => ipcRenderer.invoke('cutrail:submit-update-dialog-action', action),
   onSourceVideoSelected: (listener) => {
     if (typeof listener !== 'function') {

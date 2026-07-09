@@ -16,6 +16,7 @@ export const frame = style({
   borderRadius: 0,
   aspectRatio: '16 / 9',
   blockSize: 'auto',
+  cursor: 'grab',
   minBlockSize: '8rem',
   inlineSize: '100%',
   overflow: 'hidden',
@@ -45,6 +46,26 @@ export const mediaRow = style({
   alignItems: 'center',
   display: 'flex',
   gap: 0,
+});
+
+export const actionsRow = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: theme.grid.xxs,
+  marginBlockStart: theme.grid.xxs,
+});
+
+export const actionButton = style({
+  alignItems: 'center',
+  display: 'inline-flex',
+  flex: 1,
+  gap: theme.grid.xxs,
+  blockSize: '1.6rem',
+  justifyContent: 'center',
+  minInlineSize: 0,
+  paddingBlock: 0,
+  paddingInline: theme.grid.xxs,
+  fontSize: '0.62rem',
 });
 
 export const controlButton = style({

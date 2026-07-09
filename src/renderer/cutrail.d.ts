@@ -33,6 +33,12 @@ type OpenVideoEditorPayload = {
   sourcePath?: string;
 };
 
+type ClipFileActionResult = {
+  ok: boolean;
+  method: string;
+  error?: string;
+};
+
 type CutrailBridge = {
   getRuntimeInfo: () => { electron?: string; chrome?: string; node?: string };
   getAppMetadata: () => Promise<{
@@ -56,7 +62,10 @@ type CutrailBridge = {
   checkFfmpeg: () => Promise<any>;
   createExportPlan: (payload: CreateExportPlanPayload) => Promise<any>;
   runExportPlan: (payload: RunExportPlanPayload) => Promise<any>;
-  startFileDrag: (payload: StartFileDragPayload) => Promise<boolean>;
+  startFileDrag: (payload: StartFileDragPayload) => void;
+  copyClipFile: (filePath: string) => Promise<ClipFileActionResult>;
+  copyClipPath: (filePath: string) => Promise<ClipFileActionResult>;
+  revealClip: (filePath: string) => Promise<ClipFileActionResult>;
   submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: any) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: any) => void) => () => void;

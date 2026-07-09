@@ -2,6 +2,7 @@
 
 import { ipcMain } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.mjs';
+import { primeDragThumbnail } from '../../thumbnail/dragThumbnailCache.js';
 import { toNumber } from '../parseRanges.mjs';
 
 /** @returns {void} */
@@ -46,7 +47,7 @@ const registerRunExportPlanHandler = () => {
       }
 
       for (const job of jobs) {
-        /** @type {{ id?: string, args?: string[], range?: { duration?: number | string } }} */
+        /** @type {{ id?: string, args?: string[], range?: { duration?: number | string }, outputPath?: string }} */
         const nextJob = typeof job === 'object' && job !== null ? job : {};
         const result = await runFfmpegJob({
           jobId: String(nextJob.id ?? ''),
@@ -60,6 +61,10 @@ const registerRunExportPlanHandler = () => {
         });
 
         results.push(result);
+
+        if (result.status === 'COMPLETED' && typeof nextJob.outputPath === 'string' && nextJob.outputPath.length > 0) {
+          void primeDragThumbnail(nextJob.outputPath, ffmpegCheck.path);
+        }
       }
 
       return {

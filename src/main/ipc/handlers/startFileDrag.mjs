@@ -1,31 +1,36 @@
 // @ts-check
 
 import {
-  BrowserWindow,
+  nativeImage,
   ipcMain,
 } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.mjs';
 import { APP_ICON_PATH } from '../../paths.mjs';
+import { getCachedDragThumbnail } from '../../thumbnail/dragThumbnailCache.js';
 
 /** @returns {void} */
 const registerStartFileDragHandler = () => {
-  ipcMain.handle('cutrail:start-file-drag', async (event, payload) => {
+  ipcMain.on('cutrail:start-file-drag', async (event, payload) => {
     assertTrustedSender(event);
 
-    const parentWindow = BrowserWindow.fromWebContents(event.sender);
     const nextPayload = typeof payload === 'object' && payload !== null ? payload : {};
     const filePath = typeof nextPayload.filePath === 'string' ? nextPayload.filePath.trim() : '';
 
-    if (!parentWindow || filePath.length === 0) {
-      return false;
+    if (!event.sender || filePath.length === 0) {
+      return;
     }
 
-    parentWindow.webContents.startDrag({
-      file: filePath,
-      icon: APP_ICON_PATH,
-    });
+    const cachedIcon = getCachedDragThumbnail(filePath);
+    const icon = cachedIcon ?? nativeImage.createFromPath(APP_ICON_PATH);
 
-    return true;
+    if (icon.isEmpty()) {
+      return;
+    }
+
+    event.sender.startDrag({
+      file: filePath,
+      icon,
+    });
   });
 };
 
