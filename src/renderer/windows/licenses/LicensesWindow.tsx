@@ -4,7 +4,6 @@ import {
 } from 'react';
 import ReactMarkdown from 'react-markdown';
 import '@renderer/windows/globalReset.css';
-import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
   heading,
@@ -40,11 +39,6 @@ export const LicensesWindow = () => {
     <UtilityWindow
       titleText="Cutrail Licenses & Notices"
       subtitleText="Embedded license information for distributed installations."
-      actionsSlot={(
-        <Button type="button" variant="secondary" onClick={() => void globalThis.cutrail?.closeWindow?.()}>
-          Close
-        </Button>
-      )}
     >
       <section className={panel}>
         <h2 className={heading}>FFmpeg Licensing</h2>

@@ -3,7 +3,6 @@ import {
   useState,
 } from 'react';
 import '@renderer/windows/globalReset.css';
-import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
   heading,
@@ -43,11 +42,6 @@ export const DiagnosticsWindow = () => {
     <UtilityWindow
       titleText="Cutrail Diagnostics"
       subtitleText="Runtime diagnostics for troubleshooting local FFmpeg and environment setup."
-      actionsSlot={(
-        <Button type="button" variant="secondary" onClick={() => void globalThis.cutrail?.closeWindow?.()}>
-          Close
-        </Button>
-      )}
     >
       <section className={`${panel} ${panelTone({ tone: ffmpegStatus?.available ? 'success' : 'danger' })}`}>
         <h2 className={heading}>FFmpeg Runtime</h2>

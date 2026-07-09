@@ -46,11 +46,6 @@ export const OptionsWindow = () => {
     <UtilityWindow
       titleText="Cutrail Options"
       subtitleText="Configure app-level behavior used by splash and editor windows."
-      actionsSlot={(
-        <Button type="button" variant="secondary" onClick={() => void globalThis.cutrail?.closeWindow?.()}>
-          Close
-        </Button>
-      )}
     >
       <section className={panel}>
         <h2 className={heading}>Output Directory</h2>

@@ -1,9 +1,7 @@
 import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
-import { Button } from '@renderer/components/Button';
 import { WindowDecoration } from '@renderer/components/WindowDecoration';
 import {
-  footer,
   hero,
   icon,
   link,
@@ -34,11 +32,6 @@ export const AboutWindow = () => (
           </a>
         </div>
       </section>
-      <footer className={footer}>
-        <Button type="button" variant="secondary" onClick={() => void globalThis.cutrail?.closeWindow?.()}>
-          Close
-        </Button>
-      </footer>
     </section>
   </main>
 );
