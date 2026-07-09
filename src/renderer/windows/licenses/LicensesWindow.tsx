@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import ReactMarkdown from 'react-markdown';
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
@@ -9,7 +10,7 @@ import {
   heading,
   meta,
   panel,
-  runtime,
+  runtimeMarkdown,
 } from './LicensesWindow.css';
 
 export const LicensesWindow = () => {
@@ -55,7 +56,9 @@ export const LicensesWindow = () => {
 
       <section className={panel}>
         <h2 className={heading}>Third-Party Notices (Embedded)</h2>
-        <pre className={runtime}>{noticesMarkdown}</pre>
+        <div className={runtimeMarkdown}>
+          <ReactMarkdown>{noticesMarkdown}</ReactMarkdown>
+        </div>
       </section>
     </UtilityWindow>
   );

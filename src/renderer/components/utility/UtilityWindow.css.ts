@@ -18,8 +18,10 @@ export const body = style({
   display: 'grid',
   gap: theme.grid.s,
   minBlockSize: 0,
-  overflow: 'hidden',
+  overflowInline: 'hidden',
+  overflowBlock: 'auto',
   padding: theme.grid.m,
+  scrollbarGutter: 'stable',
 });
 
 export const actions = style({
