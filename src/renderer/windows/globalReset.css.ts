@@ -45,3 +45,42 @@ globalStyle('#root > *', {
 globalStyle('button', {
   fontFamily: 'inherit',
 });
+
+globalStyle('*', {
+  scrollbarWidth: 'thin',
+  scrollbarColor: `${theme.colors.primary.base} rgba(6, 22, 16, 0.95)`,
+});
+
+globalStyle('*::-webkit-scrollbar', {
+  inlineSize: '12px',
+  blockSize: '12px',
+});
+
+globalStyle('*::-webkit-scrollbar-corner', {
+  backgroundColor: 'rgba(6, 22, 16, 0.95)',
+});
+
+globalStyle('*::-webkit-scrollbar-track', {
+  backgroundColor: 'rgba(6, 22, 16, 0.95)',
+  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
+});
+
+globalStyle('*::-webkit-scrollbar-thumb', {
+  backgroundColor: theme.colors.primary.base,
+  borderInlineStart: '2px solid rgba(6, 22, 16, 0.95)',
+  borderInlineEnd: '2px solid rgba(6, 22, 16, 0.95)',
+  borderBlockStart: '2px solid rgba(6, 22, 16, 0.95)',
+  borderBlockEnd: '2px solid rgba(6, 22, 16, 0.95)',
+  borderRadius: '999px',
+});
+
+globalStyle('*::-webkit-scrollbar-thumb:hover', {
+  backgroundColor: theme.colors.primary.emphasis,
+});
+
+globalStyle('*::-webkit-scrollbar-thumb:active', {
+  backgroundColor: theme.colors.primary.contrast,
+});
