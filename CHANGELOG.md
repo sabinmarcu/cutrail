@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0](https://github.com/sabinmarcu/cutrail/compare/v0.3.0...v0.4.0) (2026-07-09)
+
+
+### Features
+
+* **about:** add app metadata details to about window ([7b5e563](https://github.com/sabinmarcu/cutrail/commit/7b5e56321f41e02be6a6820870ac7aafdcb93e63))
+* **appimage:** improve standalone install flow and dev run script ([60f74e9](https://github.com/sabinmarcu/cutrail/commit/60f74e99416872a62cc8979a1efc02019d841aa8))
+* **renderer:** keep updates flow in one window ([65c83d3](https://github.com/sabinmarcu/cutrail/commit/65c83d350f5a308e0c63aee58363ef5e9407edc3))
+
+
+### Bug Fixes
+
+* **packaging:** include third-party notices in appimage builds ([c36fb7f](https://github.com/sabinmarcu/cutrail/commit/c36fb7f1537063671220832caabd0eeccb3be8e5))
+* **renderer:** render licenses notices markdown ([9b78b2e](https://github.com/sabinmarcu/cutrail/commit/9b78b2e34ed6220295f5c4e86821c10361926b48))
+
 ## [0.3.0](https://github.com/sabinmarcu/cutrail/compare/v0.2.0...v0.3.0) (2026-07-08)
 
 
