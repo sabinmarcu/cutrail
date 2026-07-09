@@ -2,6 +2,7 @@
 
 import { registerCheckFfmpegHandler } from './handlers/checkFfmpeg.mjs';
 import { registerCreateExportPlanHandler } from './handlers/createExportPlan.mjs';
+import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.mjs';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.mjs';
 import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory.mjs';
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.mjs';
@@ -15,6 +16,7 @@ import { registerWindowControlsHandler } from './handlers/windowControls.mjs';
 
 /**
  * @typedef {{
+ *   getAppMetadata: () => Promise<{ version: string, copyright: string, attribution: string, license: string }>,
  *   getPersistedOutputDirectory: () => Promise<string | null>,
  *   getUpdateDialogState: (senderWindow: import('electron').BrowserWindow | null) => unknown,
  *   openEditorWindow: (sourcePath: string) => boolean,
@@ -30,6 +32,7 @@ import { registerWindowControlsHandler } from './handlers/windowControls.mjs';
  * @returns {void}
  */
 const registerHandlers = (deps) => {
+  registerGetAppMetadataHandler(deps);
   registerSelectSourceVideoHandler(deps);
   registerOpenVideoEditorHandler(deps);
   registerSelectOutputDirectoryHandler(deps);

@@ -37,10 +37,6 @@ export const hero = style({
 });
 
 export const icon = style({
-  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
-  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
-  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
-  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
   borderRadius: '14px',
   blockSize: '8rem',
   inlineSize: '8rem',
@@ -82,10 +78,31 @@ export const link = style({
   },
 });
 
-export const footer = style({
-  display: 'flex',
-  justifyContent: 'center',
-  paddingBlockStart: '0',
-  paddingInline: `${theme.grid.l}`,
-  paddingBlockEnd: `${theme.grid.l}`,
+export const infoGrid = style({
+  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
+  display: 'grid',
+  gap: theme.grid.xs,
+  maxInlineSize: '42rem',
+  padding: theme.grid.m,
+  textAlign: 'start',
+  inlineSize: '100%',
+});
+
+export const infoLabel = style({
+  color: theme.colors.secondary.base,
+  fontSize: '0.72rem',
+  letterSpacing: '0.12em',
+  margin: 0,
+  textTransform: 'uppercase',
+});
+
+export const infoValue = style({
+  color: theme.colors.primary.base,
+  fontSize: '0.8rem',
+  letterSpacing: '0.03em',
+  lineHeight: 1.45,
+  margin: 0,
 });

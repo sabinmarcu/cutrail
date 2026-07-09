@@ -9,6 +9,7 @@ import { selectValidSourceVideo } from './sourceSelection.mjs';
 
 /**
  * @typedef {{
+ *   getAppMetadata: () => Promise<{ version: string, copyright: string, attribution: string, license: string }>,
  *   getPersistedOutputDirectory: () => Promise<string | null>,
  *   getUpdateDialogState: (senderWindow: OptionalBrowserWindow) => unknown,
  *   openEditorWindow: (sourcePath: string) => boolean,
@@ -23,6 +24,7 @@ import { selectValidSourceVideo } from './sourceSelection.mjs';
  * @returns {void}
  */
 const registerIpcHandlers = ({
+  getAppMetadata,
   getPersistedOutputDirectory,
   getUpdateDialogState,
   openEditorWindow,
@@ -31,6 +33,7 @@ const registerIpcHandlers = ({
   setPersistedOutputDirectory,
 }) => {
   registerHandlers({
+    getAppMetadata,
     getPersistedOutputDirectory,
     getUpdateDialogState,
     openEditorWindow,

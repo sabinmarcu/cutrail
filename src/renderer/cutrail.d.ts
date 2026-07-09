@@ -31,6 +31,12 @@ type OpenVideoEditorPayload = {
 
 type CutrailBridge = {
   getRuntimeInfo: () => { electron?: string; chrome?: string; node?: string };
+  getAppMetadata: () => Promise<{
+    version: string;
+    copyright: string;
+    attribution: string;
+    license: string;
+  }>;
   closeWindow: () => Promise<unknown>;
   minimizeWindow: () => Promise<unknown>;
   toggleWindowMaximize: () => Promise<unknown>;

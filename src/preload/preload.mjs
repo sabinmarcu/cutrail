@@ -41,6 +41,7 @@ import {
 /**
  * @typedef {{
  *   getRuntimeInfo: () => { electron?: string, chrome?: string, node?: string },
+ *   getAppMetadata: () => Promise<{ version: string, copyright: string, attribution: string, license: string }>,
  *   closeWindow: () => Promise<unknown>,
  *   minimizeWindow: () => Promise<unknown>,
  *   toggleWindowMaximize: () => Promise<unknown>,
@@ -83,6 +84,7 @@ const cutrailBridge = {
     chrome: process.versions.chrome,
     node: process.versions.node,
   }),
+  getAppMetadata: () => ipcRenderer.invoke('cutrail:get-app-metadata'),
   closeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'close'),
   minimizeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'minimize'),
   toggleWindowMaximize: () => ipcRenderer.invoke('cutrail:window-control', 'maximize'),

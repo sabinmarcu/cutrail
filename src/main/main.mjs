@@ -9,6 +9,7 @@ import {
   registerMediaSchemes,
 } from './mediaProtocol.mjs';
 import { createAppMenu } from './menu.mjs';
+import { getAppMetadata } from './appMetadata.mjs';
 import { readThirdPartyNotices } from './notices.mjs';
 import {
   APP_ICON_PATH,
@@ -84,6 +85,7 @@ app.whenReady().then(async () => {
 
   registerMediaProtocol();
   registerIpcHandlers({
+    getAppMetadata,
     getPersistedOutputDirectory,
     getUpdateDialogState: windows.getUpdateDialogState,
     openEditorWindow: windows.openEditorWindow,
