@@ -2,24 +2,53 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { dialog } from 'electron';
 import {
   getStandalonePaths,
   STANDALONE_NAME,
 } from './linuxStandaloneState.mjs';
 
 /**
- * @param {{ appIconPath: string }} options
+ * @typedef {{ id: string, label: string, variant?: 'primary' | 'secondary' }} DialogAction
+ */
+
+/**
+ * @typedef {{
+ *   title: string,
+ *   subtitle?: string,
+ *   message: string,
+ *   detail?: string,
+ *   actions: DialogAction[],
+ *   cancelAction?: string,
+ *   persistOnActions?: string[]
+ * }} DialogState
+ */
+
+/**
+ * @typedef {{
+ *   openDialog: (state: DialogState, options?: { reuseExistingWindow?: boolean }) => Promise<string>
+ * }} DialogDeps
+ */
+
+/**
+ * @param {{ appIconPath: string } & DialogDeps} options
  * @returns {Promise<void>}
  */
-const installStandaloneAppImage = async ({ appIconPath }) => {
+const installStandaloneAppImage = async ({
+  appIconPath,
+  openDialog,
+}) => {
   const appImagePath = process.env.APPIMAGE;
 
   if (!appImagePath) {
-    await dialog.showMessageBox({
-      type: 'error',
+    await openDialog({
       title: 'Standalone Install Unavailable',
       message: 'This action requires running from an AppImage build.',
+      actions: [{
+        id: 'close',
+        label: 'Close',
+        variant: 'primary',
+      }],
+      cancelAction: 'close',
     });
     return;
   }
@@ -32,17 +61,27 @@ const installStandaloneAppImage = async ({ appIconPath }) => {
     launcherPath,
   } = getStandalonePaths();
 
-  const confirm = await dialog.showMessageBox({
-    type: 'question',
+  const confirmAction = await openDialog({
     title: 'Install Standalone Shortcut',
     message: 'Install this AppImage for the current user?',
     detail: `This copies the current AppImage into ${installDirectory} and adds ${STANDALONE_NAME} to your desktop app menu.`,
-    buttons: ['Install', 'Cancel'],
-    defaultId: 0,
-    cancelId: 1,
+    actions: [
+      {
+        id: 'install',
+        label: 'Install',
+        variant: 'primary',
+      },
+      {
+        id: 'cancel',
+        label: 'Cancel',
+        variant: 'secondary',
+      },
+    ],
+    persistOnActions: ['install'],
+    cancelAction: 'cancel',
   });
 
-  if (confirm.response !== 0) {
+  if (confirmAction !== 'install') {
     return;
   }
 
@@ -90,26 +129,67 @@ const installStandaloneAppImage = async ({ appIconPath }) => {
     await fs.writeFile(desktopEntryPath, desktopEntry, 'utf8');
     await fs.chmod(desktopEntryPath, 0o644);
 
-    await dialog.showMessageBox({
-      type: 'info',
-      title: 'Standalone Install Complete',
+    const postInstallAction = await openDialog({
+      title: 'Uninstall Standalone Shortcut',
       message: `${STANDALONE_NAME} is now installed for this user.`,
       detail: `Launcher: ${launcherPath}\nDesktop entry: ${desktopEntryPath}`,
-    });
+      actions: [
+        {
+          id: 'uninstall',
+          label: 'Uninstall',
+          variant: 'primary',
+        },
+        {
+          id: 'close',
+          label: 'Close',
+          variant: 'secondary',
+        },
+      ],
+      cancelAction: 'close',
+    }, { reuseExistingWindow: true });
+
+    if (postInstallAction === 'uninstall') {
+      await Promise.all([
+        fs.rm(launcherPath, { force: true }),
+        fs.rm(desktopEntryPath, { force: true }),
+        fs.rm(iconPath, { force: true }),
+        fs.rm(installDirectory, {
+          recursive: true,
+          force: true,
+        }),
+      ]);
+
+      await openDialog({
+        title: 'Standalone Uninstall Complete',
+        message: `${STANDALONE_NAME} was removed for this user.`,
+        actions: [{
+          id: 'close',
+          label: 'Close',
+          variant: 'primary',
+        }],
+        cancelAction: 'close',
+      }, { reuseExistingWindow: true });
+    }
   } catch (error) {
-    await dialog.showMessageBox({
-      type: 'error',
+    await openDialog({
       title: 'Standalone Install Failed',
       message: 'Could not install the standalone AppImage launcher.',
       detail: String(error),
+      actions: [{
+        id: 'close',
+        label: 'Close',
+        variant: 'primary',
+      }],
+      cancelAction: 'close',
     });
   }
 };
 
 /**
+ * @param {DialogDeps} options
  * @returns {Promise<void>}
  */
-const uninstallStandaloneAppImage = async () => {
+const uninstallStandaloneAppImage = async ({ openDialog }) => {
   const {
     desktopEntryPath,
     iconPath,
@@ -117,17 +197,26 @@ const uninstallStandaloneAppImage = async () => {
     launcherPath,
   } = getStandalonePaths();
 
-  const confirm = await dialog.showMessageBox({
-    type: 'question',
+  const confirmAction = await openDialog({
     title: 'Uninstall Standalone Shortcut',
     message: `Remove ${STANDALONE_NAME} from this user account?`,
     detail: 'This removes the standalone launcher, desktop entry, icon, and copied AppImage.',
-    buttons: ['Uninstall', 'Cancel'],
-    defaultId: 0,
-    cancelId: 1,
+    actions: [
+      {
+        id: 'uninstall',
+        label: 'Uninstall',
+        variant: 'primary',
+      },
+      {
+        id: 'cancel',
+        label: 'Cancel',
+        variant: 'secondary',
+      },
+    ],
+    cancelAction: 'cancel',
   });
 
-  if (confirm.response !== 0) {
+  if (confirmAction !== 'uninstall') {
     return;
   }
 
@@ -142,17 +231,27 @@ const uninstallStandaloneAppImage = async () => {
       }),
     ]);
 
-    await dialog.showMessageBox({
-      type: 'info',
+    await openDialog({
       title: 'Standalone Uninstall Complete',
       message: `${STANDALONE_NAME} was removed for this user.`,
+      actions: [{
+        id: 'close',
+        label: 'Close',
+        variant: 'primary',
+      }],
+      cancelAction: 'close',
     });
   } catch (error) {
-    await dialog.showMessageBox({
-      type: 'error',
+    await openDialog({
       title: 'Standalone Uninstall Failed',
       message: 'Could not uninstall the standalone AppImage launcher.',
       detail: String(error),
+      actions: [{
+        id: 'close',
+        label: 'Close',
+        variant: 'primary',
+      }],
+      cancelAction: 'close',
     });
   }
 };

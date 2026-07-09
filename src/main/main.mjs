@@ -56,12 +56,17 @@ app.whenReady().then(async () => {
     createAppMenu({
       checkForUpdates: () => updater.checkForUpdates({ manual: true }),
       installStandaloneAppImage: async () => {
-        await installStandaloneAppImage({ appIconPath: APP_ICON_PATH });
+        await installStandaloneAppImage({
+          appIconPath: APP_ICON_PATH,
+          openDialog: windows.openUpdateDialog,
+        });
         await syncAppMenu();
       },
       standaloneAction,
       uninstallStandaloneAppImage: async () => {
-        await uninstallStandaloneAppImage();
+        await uninstallStandaloneAppImage({
+          openDialog: windows.openUpdateDialog,
+        });
         await syncAppMenu();
       },
       isUpdateCheckEnabled: updater.isEnabled,

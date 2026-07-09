@@ -35,6 +35,7 @@
     "package": "yarn build && electron-builder --dir",
     "dist": "yarn build && electron-builder",
     "dist:appimage": "yarn build && electron-builder --linux AppImage",
+    "dev:appimage": "yarn dist:appimage && bash -lc 'appimage=$(find dist -maxdepth 1 -type f -name \"*.AppImage\" | head -n 1); if [ -z \"$appimage\" ]; then echo \"No AppImage found in dist/.\"; exit 1; fi; chmod +x \"$appimage\"; \"$appimage\"'",
     "start": "electron .",
     "typecheck": "yarn typecheck:web && yarn typecheck:node",
     "typecheck:web": "tsc -p tsconfig.web.json --noEmit",
