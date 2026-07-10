@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/sabinmarcu/cutrail/compare/v0.4.0...v0.5.0) (2026-07-10)
+
+
+### Features
+
+* **editor:** add generated clip actions and reveal fallbacks ([b0fb4e4](https://github.com/sabinmarcu/cutrail/commit/b0fb4e4f33b8a2813e71b9a3578d516345b5ce05))
+* **editor:** preview exported clips ([c100291](https://github.com/sabinmarcu/cutrail/commit/c1002913905419b8eff048e1f0668aa8dceb5937))
+
 ## [0.4.0](https://github.com/sabinmarcu/cutrail/compare/v0.3.0...v0.4.0) (2026-07-09)
 
 
