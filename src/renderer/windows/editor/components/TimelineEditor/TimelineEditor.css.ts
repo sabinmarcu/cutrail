@@ -76,18 +76,29 @@ export const videoFrame = style({
   borderBlockEnd: 'none',
   borderRadius: 0,
   blockSize: '100%',
+  inlineSize: '100%',
   minBlockSize: 0,
+  minInlineSize: 0,
   maxBlockSize: '100%',
   overflow: 'hidden',
   position: 'relative',
+  justifySelf: 'stretch',
   selectors: {
     '&::before': {
-      backgroundImage: 'repeating-linear-gradient(0deg, rgba(53, 255, 149, 0.08) 0 1px, transparent 1px 4px)',
+      background: '#020805',
       content: '',
       inset: 0,
       pointerEvents: 'none',
       position: 'absolute',
       zIndex: 0,
+    },
+    '&::after': {
+      backgroundImage: 'repeating-linear-gradient(0deg, rgba(53, 255, 149, 0.08) 0 1px, transparent 1px 4px)',
+      content: '',
+      inset: 0,
+      pointerEvents: 'none',
+      position: 'absolute',
+      zIndex: 1,
     },
   },
 });
@@ -95,10 +106,11 @@ export const videoFrame = style({
 export const video = style({
   display: 'block',
   blockSize: '100%',
+  background: 'transparent',
   objectFit: 'contain',
   position: 'relative',
   inlineSize: '100%',
-  zIndex: 1,
+  zIndex: 2,
 });
 
 export const emptyVideo = style({
