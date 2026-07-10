@@ -14,6 +14,10 @@ import {
   readPreferences,
   writePreferences,
 } from './LibraryWindow.preferences';
+import {
+  persistSeenVideoPaths,
+  resolveNewVideoPaths,
+} from './LibraryWindow.seen';
 import { LibraryWindowDecoration } from './LibraryWindow.Decoration';
 import { LibraryWindowItem } from './LibraryWindow.Item';
 import type {
@@ -36,6 +40,7 @@ import {
 
 export const LibraryWindow = () => {
   const [preferences] = useState(() => readPreferences());
+  const [newVideoPaths, setNewVideoPaths] = useState(new Set<string>());
   const [videos, setVideos] = useState<LibraryVideoEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState(preferences.searchQuery);
   const [viewMode, setViewMode] = useState<LibraryViewMode>(preferences.viewMode);
@@ -54,8 +59,10 @@ export const LibraryWindow = () => {
     }
 
     const snapshot = await globalThis.cutrail.getVideoLibrary();
+    const nextVideos = Array.isArray(snapshot.videos) ? snapshot.videos : [];
 
-    setVideos(Array.isArray(snapshot.videos) ? snapshot.videos : []);
+    setNewVideoPaths(resolveNewVideoPaths(nextVideos));
+    setVideos(nextVideos);
   }, []);
 
   useEffect(() => {
@@ -77,6 +84,22 @@ export const LibraryWindow = () => {
       unsubscribeOutput();
     };
   }, [refreshLibrary]);
+
+  useEffect(() => {
+    if (videos.length === 0) {
+      return undefined;
+    }
+
+    // Delay persistence to avoid dev Strict Mode's mount/unmount cycle
+    // instantly suppressing NEW badges on first visible render.
+    const timer = globalThis.setTimeout(() => {
+      persistSeenVideoPaths(videos);
+    }, 250);
+
+    return () => {
+      globalThis.clearTimeout(timer);
+    };
+  }, [videos]);
 
   useEffect(() => {
     writePreferences({
@@ -126,7 +149,12 @@ export const LibraryWindow = () => {
             <h2 className={groupTitle}>{groupEntry.label}</h2>
             <div className={viewMode === 'grid' ? videosGrid : videosList}>
               {groupEntry.videos.map((video) => (
-                <LibraryWindowItem key={video.filePath} video={video} viewMode={viewMode} />
+                <LibraryWindowItem
+                  key={video.filePath}
+                  isNew={newVideoPaths.has(video.filePath)}
+                  video={video}
+                  viewMode={viewMode}
+                />
               ))}
             </div>
           </section>

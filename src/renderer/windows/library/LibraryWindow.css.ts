@@ -101,7 +101,7 @@ export const viewSwitchOption = style({
 
 export const body = style({
   display: 'grid',
-  gap: theme.grid.m,
+  gap: `calc(${theme.grid.m} * 2)`,
   minBlockSize: 0,
   overflowInline: 'hidden',
   overflowBlock: 'auto',
@@ -155,6 +155,28 @@ export const card = style({
   display: 'grid',
   gap: theme.grid.xs,
   padding: theme.grid.s,
+  transition: 'border-color 140ms ease, box-shadow 140ms ease',
+});
+
+export const cardWithClips = style({
+  background: '#01110e',
+  borderInlineStart: `1px solid ${theme.colors.secondary.base}`,
+  borderInlineEnd: `1px solid ${theme.colors.secondary.base}`,
+  borderBlockStart: `1px solid ${theme.colors.secondary.base}`,
+  borderBlockEnd: `1px solid ${theme.colors.secondary.base}`,
+  boxShadow: '0 0 0 1px rgba(70, 240, 220, 0.30), 0 0 22px rgba(70, 240, 220, 0.24)',
+});
+
+export const cardNew = style({
+  borderInlineStart: `1px solid ${theme.colors.warning.base}`,
+  borderInlineEnd: `1px solid ${theme.colors.warning.base}`,
+  borderBlockStart: `1px solid ${theme.colors.warning.base}`,
+  borderBlockEnd: `1px solid ${theme.colors.warning.base}`,
+  boxShadow: '0 0 0 1px rgba(255, 205, 90, 0.24), 0 0 18px rgba(255, 205, 90, 0.18)',
+});
+
+export const cardNewWithClips = style({
+  boxShadow: '0 0 0 1px rgba(255, 205, 90, 0.24), 0 0 24px rgba(120, 240, 220, 0.20)',
 });
 
 export const listCard = style({
@@ -165,6 +187,42 @@ export const listCard = style({
 
 export const previewCell = style({
   minInlineSize: 0,
+  position: 'relative',
+});
+
+export const cardBadge = style({
+  borderRadius: 0,
+  fontSize: '0.65rem',
+  fontWeight: 700,
+  insetBlockStart: theme.grid.xs,
+  letterSpacing: '0.08em',
+  lineHeight: 1,
+  paddingBlock: theme.grid.xxs,
+  paddingInline: theme.grid.xs,
+  pointerEvents: 'none',
+  position: 'absolute',
+  textTransform: 'uppercase',
+  zIndex: 4,
+});
+
+export const cardBadgeNew = style({
+  background: '#1b1202',
+  borderInlineStart: `1px solid ${theme.colors.warning.base}`,
+  borderInlineEnd: `1px solid ${theme.colors.warning.base}`,
+  borderBlockStart: `1px solid ${theme.colors.warning.base}`,
+  borderBlockEnd: `1px solid ${theme.colors.warning.base}`,
+  color: theme.colors.warning.base,
+  insetInlineEnd: theme.grid.xs,
+});
+
+export const cardBadgeClips = style({
+  background: '#00110d',
+  borderInlineStart: `1px solid ${theme.colors.secondary.base}`,
+  borderInlineEnd: `1px solid ${theme.colors.secondary.base}`,
+  borderBlockStart: `1px solid ${theme.colors.secondary.base}`,
+  borderBlockEnd: `1px solid ${theme.colors.secondary.base}`,
+  color: theme.colors.secondary.base,
+  insetInlineStart: theme.grid.xs,
 });
 
 export const cardContent = style({

@@ -8,7 +8,13 @@ import type {
 import {
   card,
   cardActions,
+  cardBadge,
+  cardBadgeClips,
+  cardBadgeNew,
   cardContent,
+  cardNew,
+  cardNewWithClips,
+  cardWithClips,
   cardMeta,
   cardTitle,
   listCard,
@@ -17,6 +23,7 @@ import {
 } from './LibraryWindow.css';
 
 type LibraryWindowItemProps = {
+  isNew: boolean;
   video: LibraryVideoEntry;
   viewMode: LibraryViewMode;
 };
@@ -38,14 +45,25 @@ const formatSize = (bytes: number): string => {
 };
 
 export const LibraryWindowItem = ({
+  isNew,
   video,
   viewMode,
 }: LibraryWindowItemProps) => {
   const listMode = viewMode === 'list';
+  const hasClips = video.clipCount > 0;
+  const cardClasses = [
+    card,
+    listMode ? listCard : '',
+    hasClips ? cardWithClips : '',
+    isNew ? cardNew : '',
+    hasClips && isNew ? cardNewWithClips : '',
+  ].filter((className) => className.length > 0).join(' ');
 
   return (
-    <article className={`${card} ${listMode ? listCard : ''}`}>
+    <article className={cardClasses}>
       <div className={previewCell}>
+        {hasClips ? <span className={`${cardBadge} ${cardBadgeClips}`}>{video.clipCount} CLIPS</span> : null}
+        {isNew ? <span className={`${cardBadge} ${cardBadgeNew}`}>NEW</span> : null}
         <VideoPreview filePath={video.filePath} title={video.fileName} />
       </div>
       <div className={`${cardContent} ${listMode ? listCardContent : ''}`}>
