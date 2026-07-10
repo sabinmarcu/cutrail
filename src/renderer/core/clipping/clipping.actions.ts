@@ -18,6 +18,8 @@ const getFfmpegStatus = async () => {
   return globalThis.cutrail.checkFfmpeg();
 };
 
+const buildRangeLookupKey = (range) => `${Math.floor(range.start)}:${Math.floor(range.end)}`;
+
 export const useClippingActions = (state) => {
   const resetPlan = useCallback(() => {
     state.setPlan({
@@ -27,6 +29,18 @@ export const useClippingActions = (state) => {
     state.setRunResult(null);
     state.setProgressById({});
   }, [state]);
+
+  const removeRangeById = useCallback((id, { allowLocked = false } = {}) => {
+    const clipEntry = state.clipEntries.find((entry) => entry.range.id === id);
+
+    if (!allowLocked && clipEntry?.isLocked) {
+      return;
+    }
+
+    state.setRanges((previous) => previous.filter((range) => range.id !== id));
+    resetPlan();
+    state.setSelectedRangeId((current) => (current === id ? null : current));
+  }, [resetPlan, state]);
 
   const pausePlayback = useCallback(() => {
     if (state.videoRef.current) {
@@ -39,6 +53,20 @@ export const useClippingActions = (state) => {
   const setPlaybackTime = useCallback((time) => {
     state.setCurrentTime(time);
   }, [state]);
+
+  const setSelectedRangeId = useCallback((rangeId) => {
+    state.setSelectedRangeId(rangeId);
+  }, [state]);
+
+  const setTrimMode = useCallback((nextTrimMode) => {
+    if (state.trimMode === nextTrimMode) {
+      return;
+    }
+
+    state.setTrimMode(nextTrimMode);
+    resetPlan();
+    state.setErrorMessage('');
+  }, [resetPlan, state]);
 
   const addRangeAtPlayhead = useCallback(() => {
     if (state.duration <= 0) {
@@ -60,10 +88,38 @@ export const useClippingActions = (state) => {
   }, [resetPlan, state]);
 
   const removeRange = useCallback((id) => {
-    state.setRanges((previous) => previous.filter((range) => range.id !== id));
-    resetPlan();
-    state.setSelectedRangeId((current) => (current === id ? null : current));
-  }, [resetPlan, state]);
+    removeRangeById(id);
+  }, [removeRangeById]);
+
+  const removeClip = useCallback(async (range) => {
+    if (!range) {
+      return;
+    }
+
+    const rangeKey = buildRangeLookupKey(range);
+    const hasGeneratedOutputs = state.existingClips.some((clip) => buildRangeLookupKey(clip.range) === rangeKey);
+
+    if (hasGeneratedOutputs) {
+      const result = await globalThis.cutrail?.deleteClipRangeOutputs?.({
+        outputDirectory: state.outputDirectory,
+        range: {
+          start: range.start,
+          end: range.end,
+        },
+        sourcePath: state.sourcePath,
+      });
+
+      if (!result?.ok) {
+        state.setErrorMessage(result?.error ?? 'Failed to delete generated clip files.');
+
+        return;
+      }
+    }
+
+    state.setExistingClips((previous) => previous.filter((clip) => buildRangeLookupKey(clip.range) !== rangeKey));
+    state.setErrorMessage('');
+    removeRangeById(range.id, { allowLocked: true });
+  }, [removeRangeById, state]);
 
   const startExport = useCallback(async () => {
     pausePlayback();
@@ -97,6 +153,13 @@ export const useClippingActions = (state) => {
 
       const result = await globalThis.cutrail.runExportPlan({ jobs: nextPlan.jobs });
       state.setRunResult(result);
+
+      if (typeof globalThis.cutrail?.syncExistingExportClips === 'function') {
+        void globalThis.cutrail.syncExistingExportClips({
+          sourcePath: state.sourcePath,
+          outputDirectory: state.outputDirectory,
+        });
+      }
     } catch (error) {
       state.setErrorMessage(error instanceof Error ? error.message : 'Failed to run export plan');
     }
@@ -105,9 +168,12 @@ export const useClippingActions = (state) => {
   return {
     addRangeAtPlayhead,
     pausePlayback,
+    removeClip,
     removeRange,
     resetPlan,
     setPlaybackTime,
+    setSelectedRangeId,
+    setTrimMode,
     startExport,
   };
 };

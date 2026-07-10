@@ -21,6 +21,7 @@ const registerCreateExportPlanHandler = () => {
       outputDirectory,
       ranges,
       extension,
+      trimMode,
     });
     const jobs = exportPlan.jobs.map((job) => ({
       ...job,

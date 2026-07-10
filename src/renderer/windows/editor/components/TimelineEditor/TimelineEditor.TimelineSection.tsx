@@ -6,7 +6,8 @@ import {
 import { Button } from '@renderer/components/Button';
 import {
   clamp,
-  useClippingContext,
+  useClippingActions,
+  useClippingState,
 } from '@renderer/core/clipping';
 import { formatSeconds } from './TimelineEditor.utils';
 import {
@@ -21,17 +22,20 @@ import {
 } from './TimelineEditor.css';
 
 export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
+  const state = useClippingState();
   const {
-    addRangeAtPlayhead,
+    clipEntries,
     currentTime,
     duration,
-    ranges,
     selectedRangeId,
-    setPlaybackTime,
-    setSelectedRangeId,
     sourcePath,
     timelineRef,
-  } = useClippingContext();
+  } = state;
+  const {
+    addRangeAtPlayhead,
+    setPlaybackTime,
+    setSelectedRangeId,
+  } = useClippingActions(state);
   const isSeekingReference = useRef(false);
 
   const setPlaybackFromClientX = useCallback((clientX) => {
@@ -97,7 +101,8 @@ export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
           }}
         >
           <span className={playhead} style={{ insetInlineStart: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }} />
-          {ranges.map((range) => {
+          {clipEntries.map((clipEntry) => {
+            const { isLocked, range } = clipEntry;
             const left = duration > 0 ? (range.start / duration) * 100 : 0;
             const width = duration > 0 ? ((range.end - range.start) / duration) * 100 : 0;
 
@@ -105,21 +110,25 @@ export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
               <button
                 type="button"
                 key={range.id}
+                disabled={isLocked}
                 data-timeline-range="true"
-                className={rangeBlock({ selected: selectedRangeId === range.id })}
+                className={rangeBlock({
+                  locked: isLocked,
+                  selected: selectedRangeId === range.id,
+                })}
                 style={{
                   insetInlineStart: `${left}%`,
                   inlineSize: `${Math.max(width, 0.5)}%`,
                 }}
-                onPointerDown={onCreateDragHandler(range, 'move')}
+                onPointerDown={isLocked ? undefined : onCreateDragHandler(range, 'move')}
                 onClick={(event) => {
                   event.stopPropagation();
                   setSelectedRangeId(range.id);
                 }}
                 aria-label={`Edit ${range.id}`}
               >
-                <span data-timeline-range="true" className={handle({ side: 'start' })} onPointerDown={onCreateDragHandler(range, 'resize-start')} />
-                <span data-timeline-range="true" className={handle({ side: 'end' })} onPointerDown={onCreateDragHandler(range, 'resize-end')} />
+                <span data-timeline-range="true" className={handle({ side: 'start' })} onPointerDown={isLocked ? undefined : onCreateDragHandler(range, 'resize-start')} />
+                <span data-timeline-range="true" className={handle({ side: 'end' })} onPointerDown={isLocked ? undefined : onCreateDragHandler(range, 'resize-end')} />
               </button>
             );
           })}

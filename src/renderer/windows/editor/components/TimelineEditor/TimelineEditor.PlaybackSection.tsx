@@ -8,7 +8,7 @@ import {
   Pause,
   Play,
 } from 'lucide-react';
-import { useClippingContext } from '@renderer/core/clipping';
+import { useClippingState } from '@renderer/core/clipping';
 import {
   emptyVideo,
   overlayPlayButton,
@@ -19,6 +19,7 @@ import {
 } from './TimelineEditor.css';
 
 export const TimelineEditorPlaybackSection = () => {
+  const state = useClippingState();
   const {
     currentTime,
     isPlaying,
@@ -28,7 +29,7 @@ export const TimelineEditorPlaybackSection = () => {
     sourcePath,
     videoRef,
     videoUrl,
-  } = useClippingContext();
+  } = state;
   const [showOverlayControl, setShowOverlayControl] = useState(true);
   const hideTimerReference = useRef(null);
 

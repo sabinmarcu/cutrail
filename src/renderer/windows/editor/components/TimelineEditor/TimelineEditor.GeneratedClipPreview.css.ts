@@ -117,7 +117,6 @@ export const progressRail = style({
 export const progressFill = style({
   background: theme.colors.secondary.base,
   blockSize: '100%',
-  boxShadow: `0 0 12px color-mix(in oklab, ${theme.colors.secondary.base} 30%, transparent)`,
   position: 'relative',
   zIndex: 2,
 });

@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
-import { useClippingContext } from '@renderer/core/clipping';
+import {
+  useClippingActions,
+  useClippingState,
+} from '@renderer/core/clipping';
 
 const isEditableTarget = (target) => {
   if (!(target instanceof HTMLElement)) {
@@ -10,9 +13,17 @@ const isEditableTarget = (target) => {
 };
 
 export const EditorWindowKeyboardShortcuts = () => {
+  const state = useClippingState();
   const {
-    currentTime, duration, pausePlayback, setPlaybackTime, sourcePath, videoRef,
-  } = useClippingContext();
+    currentTime,
+    duration,
+    sourcePath,
+    videoRef,
+  } = state;
+  const {
+    pausePlayback,
+    setPlaybackTime,
+  } = useClippingActions(state);
 
   useEffect(() => {
     const seekStepSeconds = 1;

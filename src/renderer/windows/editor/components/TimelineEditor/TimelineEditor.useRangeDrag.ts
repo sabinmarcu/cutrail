@@ -2,13 +2,19 @@ import { useEffect } from 'react';
 import {
   clamp,
   MIN_RANGE_DURATION,
-  useClippingContext,
+  useClippingActions,
+  useClippingState,
 } from '@renderer/core/clipping';
 
 export const useTimelineRangeDrag = ({ dragState, setDragState }) => {
+  const state = useClippingState();
   const {
-    duration, ranges, resetPlan, setRanges, timelineRef,
-  } = useClippingContext();
+    duration,
+    ranges,
+    setRanges,
+    timelineRef,
+  } = state;
+  const { resetPlan } = useClippingActions(state);
 
   useEffect(() => {
     if (!dragState) {

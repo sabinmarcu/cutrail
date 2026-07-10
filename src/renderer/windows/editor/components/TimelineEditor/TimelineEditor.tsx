@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { useClippingContext } from '@renderer/core/clipping';
+import {
+  useClippingActions,
+  useClippingState,
+} from '@renderer/core/clipping';
 import {
   editorPanel,
   panelHeading,
@@ -11,7 +14,8 @@ import { TimelineEditorTimelineSection } from './TimelineEditor.TimelineSection'
 import { useTimelineRangeDrag } from './TimelineEditor.useRangeDrag';
 
 export const TimelineEditor = ({ hideHeading = false, showRangeList = true }) => {
-  const { setSelectedRangeId } = useClippingContext();
+  const state = useClippingState();
+  const { setSelectedRangeId } = useClippingActions(state);
   const [dragState, setDragState] = useState(null);
 
   useTimelineRangeDrag({

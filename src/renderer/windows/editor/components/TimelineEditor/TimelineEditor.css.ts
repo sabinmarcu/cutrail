@@ -164,7 +164,6 @@ export const timeline = style({
 
 export const playhead = style({
   background: theme.colors.secondary.emphasis,
-  boxShadow: `0 0 10px color-mix(in oklab, ${theme.colors.secondary.base} 45%, transparent)`,
   insetBlockEnd: 0,
   pointerEvents: 'none',
   position: 'absolute',
@@ -191,15 +190,48 @@ export const rangeBlock = recipe({
     zIndex: 6,
   },
   variants: {
+    locked: {
+      false: {},
+      true: {
+        background: theme.colors.background.text,
+        borderColor: theme.colors.background.text,
+        boxShadow: 'none',
+        cursor: 'not-allowed',
+        opacity: 1,
+        selectors: {
+          '&::after': {
+            backgroundImage: 'repeating-linear-gradient(135deg, rgba(2, 8, 5, 0.66) 0 5px, rgba(53, 255, 149, 0.2) 5px 10px)',
+            content: '',
+            inset: 0,
+            pointerEvents: 'none',
+            position: 'absolute',
+            zIndex: 1,
+          },
+        },
+      },
+    },
     selected: {
       false: {},
       true: {
         background: theme.colors.secondary.base,
         borderColor: theme.colors.secondary.base,
-        boxShadow: `0 0 12px color-mix(in oklab, ${theme.colors.secondary.base} 35%, transparent)`,
       },
     },
   },
+  compoundVariants: [
+    {
+      variants: {
+        locked: true,
+        selected: true,
+      },
+      style: {
+        background: theme.colors.background.text,
+        borderColor: theme.colors.background.text,
+        outline: `1px solid ${theme.colors.error.emphasis}`,
+        outlineOffset: '0',
+      },
+    },
+  ],
 });
 
 export const handle = recipe({

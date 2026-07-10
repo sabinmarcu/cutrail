@@ -8,6 +8,7 @@ export const buildExportJobs = ({
   outputDirectory,
   ranges,
   extension = 'mp4',
+  trimMode = 'fast',
   options = {},
 }) => {
   if (typeof sourcePath !== 'string' || sourcePath.trim().length === 0) {
@@ -20,12 +21,12 @@ export const buildExportJobs = ({
 
   const normalized = normalizeClipRanges(ranges, options);
 
-  const jobs = normalized.ranges.map((range, clipIndex) => {
+  const jobs = normalized.ranges.map((range) => {
     const outputName = buildClipOutputName({
       sourcePath,
-      clipIndex,
       range,
       extension,
+      trimMode,
     });
 
     return {

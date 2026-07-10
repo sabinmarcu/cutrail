@@ -47,6 +47,10 @@ import {
  */
 
 /**
+ * @typedef {{ ok: boolean, deletedCount: number, error?: string }} DeleteClipRangeOutputsResult
+ */
+
+/**
  * @typedef {{
  *   getRuntimeInfo: () => { electron?: string, chrome?: string, node?: string },
  *   getAppMetadata: () => Promise<{ version: string, copyright: string, attribution: string, license: string }>,
@@ -58,6 +62,9 @@ import {
  *   getThirdPartyNotices: () => Promise<string>,
  *   getUpdateDialogState: () => Promise<unknown>,
  *   getPathForFile: (file: File | null | undefined) => string | null,
+ *   deleteClipRangeOutputs: (payload: { sourcePath?: string, outputDirectory?: string, range?: { start?: number | string, end?: number | string } }) => Promise<DeleteClipRangeOutputsResult>,
+ *   onExistingExportClipsUpdated: (listener: (payload: unknown) => void) => () => void,
+ *   syncExistingExportClips: (payload?: { sourcePath?: string, outputDirectory?: string }) => Promise<boolean>,
  *   openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>,
  *   selectSourceVideo: () => Promise<string | null>,
  *   selectOutputDirectory: () => Promise<string | null>,
@@ -117,6 +124,24 @@ const cutrailBridge = {
       return null;
     }
   },
+  deleteClipRangeOutputs: (payload) => ipcRenderer.invoke('cutrail:delete-clip-range-outputs', payload),
+  onExistingExportClipsUpdated: (listener) => {
+    if (typeof listener !== 'function') {
+      throw new TypeError('listener must be a function');
+    }
+
+    /** @param {import('electron').IpcRendererEvent} _event @param {unknown} payload */
+    const wrappedListener = (_event, payload) => {
+      listener(payload);
+    };
+
+    ipcRenderer.on('cutrail:existing-export-clips-updated', wrappedListener);
+
+    return () => {
+      ipcRenderer.removeListener('cutrail:existing-export-clips-updated', wrappedListener);
+    };
+  },
+  syncExistingExportClips: (payload) => ipcRenderer.invoke('cutrail:sync-existing-export-clips', payload),
   openVideoEditor: (payload) => ipcRenderer.invoke('cutrail:open-video-editor', payload),
   selectSourceVideo: () => ipcRenderer.invoke('cutrail:select-source-video'),
   selectOutputDirectory: () => ipcRenderer.invoke('cutrail:select-output-directory'),

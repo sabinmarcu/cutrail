@@ -27,8 +27,8 @@ describe('buildExportJobs', () => {
 
     expect(result.errors).toEqual([]);
     expect(result.jobs.map((job) => job.id)).toEqual(['early', 'later']);
-    expect(result.jobs[0].outputPath).toBe('/clips/source__0001__00-00-05_00-00-09.mp4');
-    expect(result.jobs[1].outputPath).toBe('/clips/source__0002__00-00-20_00-00-22.mp4');
+    expect(result.jobs[0].outputPath).toBe('/clips/source__fast__00-00-05_00-00-09.mp4');
+    expect(result.jobs[1].outputPath).toBe('/clips/source__fast__00-00-20_00-00-22.mp4');
   });
 
   it('returns validation errors for invalid ranges', () => {

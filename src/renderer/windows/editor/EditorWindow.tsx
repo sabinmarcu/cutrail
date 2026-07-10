@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import '@renderer/windows/globalReset.css';
-import { ClippingProvider } from '@renderer/core/clipping';
 import { WindowDecoration } from '@renderer/components/WindowDecoration';
 import {
   editorColumn,
@@ -8,6 +7,7 @@ import {
   shell,
   workspaceGrid,
 } from './EditorWindow.css';
+import { EditorWindowClippingBridge } from './EditorWindow.ClippingBridge';
 import { EditorWindowKeyboardShortcuts } from './EditorWindow.KeyboardShortcuts';
 import { EditorWindowSidebar } from './EditorWindow.Sidebar';
 import { TimelineEditor } from './components/TimelineEditor/TimelineEditor';
@@ -40,15 +40,14 @@ export const EditorWindow = () => {
           subtitleText={subtitleText}
           titleText="Cutrail Editor"
         />
-        <ClippingProvider initialSourcePath={initialSourcePath}>
-          <EditorWindowKeyboardShortcuts />
-          <div className={workspaceGrid}>
-            <section className={editorColumn}>
-              <TimelineEditor hideHeading showRangeList={false} />
-            </section>
-            <EditorWindowSidebar />
-          </div>
-        </ClippingProvider>
+        <EditorWindowClippingBridge initialSourcePath={initialSourcePath} />
+        <EditorWindowKeyboardShortcuts />
+        <div className={workspaceGrid}>
+          <section className={editorColumn}>
+            <TimelineEditor hideHeading showRangeList={false} />
+          </section>
+          <EditorWindowSidebar />
+        </div>
       </section>
     </main>
   );

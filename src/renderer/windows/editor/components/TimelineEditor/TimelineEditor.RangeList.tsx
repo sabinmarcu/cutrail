@@ -1,5 +1,8 @@
 import { Button } from '@renderer/components/Button';
-import { useClippingContext } from '@renderer/core/clipping';
+import {
+  useClippingActions,
+  useClippingState,
+} from '@renderer/core/clipping';
 import {
   rangeLabel,
   rangeList,
@@ -8,16 +11,16 @@ import {
 import { formatSeconds } from './TimelineEditor.utils';
 
 export const TimelineEditorRangeList = () => {
-  const {
-    ranges, removeRange, selectedRangeId,
-  } = useClippingContext();
+  const state = useClippingState();
+  const { clipEntries, selectedRangeId } = state;
+  const { removeRange } = useClippingActions(state);
 
   return (
     <ul className={rangeList}>
-      {ranges.map((range) => (
-        <li key={range.id} className={rangeRow({ selected: selectedRangeId === range.id })}>
-          <span className={rangeLabel}>{range.id}: {formatSeconds(range.start)} - {formatSeconds(range.end)}</span>
-          <Button type="button" variant="danger" onClick={() => removeRange(range.id)}>Remove</Button>
+      {clipEntries.map((clipEntry) => (
+        <li key={clipEntry.range.id} className={rangeRow({ selected: selectedRangeId === clipEntry.range.id })}>
+          <span className={rangeLabel}>{clipEntry.range.id}: {formatSeconds(clipEntry.range.start)} - {formatSeconds(clipEntry.range.end)}</span>
+          <Button type="button" variant="danger" onClick={() => removeRange(clipEntry.range.id)} disabled={clipEntry.isLocked}>Remove</Button>
         </li>
       ))}
     </ul>

@@ -1,5 +1,6 @@
-export { useClippingContext } from './clipping.context';
-export { ClippingProvider } from './clipping.provider';
+export { useClippingState } from './clipping.state';
+export { useClippingActions } from './clipping.actions';
+export { useClippingSubscriptions } from './clipping.subscriptions';
 export {
   buildRangeId,
   clamp,

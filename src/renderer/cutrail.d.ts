@@ -39,6 +39,31 @@ type ClipFileActionResult = {
   error?: string;
 };
 
+type DeleteClipRangeOutputsResult = {
+  ok: boolean;
+  deletedCount: number;
+  error?: string;
+};
+
+type ExistingExportClip = {
+  fileName: string;
+  filePath: string;
+  sourceName: string;
+  trimMode: 'fast' | 'accurate';
+  range: {
+    start: number;
+    end: number;
+    duration: number;
+  };
+  extension: string;
+};
+
+type ExistingExportClipsSnapshot = {
+  sourcePath: string;
+  outputDirectory: string;
+  clips: ExistingExportClip[];
+};
+
 type CutrailBridge = {
   getRuntimeInfo: () => { electron?: string; chrome?: string; node?: string };
   getAppMetadata: () => Promise<{
@@ -49,12 +74,14 @@ type CutrailBridge = {
   }>;
   closeWindow: () => Promise<unknown>;
   minimizeWindow: () => Promise<unknown>;
-  toggleWindowMaximize: () => Promise<unknown>;
+  onExistingExportClipsUpdated: (listener: (payload: ExistingExportClipsSnapshot) => void) => () => void;
+  syncExistingExportClips: (payload?: { sourcePath?: string; outputDirectory?: string }) => Promise<boolean>;
   getOutputDirectory: () => Promise<string | null>;
   getFfmpegDiagnostics: () => Promise<any>;
   getThirdPartyNotices: () => Promise<string>;
   getUpdateDialogState: () => Promise<any>;
   getPathForFile: (file: File | null | undefined) => string | null;
+  deleteClipRangeOutputs: (payload: { sourcePath?: string; outputDirectory?: string; range?: { start?: number | string; end?: number | string } }) => Promise<DeleteClipRangeOutputsResult>;
   openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>;
   selectSourceVideo: () => Promise<string | null>;
   selectOutputDirectory: () => Promise<string | null>;

@@ -3,12 +3,14 @@
 import { registerCheckFfmpegHandler } from './handlers/checkFfmpeg.mjs';
 import { registerClipFileActionsHandler } from './handlers/clipFileActions.mjs';
 import { registerCreateExportPlanHandler } from './handlers/createExportPlan.mjs';
+import { registerDeleteClipRangeOutputsHandler } from './handlers/deleteClipRangeOutputs.mjs';
 import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.mjs';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.mjs';
 import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory.mjs';
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.mjs';
 import { registerGetUpdateDialogStateHandler } from './handlers/getUpdateDialogState.mjs';
 import { registerOpenVideoEditorHandler } from './handlers/openVideoEditor.mjs';
+import { registerSyncExistingExportClipsHandler } from './handlers/syncExistingExportClips.mjs';
 import { registerStartFileDragHandler } from './handlers/startFileDrag.mjs';
 import { registerRunExportPlanHandler } from './handlers/runExportPlan.mjs';
 import { registerSelectOutputDirectoryHandler } from './handlers/selectOutputDirectory.mjs';
@@ -43,6 +45,8 @@ const registerHandlers = (deps) => {
   registerGetThirdPartyNoticesHandler(deps);
   registerGetUpdateDialogStateHandler(deps);
   registerCreateExportPlanHandler();
+  registerDeleteClipRangeOutputsHandler();
+  registerSyncExistingExportClipsHandler();
   registerCheckFfmpegHandler();
   registerRunExportPlanHandler();
   registerStartFileDragHandler();

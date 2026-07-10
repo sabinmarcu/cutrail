@@ -129,8 +129,10 @@ export const panelHeading = style({
 });
 
 export const clipList = style({
+  alignContent: 'start',
+  alignItems: 'start',
   display: 'grid',
-  gap: theme.grid.xxs,
+  gap: theme.grid.m,
   listStyle: 'none',
   margin: 0,
   minBlockSize: 0,
@@ -162,6 +164,25 @@ export const clipMeta = style({
   color: theme.colors.secondary.base,
   fontSize: '0.74rem',
   lineHeight: 1.25,
+});
+
+export const clipActionRow = style({
+  display: 'grid',
+  gap: theme.grid.xxs,
+  marginBlockStart: theme.grid.xxs,
+});
+
+export const clipActionButton = style({
+  alignItems: 'center',
+  display: 'inline-flex',
+  gap: theme.grid.xxs,
+  blockSize: '1.6rem',
+  justifyContent: 'center',
+  minInlineSize: 0,
+  paddingBlock: 0,
+  paddingInline: theme.grid.xxs,
+  fontSize: '0.62rem',
+  inlineSize: '100%',
 });
 
 export const sideActions = style({

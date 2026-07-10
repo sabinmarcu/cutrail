@@ -3648,6 +3648,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^7.1.1"
     globals: "npm:^16.3.0"
     husky: "npm:^9.1.7"
+    jotai: "npm:^2.20.1"
     lint-staged: "npm:^17.0.8"
     lucide-react: "npm:^0.469.0"
     react: "npm:^19.1.0"
@@ -6467,6 +6468,27 @@ __metadata:
   version: 6.2.3
   resolution: "jose@npm:6.2.3"
   checksum: 10c0/aa91bccba22cc84d86308f833749bcb0b00441e35c24e0ac79abeac5f76dc62d47bdef9c1da6a0c609f5da6478595f52b252085888b89dbdb163861e40ea4188
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.20.1":
+  version: 2.20.1
+  resolution: "jotai@npm:2.20.1"
+  peerDependencies:
+    "@babel/core": ">=7.0.0"
+    "@babel/template": ">=7.0.0"
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@babel/template":
+      optional: true
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/a0d5104784efd5328aa25e29bb8e4e51d91c87d78afd0edd5dc90cdd1ee735828d3987adfcbe35b817ed921e6742794a0523b71467df49f52964c2275d6284f0
   languageName: node
   linkType: hard
 
