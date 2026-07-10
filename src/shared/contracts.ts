@@ -81,6 +81,22 @@ export type ExistingExportClipsSnapshot = {
   clips: ExistingExportClip[];
 };
 
+export type VideoLibraryEntry = {
+  fileName: string;
+  filePath: string;
+  extension: string;
+  sizeBytes: number;
+  createdAtMs: number;
+  modifiedAtMs: number;
+  clipCount: number;
+};
+
+export type VideoLibrarySnapshot = {
+  sourceDirectory: string;
+  outputDirectory: string;
+  videos: VideoLibraryEntry[];
+};
+
 export type ExportPlanJob = {
   id: string;
   inputPath: string;
@@ -152,7 +168,10 @@ export type CutrailBridge = {
   closeWindow: () => Promise<unknown>;
   minimizeWindow: () => Promise<unknown>;
   toggleWindowMaximize: () => Promise<unknown>;
+  openLibraryWindow: () => Promise<boolean>;
+  getSourceDirectory: () => Promise<string | null>;
   getOutputDirectory: () => Promise<string | null>;
+  getVideoLibrary: () => Promise<VideoLibrarySnapshot>;
   getFfmpegDiagnostics: () => Promise<FfmpegAvailabilityResult>;
   getThirdPartyNotices: () => Promise<string>;
   getUpdateDialogState: () => Promise<UpdateDialogState | null>;
@@ -170,6 +189,7 @@ export type CutrailBridge = {
   ) => Promise<boolean>;
   openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>;
   selectSourceVideo: () => Promise<string | null>;
+  selectSourceDirectory: () => Promise<string | null>;
   selectOutputDirectory: () => Promise<string | null>;
   resolveMediaUrl: (inputPath: string) => string;
   checkFfmpeg: () => Promise<FfmpegAvailabilityResult>;
@@ -181,6 +201,7 @@ export type CutrailBridge = {
   revealClip: (filePath: string) => Promise<ClipFileActionResult>;
   submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: string) => void) => () => void;
+  onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onExportProgress: (listener: (payload: ExportProgressPayload) => void) => () => void;
   onUpdateDialogState: (listener: (payload: UpdateDialogState) => void) => () => void;

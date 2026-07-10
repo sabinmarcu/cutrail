@@ -21,7 +21,10 @@ import {
   uninstallStandaloneAppImage,
 } from './linuxStandaloneInstall.ts';
 import {
+  ensurePersistedDirectories,
   getPersistedOutputDirectory,
+  getPersistedSourceDirectory,
+  setPersistedSourceDirectory,
   setPersistedOutputDirectory,
 } from './settings.ts';
 import { createAppUpdater } from './updater.ts';
@@ -66,6 +69,7 @@ const syncAppMenu = async (): Promise<void> => {
     openAboutWindow: windows.openAboutWindow,
     openDiagnosticsWindow: windows.openDiagnosticsWindow,
     openEditorWindow: windows.openEditorWindow,
+    openLibraryWindow: windows.openLibraryWindow,
     openLicensesWindow: windows.openLicensesWindow,
     openOptionsWindow: windows.openOptionsWindow,
     selectSourceVideo: () => selectValidSourceVideo(null),
@@ -82,14 +86,18 @@ const startApp = async (): Promise<void> => {
     }
 
     registerMediaProtocol();
+    await ensurePersistedDirectories();
     registerIpcHandlers({
       getAppMetadata,
       getPersistedOutputDirectory,
+      getPersistedSourceDirectory,
       getUpdateDialogState: windows.getUpdateDialogState,
+      openLibraryWindow: windows.openLibraryWindow,
       openEditorWindow: windows.openEditorWindow,
       readThirdPartyNotices,
       submitUpdateDialogAction: windows.submitUpdateDialogAction,
       setPersistedOutputDirectory,
+      setPersistedSourceDirectory,
     });
     await syncAppMenu();
     windows.createMainWindow();

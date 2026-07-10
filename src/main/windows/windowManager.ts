@@ -21,6 +21,7 @@ type WindowManagerApi = {
   openAboutWindow: () => Promise<boolean>;
   openDiagnosticsWindow: () => boolean;
   openEditorWindow: (sourcePath?: string) => boolean;
+  openLibraryWindow: () => boolean;
   openLicensesWindow: () => boolean;
   openOptionsWindow: () => boolean;
   openUpdateDialog: ReturnType<typeof createUpdateDialogController>['openUpdateDialog'];
@@ -44,7 +45,7 @@ type StandardWindowOptions = {
   width?: number;
 };
 
-type UtilityWindowMode = 'licenses' | 'options' | 'diagnostics';
+type UtilityWindowMode = 'licenses' | 'options' | 'diagnostics' | 'library';
 
 type OpenUtilityWindowOptions = {
   cacheKey: () => BrowserWindow | null;
@@ -63,6 +64,7 @@ const createWindowManager = ({
   let aboutWindow: BrowserWindow | null = null;
   let diagnosticsWindow: BrowserWindow | null = null;
   const editorWindows = new Set<BrowserWindow>();
+  let libraryWindow: BrowserWindow | null = null;
   let licensesWindow: BrowserWindow | null = null;
   let mainWindow: BrowserWindow | null = null;
   let optionsWindow: BrowserWindow | null = null;
@@ -186,21 +188,47 @@ const createWindowManager = ({
     });
 
     next.on('closed', () => {
-      if (mode === 'licenses') {
-        licensesWindow = null;
-      } else if (mode === 'options') {
-        optionsWindow = null;
-      } else {
-        diagnosticsWindow = null;
+      switch (mode) {
+        case 'licenses': {
+          licensesWindow = null;
+
+          break;
+        }
+        case 'options': {
+          optionsWindow = null;
+
+          break;
+        }
+        case 'library': {
+          libraryWindow = null;
+
+          break;
+        }
+        default: {
+          diagnosticsWindow = null;
+        }
       }
     });
 
-    if (mode === 'licenses') {
-      licensesWindow = next;
-    } else if (mode === 'options') {
-      optionsWindow = next;
-    } else {
-      diagnosticsWindow = next;
+    switch (mode) {
+      case 'licenses': {
+        licensesWindow = next;
+
+        break;
+      }
+      case 'options': {
+        optionsWindow = next;
+
+        break;
+      }
+      case 'library': {
+        libraryWindow = next;
+
+        break;
+      }
+      default: {
+        diagnosticsWindow = next;
+      }
     }
 
     return next;
@@ -251,6 +279,23 @@ const createWindowManager = ({
         height: 480,
         minWidth: 640,
         minHeight: 360,
+      },
+    });
+
+    return true;
+  };
+
+  /** @returns {boolean} */
+  const openLibraryWindow = () => {
+    openUtilityWindow({
+      cacheKey: () => libraryWindow,
+      mode: 'library',
+      title: 'Cutrail Library',
+      size: {
+        width: 1160,
+        height: 760,
+        minWidth: 900,
+        minHeight: 600,
       },
     });
 
@@ -311,6 +356,7 @@ const createWindowManager = ({
     openAboutWindow,
     openDiagnosticsWindow,
     openEditorWindow,
+    openLibraryWindow,
     openLicensesWindow,
     openOptionsWindow,
     openUpdateDialog: updateDialogController.openUpdateDialog,

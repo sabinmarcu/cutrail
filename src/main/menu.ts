@@ -15,6 +15,7 @@ type AppMenuDependencies = {
   openAboutWindow: () => Promise<boolean> | boolean;
   openDiagnosticsWindow: () => boolean;
   openEditorWindow: (sourcePath: string) => boolean;
+  openLibraryWindow: () => boolean;
   openLicensesWindow: () => boolean;
   openOptionsWindow: () => boolean;
   selectSourceVideo: () => Promise<string | null>;
@@ -29,6 +30,7 @@ const createAppMenu = ({
   openAboutWindow,
   openDiagnosticsWindow,
   openEditorWindow,
+  openLibraryWindow,
   openLicensesWindow,
   openOptionsWindow,
   selectSourceVideo,
@@ -47,6 +49,11 @@ const createAppMenu = ({
       label: 'Open Video...',
       accelerator: 'CmdOrCtrl+O',
       click: () => { openVideoFromDialog(); },
+    },
+    {
+      label: 'Open Library',
+      accelerator: 'CmdOrCtrl+Shift+L',
+      click: () => { openLibraryWindow(); },
     },
     {
       label: 'Options',

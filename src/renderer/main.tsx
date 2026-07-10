@@ -5,6 +5,7 @@ import { AppWindow } from '@renderer/windows/app/AppWindow';
 import { AboutWindow } from '@renderer/windows/about/AboutWindow';
 import { DiagnosticsWindow } from '@renderer/windows/diagnostics/DiagnosticsWindow';
 import { EditorWindow } from '@renderer/windows/editor/EditorWindow';
+import { LibraryWindow } from '@renderer/windows/library/LibraryWindow';
 import { LicensesWindow } from '@renderer/windows/licenses/LicensesWindow';
 import { OptionsWindow } from '@renderer/windows/options/OptionsWindow';
 import { UpdatesWindow } from '@renderer/windows/updates/UpdatesWindow';
@@ -28,6 +29,10 @@ const getRendererApp = () => {
 
   if (mode === 'editor') {
     return <EditorWindow />;
+  }
+
+  if (mode === 'library') {
+    return <LibraryWindow />;
   }
 
   if (mode === 'licenses') {

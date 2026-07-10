@@ -10,6 +10,8 @@ type SegmentedSwitchOption<TValue extends string> = {
 
 type SegmentedSwitchProps<TValue extends string> = {
   ariaLabel: string;
+  className?: string;
+  optionClassName?: string;
   onChange: (value: TValue) => void;
   options: Array<SegmentedSwitchOption<TValue>>;
   value: TValue;
@@ -18,12 +20,14 @@ type SegmentedSwitchProps<TValue extends string> = {
 export const SegmentedSwitch = <TValue extends string>(
   {
     ariaLabel,
+    className,
     onChange,
+    optionClassName,
     options,
     value,
   }: SegmentedSwitchProps<TValue>,
 ) => (
-  <div className={root} role="group" aria-label={ariaLabel}>
+  <div className={className ? `${root} ${className}` : root} role="group" aria-label={ariaLabel}>
     {options.map((option) => {
       const selected = option.value === value;
 
@@ -31,7 +35,7 @@ export const SegmentedSwitch = <TValue extends string>(
         <button
           key={option.value}
           type="button"
-          className={optionButton}
+          className={optionClassName ? `${optionButton} ${optionClassName}` : optionButton}
           disabled={selected}
           onClick={() => {
             onChange(option.value);

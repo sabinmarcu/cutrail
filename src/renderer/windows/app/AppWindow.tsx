@@ -193,6 +193,16 @@ export const AppWindow = () => {
           >
             Select Video File
           </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            className={noDrag}
+            onClick={() => {
+              globalThis.cutrail?.openLibraryWindow?.();
+            }}
+          >
+            Open Library
+          </Button>
         </section>
         <footer className={footer}>
           <Button
