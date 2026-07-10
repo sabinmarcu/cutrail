@@ -6,6 +6,7 @@ import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
+  controlSelect,
   heading,
   helperText,
   panel,
@@ -13,6 +14,7 @@ import {
 } from './OptionsWindow.css';
 
 export const OptionsWindow = () => {
+  const [startupWindowMode, setStartupWindowMode] = useState<'splash' | 'library'>('splash');
   const [sourceDirectory, setSourceDirectory] = useState('Loading...');
   const [outputDirectory, setOutputDirectory] = useState('Loading...');
 
@@ -35,6 +37,14 @@ export const OptionsWindow = () => {
       });
     }
 
+    if (typeof globalThis.cutrail?.getStartupWindowMode === 'function') {
+      globalThis.cutrail.getStartupWindowMode().then((mode) => {
+        if (mounted) {
+          setStartupWindowMode(mode === 'library' ? 'library' : 'splash');
+        }
+      });
+    }
+
     const unsubscribeSource = typeof globalThis.cutrail?.onSourceDirectoryUpdated === 'function'
       ? globalThis.cutrail.onSourceDirectoryUpdated((path) => {
         setSourceDirectory(typeof path === 'string' && path.length > 0 ? path : 'Not configured');
@@ -47,10 +57,17 @@ export const OptionsWindow = () => {
       })
       : () => {};
 
+    const unsubscribeStartupMode = typeof globalThis.cutrail?.onStartupWindowModeUpdated === 'function'
+      ? globalThis.cutrail.onStartupWindowModeUpdated((mode) => {
+        setStartupWindowMode(mode === 'library' ? 'library' : 'splash');
+      })
+      : () => {};
+
     return () => {
       mounted = false;
       unsubscribeSource();
       unsubscribeOutput();
+      unsubscribeStartupMode();
     };
   }, []);
 
@@ -59,6 +76,26 @@ export const OptionsWindow = () => {
       titleText="Cutrail Options"
       subtitleText="Configure app-level behavior used by splash and editor windows."
     >
+      <section className={panel}>
+        <h2 className={heading}>Default Startup Window</h2>
+        <select
+          className={controlSelect}
+          value={startupWindowMode}
+          onChange={(event) => {
+            const nextMode = event.currentTarget.value === 'library' ? 'library' : 'splash';
+
+            setStartupWindowMode(nextMode);
+            globalThis.cutrail?.setStartupWindowMode?.(nextMode);
+          }}
+        >
+          <option value="splash">Splash Screen</option>
+          <option value="library">Library Window</option>
+        </select>
+        <p className={helperText}>
+          This controls what opens first when Cutrail starts or reopens with no windows.
+        </p>
+      </section>
+
       <section className={panel}>
         <h2 className={heading}>Source Folder</h2>
         <p className={pathValue}>{sourceDirectory}</p>

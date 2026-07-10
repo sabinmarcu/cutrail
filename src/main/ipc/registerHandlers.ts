@@ -7,6 +7,7 @@ import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.ts';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.ts';
 import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory.ts';
 import { registerGetSourceDirectoryHandler } from './handlers/getSourceDirectory.ts';
+import { registerGetStartupWindowModeHandler } from './handlers/getStartupWindowMode.ts';
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.ts';
 import { registerGetUpdateDialogStateHandler } from './handlers/getUpdateDialogState.ts';
 import { registerGetVideoLibraryHandler } from './handlers/getVideoLibrary.ts';
@@ -18,6 +19,7 @@ import { registerRunExportPlanHandler } from './handlers/runExportPlan.ts';
 import { registerSelectOutputDirectoryHandler } from './handlers/selectOutputDirectory.ts';
 import { registerSelectSourceDirectoryHandler } from './handlers/selectSourceDirectory.ts';
 import { registerSelectSourceVideoHandler } from './handlers/selectSourceVideo.ts';
+import { registerSetStartupWindowModeHandler } from './handlers/setStartupWindowMode.ts';
 import { registerSubmitUpdateDialogActionHandler } from './handlers/submitUpdateDialogAction.ts';
 import { registerWindowControlsHandler } from './handlers/windowControls.ts';
 
@@ -30,6 +32,7 @@ type HandlerDependencies = {
   }>;
   getPersistedOutputDirectory: () => Promise<string | null>;
   getPersistedSourceDirectory: () => Promise<string | null>;
+  getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
   openLibraryWindow: () => boolean;
   openEditorWindow: (sourcePath: string) => boolean;
@@ -43,6 +46,7 @@ type HandlerDependencies = {
   ) => boolean;
   setPersistedOutputDirectory: (outputDirectory: string) => Promise<void>;
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
+  setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
 };
 
 /**
@@ -57,6 +61,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerSelectSourceDirectoryHandler(deps);
   registerSelectOutputDirectoryHandler(deps);
   registerGetSourceDirectoryHandler(deps);
+  registerGetStartupWindowModeHandler(deps);
   registerGetOutputDirectoryHandler(deps);
   registerGetVideoLibraryHandler(deps);
   registerGetFfmpegDiagnosticsHandler();
@@ -70,6 +75,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerStartFileDragHandler();
   registerClipFileActionsHandler();
   registerSubmitUpdateDialogActionHandler(deps);
+  registerSetStartupWindowModeHandler(deps);
   registerWindowControlsHandler();
 };
 

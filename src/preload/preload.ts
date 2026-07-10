@@ -9,6 +9,7 @@ import type {
   CutrailBridge,
   ExistingExportClipsSnapshot,
   ExportProgressPayload,
+  StartupWindowMode,
   UpdateDialogState,
 } from '../shared/contracts.ts';
 
@@ -50,6 +51,8 @@ export const cutrailBridge: CutrailBridge = {
   minimizeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'minimize'),
   toggleWindowMaximize: () => ipcRenderer.invoke('cutrail:window-control', 'maximize'),
   openLibraryWindow: () => ipcRenderer.invoke('cutrail:open-library-window'),
+  getStartupWindowMode: () => ipcRenderer.invoke('cutrail:get-startup-window-mode'),
+  setStartupWindowMode: (mode: Parameters<CutrailBridge['setStartupWindowMode']>[0]) => ipcRenderer.invoke('cutrail:set-startup-window-mode', mode),
   getSourceDirectory: () => ipcRenderer.invoke('cutrail:get-source-directory'),
   getOutputDirectory: () => ipcRenderer.invoke('cutrail:get-output-directory'),
   getVideoLibrary: () => ipcRenderer.invoke('cutrail:get-video-library'),
@@ -98,6 +101,7 @@ export const cutrailBridge: CutrailBridge = {
   }),
   submitUpdateDialogAction: (action: Parameters<CutrailBridge['submitUpdateDialogAction']>[0]) => ipcRenderer.invoke('cutrail:submit-update-dialog-action', action),
   onSourceVideoSelected: (listener: Parameters<CutrailBridge['onSourceVideoSelected']>[0]) => subscribeToChannel<string>('cutrail:source-video-selected', listener),
+  onStartupWindowModeUpdated: (listener: Parameters<CutrailBridge['onStartupWindowModeUpdated']>[0]) => subscribeToChannel<StartupWindowMode>('cutrail:startup-window-mode-updated', listener),
   onSourceDirectoryUpdated: (listener: Parameters<CutrailBridge['onSourceDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:source-directory-updated', listener),
   onOutputDirectoryUpdated: (listener: Parameters<CutrailBridge['onOutputDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:output-directory-updated', listener),
   onExportProgress: (listener: Parameters<CutrailBridge['onExportProgress']>[0]) => subscribeToChannel<ExportProgressPayload>('cutrail:export-progress', listener),

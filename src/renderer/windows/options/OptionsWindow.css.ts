@@ -42,3 +42,14 @@ export const helperText = style({
   fontSize: '0.76rem',
   margin: 0,
 });
+
+export const controlSelect = style({
+  background: '#010f0a',
+  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
+  color: theme.colors.primary.emphasis,
+  minBlockSize: '1.9rem',
+  paddingInline: theme.grid.xs,
+});

@@ -5,6 +5,9 @@ import { app } from 'electron';
 const SETTINGS_FILE_NAME = 'settings.json';
 const SOURCE_DIRECTORY_KEY = 'sourceDirectory';
 const OUTPUT_DIRECTORY_KEY = 'outputDirectory';
+const STARTUP_WINDOW_MODE_KEY = 'startupWindowMode';
+
+type StartupWindowMode = 'splash' | 'library';
 
 const getSettingsFilePath = (): string => path.join(app.getPath('userData'), SETTINGS_FILE_NAME);
 
@@ -28,6 +31,14 @@ const readStringSetting = (settings: Record<string, unknown>, key: string): stri
   const value = settings[key];
 
   return typeof value === 'string' && value.length > 0 ? value : null;
+};
+
+const parseStartupWindowMode = (value: unknown): StartupWindowMode | null => {
+  if (value === 'splash' || value === 'library') {
+    return value;
+  }
+
+  return null;
 };
 
 const getDefaultSourceDirectory = (): string | null => {
@@ -68,6 +79,12 @@ const getPersistedOutputDirectory = async (): Promise<string | null> => {
   return readStringSetting(settings, OUTPUT_DIRECTORY_KEY);
 };
 
+const getPersistedStartupWindowMode = async (): Promise<StartupWindowMode> => {
+  const settings = await readSettings();
+
+  return parseStartupWindowMode(settings[STARTUP_WINDOW_MODE_KEY]) ?? 'splash';
+};
+
 const setPersistedSourceDirectory = async (sourceDirectory: string): Promise<void> => {
   const settings = await readSettings();
   settings[SOURCE_DIRECTORY_KEY] = sourceDirectory;
@@ -86,10 +103,20 @@ const setPersistedOutputDirectory = async (outputDirectory: string): Promise<voi
   await writeSettings(settings);
 };
 
+const setPersistedStartupWindowMode = async (
+  startupWindowMode: StartupWindowMode,
+): Promise<void> => {
+  const settings = await readSettings();
+  settings[STARTUP_WINDOW_MODE_KEY] = startupWindowMode;
+
+  await writeSettings(settings);
+};
+
 const ensurePersistedDirectories = async (): Promise<void> => {
   const settings = await readSettings();
   let hasChanges = false;
   let sourceDirectory = readStringSetting(settings, SOURCE_DIRECTORY_KEY);
+  const startupWindowMode = parseStartupWindowMode(settings[STARTUP_WINDOW_MODE_KEY]);
 
   if (!sourceDirectory) {
     const defaultSourceDirectory = getDefaultSourceDirectory();
@@ -106,6 +133,11 @@ const ensurePersistedDirectories = async (): Promise<void> => {
     hasChanges = true;
   }
 
+  if (!startupWindowMode) {
+    settings[STARTUP_WINDOW_MODE_KEY] = 'splash';
+    hasChanges = true;
+  }
+
   if (hasChanges) {
     await writeSettings(settings);
   }
@@ -115,6 +147,8 @@ export {
   ensurePersistedDirectories,
   getPersistedSourceDirectory,
   getPersistedOutputDirectory,
+  getPersistedStartupWindowMode,
   setPersistedSourceDirectory,
   setPersistedOutputDirectory,
+  setPersistedStartupWindowMode,
 };

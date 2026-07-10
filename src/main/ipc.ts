@@ -11,6 +11,7 @@ type RegisterIpcDeps = {
   }>;
   getPersistedOutputDirectory: () => Promise<string | null>;
   getPersistedSourceDirectory: () => Promise<string | null>;
+  getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
   openLibraryWindow: () => boolean;
   openEditorWindow: (sourcePath: string) => boolean;
@@ -21,12 +22,14 @@ type RegisterIpcDeps = {
   ) => boolean;
   setPersistedOutputDirectory: (outputDirectory: string) => Promise<void>;
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
+  setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
 };
 
 const registerIpcHandlers = ({
   getAppMetadata,
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
+  getPersistedStartupWindowMode,
   getUpdateDialogState,
   openLibraryWindow,
   openEditorWindow,
@@ -34,11 +37,13 @@ const registerIpcHandlers = ({
   submitUpdateDialogAction,
   setPersistedOutputDirectory,
   setPersistedSourceDirectory,
+  setPersistedStartupWindowMode,
 }: RegisterIpcDeps): void => {
   registerHandlers({
     getAppMetadata,
     getPersistedOutputDirectory,
     getPersistedSourceDirectory,
+    getPersistedStartupWindowMode,
     getUpdateDialogState,
     openLibraryWindow,
     openEditorWindow,
@@ -47,6 +52,7 @@ const registerIpcHandlers = ({
     submitUpdateDialogAction,
     setPersistedOutputDirectory,
     setPersistedSourceDirectory,
+    setPersistedStartupWindowMode,
   });
 };
 

@@ -53,6 +53,8 @@ export type RuntimeInfo = {
   node?: string;
 };
 
+export type StartupWindowMode = 'splash' | 'library';
+
 export type FfmpegAvailabilityResult = {
   available: boolean;
   path: string;
@@ -169,6 +171,8 @@ export type CutrailBridge = {
   minimizeWindow: () => Promise<unknown>;
   toggleWindowMaximize: () => Promise<unknown>;
   openLibraryWindow: () => Promise<boolean>;
+  getStartupWindowMode: () => Promise<StartupWindowMode>;
+  setStartupWindowMode: (mode: StartupWindowMode) => Promise<StartupWindowMode>;
   getSourceDirectory: () => Promise<string | null>;
   getOutputDirectory: () => Promise<string | null>;
   getVideoLibrary: () => Promise<VideoLibrarySnapshot>;
@@ -201,6 +205,7 @@ export type CutrailBridge = {
   revealClip: (filePath: string) => Promise<ClipFileActionResult>;
   submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: string) => void) => () => void;
+  onStartupWindowModeUpdated: (listener: (payload: StartupWindowMode) => void) => () => void;
   onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onExportProgress: (listener: (payload: ExportProgressPayload) => void) => () => void;

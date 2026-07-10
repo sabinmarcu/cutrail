@@ -24,8 +24,10 @@ import {
   ensurePersistedDirectories,
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
+  getPersistedStartupWindowMode,
   setPersistedSourceDirectory,
   setPersistedOutputDirectory,
+  setPersistedStartupWindowMode,
 } from './settings.ts';
 import { createAppUpdater } from './updater.ts';
 import { createWindowManager } from './windows/windowManager.ts';
@@ -45,6 +47,18 @@ const updater = createAppUpdater({
   updateUpdateDialogState: windows.updateUpdateDialogState,
 });
 const updaterUnavailableReason = updater.getDisableReason()?.replace(/\.$/, '') ?? 'Unavailable in this build';
+
+const openStartupWindow = async (): Promise<void> => {
+  const startupWindowMode = await getPersistedStartupWindowMode();
+
+  if (startupWindowMode === 'library') {
+    windows.openLibraryWindow();
+
+    return;
+  }
+
+  windows.createMainWindow();
+};
 
 const syncAppMenu = async (): Promise<void> => {
   const standaloneAction = await getStandaloneMenuAction();
@@ -91,6 +105,7 @@ const startApp = async (): Promise<void> => {
       getAppMetadata,
       getPersistedOutputDirectory,
       getPersistedSourceDirectory,
+      getPersistedStartupWindowMode,
       getUpdateDialogState: windows.getUpdateDialogState,
       openLibraryWindow: windows.openLibraryWindow,
       openEditorWindow: windows.openEditorWindow,
@@ -98,14 +113,15 @@ const startApp = async (): Promise<void> => {
       submitUpdateDialogAction: windows.submitUpdateDialogAction,
       setPersistedOutputDirectory,
       setPersistedSourceDirectory,
+      setPersistedStartupWindowMode,
     });
     await syncAppMenu();
-    windows.createMainWindow();
+    await openStartupWindow();
     updater.checkForUpdates();
 
-    app.on('activate', () => {
+    app.on('activate', async () => {
       if (windows.getWindowCount() === 0) {
-        windows.createMainWindow();
+        await openStartupWindow();
       }
     });
   } catch (error) {
