@@ -1,0 +1,187 @@
+export type BridgeTrimMode = 'fast' | 'accurate';
+
+export type ExportRangeLike = {
+  id?: string;
+  start?: number | string;
+  end?: number | string;
+  duration?: number | string;
+};
+
+export type ExportJobLike = {
+  id?: string;
+  inputPath?: string;
+  outputPath?: string;
+  range?: ExportRangeLike;
+  args?: string[];
+};
+
+export type CreateExportPlanPayload = {
+  sourcePath?: string;
+  outputDirectory?: string;
+  ranges?: ExportRangeLike[];
+  extension?: string;
+  trimMode?: BridgeTrimMode;
+};
+
+export type RunExportPlanPayload = {
+  jobs?: ExportJobLike[];
+};
+
+export type StartFileDragPayload = {
+  filePath?: string;
+};
+
+export type OpenVideoEditorPayload = {
+  sourcePath?: string;
+};
+
+export type ClipFileActionResult = {
+  ok: boolean;
+  method: string;
+  error?: string;
+};
+
+export type DeleteClipRangeOutputsResult = {
+  ok: boolean;
+  deletedCount: number;
+  error?: string;
+};
+
+export type RuntimeInfo = {
+  electron?: string;
+  chrome?: string;
+  node?: string;
+};
+
+export type FfmpegAvailabilityResult = {
+  available: boolean;
+  path: string;
+  source: string;
+  code?: string;
+  error?: string;
+  versionLine?: string;
+};
+
+export type ExistingExportClip = {
+  fileName: string;
+  filePath: string;
+  sourceName: string;
+  trimMode: BridgeTrimMode;
+  range: {
+    start: number;
+    end: number;
+    duration: number;
+  };
+  extension: string;
+};
+
+export type ExistingExportClipsSnapshot = {
+  sourcePath: string;
+  outputDirectory: string;
+  clips: ExistingExportClip[];
+};
+
+export type ExportPlanJob = {
+  id: string;
+  inputPath: string;
+  outputPath: string;
+  range: {
+    id: string;
+    start: number;
+    end: number;
+    duration: number;
+  };
+  args: string[];
+};
+
+export type ExportPlan = {
+  jobs: ExportPlanJob[];
+  errors: unknown[];
+};
+
+export type ExportRunResultEntry = {
+  jobId: string;
+  status: string;
+  code?: string;
+  exitCode?: number | null;
+  signal?: string | null;
+  stderrSummary?: string;
+  error?: string;
+  durationMs?: number;
+};
+
+export type ExportRunResult = {
+  ffmpeg?: FfmpegAvailabilityResult;
+  results?: ExportRunResultEntry[];
+} | null;
+
+export type ExportProgressPayload = {
+  jobId: string;
+  processedSeconds: number | null;
+  ratio: number | null;
+  speed: number | null;
+};
+
+export type UpdateDialogAction = {
+  id: string;
+  label: string;
+  variant?: 'primary' | 'secondary';
+};
+
+export type UpdateDialogState = {
+  title: string;
+  subtitle?: string;
+  message: string;
+  detail?: string;
+  actions: UpdateDialogAction[];
+  cancelAction?: string;
+  progressPercent?: number;
+  progressLabel?: string;
+  showProgress?: boolean;
+  persistOnActions?: string[];
+};
+
+export type CutrailBridge = {
+  getRuntimeInfo: () => RuntimeInfo;
+  getAppMetadata: () => Promise<{
+    version: string;
+    copyright: string;
+    attribution: string;
+    license: string;
+  }>;
+  closeWindow: () => Promise<unknown>;
+  minimizeWindow: () => Promise<unknown>;
+  toggleWindowMaximize: () => Promise<unknown>;
+  getOutputDirectory: () => Promise<string | null>;
+  getFfmpegDiagnostics: () => Promise<FfmpegAvailabilityResult>;
+  getThirdPartyNotices: () => Promise<string>;
+  getUpdateDialogState: () => Promise<UpdateDialogState | null>;
+  getPathForFile: (file: File | null | undefined) => string | null;
+  deleteClipRangeOutputs: (payload: {
+    sourcePath?: string;
+    outputDirectory?: string;
+    range?: { start?: number | string; end?: number | string };
+  }) => Promise<DeleteClipRangeOutputsResult>;
+  onExistingExportClipsUpdated: (
+    listener: (payload: ExistingExportClipsSnapshot) => void,
+  ) => () => void;
+  syncExistingExportClips: (
+    payload?: { sourcePath?: string; outputDirectory?: string },
+  ) => Promise<boolean>;
+  openVideoEditor: (payload?: OpenVideoEditorPayload) => Promise<string | null>;
+  selectSourceVideo: () => Promise<string | null>;
+  selectOutputDirectory: () => Promise<string | null>;
+  resolveMediaUrl: (inputPath: string) => string;
+  checkFfmpeg: () => Promise<FfmpegAvailabilityResult>;
+  createExportPlan: (payload: CreateExportPlanPayload) => Promise<ExportPlan>;
+  runExportPlan: (payload: RunExportPlanPayload) => Promise<ExportRunResult>;
+  startFileDrag: (payload: StartFileDragPayload) => void;
+  copyClipFile: (filePath: string) => Promise<ClipFileActionResult>;
+  copyClipPath: (filePath: string) => Promise<ClipFileActionResult>;
+  revealClip: (filePath: string) => Promise<ClipFileActionResult>;
+  submitUpdateDialogAction: (action: string) => Promise<boolean>;
+  onSourceVideoSelected: (listener: (payload: string) => void) => () => void;
+  onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;
+  onExportProgress: (listener: (payload: ExportProgressPayload) => void) => () => void;
+  onUpdateDialogState: (listener: (payload: UpdateDialogState) => void) => () => void;
+};

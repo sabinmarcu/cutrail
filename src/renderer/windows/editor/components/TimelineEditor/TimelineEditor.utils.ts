@@ -1,4 +1,4 @@
-export const formatSeconds = (value) => {
+export const formatSeconds = (value: number): string => {
   if (!Number.isFinite(value)) {
     return '00:00.000';
   }

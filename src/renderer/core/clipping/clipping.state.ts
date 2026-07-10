@@ -7,47 +7,17 @@ import {
   useMemo,
 } from 'react';
 import { normalizeVideoPath } from './clipping';
-
-type ClipRange = {
-  id: string;
-  start: number;
-  end: number;
-};
-
-type ClipEntry = {
-  range: ClipRange;
-  existingClips: ExistingClip[];
-  currentModeClip: ExistingClip | null;
-  isLocked: boolean;
-};
-
-type ExportPlan = {
-  jobs: Array<{ id?: string; outputPath?: string }>;
-  errors: unknown[];
-};
-
-type ExportRunResult = {
-  results?: Array<{ jobId: string; status: string }>;
-} | null;
-
-type ExistingClip = {
-  fileName: string;
-  filePath: string;
-  sourceName: string;
-  trimMode: 'fast' | 'accurate';
-  range: {
-    start: number;
-    end: number;
-    duration: number;
-  };
-  extension: string;
-};
-
-type ProgressById = Record<string, { ratio?: number }>;
-
-type SharedReference<T> = {
-  current: T;
-};
+import type {
+  ClipEntry,
+  ClipRange,
+  ClippingStateModel,
+  ExistingClip,
+  ExportPlan,
+  ExportRunResult,
+  ProgressById,
+  SharedReference,
+  TrimMode,
+} from './clipping.types';
 
 const createSharedReference = <T>(current: T): SharedReference<T> => ({ current });
 
@@ -61,18 +31,26 @@ const planAtom = atom<ExportPlan>({
 const runResultAtom = atom<ExportRunResult>(null);
 const progressByIdAtom = atom<ProgressById>({});
 const errorMessageAtom = atom<string>('');
-const trimModeAtom = atom<'fast' | 'accurate'>('fast');
+const trimModeAtom = atom<TrimMode>('fast');
 const durationAtom = atom<number>(0);
 const currentTimeAtom = atom<number>(0);
 const isPlayingAtom = atom<boolean>(false);
 const selectedRangeIdAtom = atom<string | null>(null);
 const existingClipsAtom = atom<ExistingClip[]>([]);
-const videoReferenceAtom = atom<SharedReference<HTMLVideoElement | null>>(createSharedReference<HTMLVideoElement | null>(null));
-const timelineReferenceAtom = atom<SharedReference<HTMLDivElement | null>>(createSharedReference<HTMLDivElement | null>(null));
+const videoReferenceAtom = atom<SharedReference<HTMLVideoElement | null>>(
+  createSharedReference<HTMLVideoElement | null>(null),
+);
+const timelineReferenceAtom = atom<SharedReference<HTMLDivElement | null>>(
+  createSharedReference<HTMLDivElement | null>(null),
+);
 
-const buildRangeLookupKey = (range: { start: number; end: number }) => `${Math.floor(range.start)}:${Math.floor(range.end)}`;
+const buildRangeLookupKey = (range: { start: number; end: number }) => (
+  `${Math.floor(range.start)}:${Math.floor(range.end)}`
+);
 
-export const useClippingState = ({ initialSourcePath = '' } = {}) => {
+export const useClippingState = (
+  { initialSourcePath = '' }: { initialSourcePath?: string } = {},
+): ClippingStateModel => {
   const [sourcePath, setSourcePath] = useAtom(sourcePathAtom);
   const [outputDirectory, setOutputDirectory] = useAtom(outputDirectoryAtom);
   const [ranges, setRanges] = useAtom(rangesAtom);
@@ -94,28 +72,49 @@ export const useClippingState = ({ initialSourcePath = '' } = {}) => {
       return;
     }
 
-    setSourcePath((currentSourcePath) => (currentSourcePath.length === 0 ? initialSourcePath : currentSourcePath));
+    setSourcePath((currentSourcePath) => (
+      currentSourcePath.length === 0 ? initialSourcePath : currentSourcePath
+    ));
   }, [initialSourcePath, setSourcePath]);
 
   const videoUrl = useMemo(() => normalizeVideoPath(sourcePath), [sourcePath]);
-  const readyToStart = sourcePath.length > 0 && outputDirectory.length > 0 && ranges.length > 0;
+  const readyToStart = (
+    sourcePath.length > 0
+    && outputDirectory.length > 0
+    && ranges.length > 0
+  );
   const clipEntries = useMemo<ClipEntry[]>(() => [...ranges]
-    .sort((left, right) => left.start - right.start || left.end - right.end || left.id.localeCompare(right.id))
+    .sort(
+      (left, right) => (
+        left.start - right.start
+        || left.end - right.end
+        || left.id.localeCompare(right.id)
+      ),
+    )
     .map((range) => {
-      const matchingExistingClips = existingClips.filter((clip) => buildRangeLookupKey(clip.range) === buildRangeLookupKey(range));
+      const matchingExistingClips = existingClips.filter(
+        (clip) => buildRangeLookupKey(clip.range) === buildRangeLookupKey(range),
+      );
 
       return {
         range,
         existingClips: matchingExistingClips,
-        currentModeClip: matchingExistingClips.find((clip) => clip.trimMode === trimMode) ?? null,
+        currentModeClip:
+          matchingExistingClips.find((clip) => clip.trimMode === trimMode) ?? null,
         isLocked: matchingExistingClips.length > 0,
       };
     }), [existingClips, ranges, trimMode]);
 
   const clipStatusMap = useMemo(() => {
     const results = runResult?.results ?? [];
-    const statusByJobId = Object.fromEntries(results.map((result) => [result.jobId, result.status]));
-    const plannedIds = new Set(plan.jobs.map((job) => job.id));
+    const statusByJobId: Record<string, string> = Object.fromEntries(
+      results.map((result) => [result.jobId, result.status]),
+    );
+    const plannedIds = new Set(
+      plan.jobs
+        .map((job) => job.id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0),
+    );
 
     return Object.fromEntries(ranges.map((range) => {
       if (statusByJobId[range.id]) {

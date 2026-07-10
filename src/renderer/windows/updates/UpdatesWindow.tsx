@@ -93,7 +93,7 @@ export const UpdatesWindow = () => {
   useEffect(() => {
     let mounted = true;
 
-    void globalThis.cutrail?.getUpdateDialogState?.().then((payload) => {
+    globalThis.cutrail?.getUpdateDialogState?.().then((payload) => {
       if (mounted) {
         setDialog(parseUpdateDialogState(payload));
       }
@@ -125,7 +125,7 @@ export const UpdatesWindow = () => {
               disabled={submittingActionId.length > 0}
               onClick={() => {
                 setSubmittingActionId(action.id);
-                void globalThis.cutrail?.submitUpdateDialogAction?.(action.id).finally(() => {
+                globalThis.cutrail?.submitUpdateDialogAction?.(action.id).finally(() => {
                   setSubmittingActionId('');
                 });
               }}

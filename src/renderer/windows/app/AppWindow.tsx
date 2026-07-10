@@ -170,7 +170,7 @@ export const AppWindow = () => {
         setIsDragActive(false);
         const sourcePaths = getDroppedFilePaths(event);
 
-        void (async () => {
+        (async () => {
           for (const sourcePath of sourcePaths) {
             await globalThis.cutrail?.openVideoEditor?.({ sourcePath });
           }
@@ -188,7 +188,7 @@ export const AppWindow = () => {
             variant="primary"
             className={noDrag}
             onClick={() => {
-              void globalThis.cutrail?.openVideoEditor?.();
+              globalThis.cutrail?.openVideoEditor?.();
             }}
           >
             Select Video File
@@ -199,7 +199,7 @@ export const AppWindow = () => {
             type="button"
             variant="secondary"
             className={noDrag}
-            onClick={() => void globalThis.cutrail?.closeWindow?.()}
+            onClick={() => globalThis.cutrail?.closeWindow?.()}
           >
             Close
           </Button>

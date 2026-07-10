@@ -146,7 +146,7 @@ export const TimelineEditorGeneratedClipPreview = ({
 
     event.preventDefault();
 
-    void globalThis.window.cutrail?.startFileDrag?.({
+    globalThis.window.cutrail?.startFileDrag?.({
       filePath,
     });
   }, [filePath]);
@@ -187,10 +187,12 @@ export const TimelineEditorGeneratedClipPreview = ({
           variant="secondary"
           className={controlButton}
           onClick={() => {
-            void togglePlayback();
+            togglePlayback();
           }}
         >
-          {isPlaying ? <Pause size={14} strokeWidth={2.25} /> : <Play size={14} strokeWidth={2.25} />}
+          {isPlaying
+            ? <Pause size={14} strokeWidth={2.25} />
+            : <Play size={14} strokeWidth={2.25} />}
         </Button>
         <div className={progressShell}>
           <div className={progressRail}>
@@ -238,7 +240,7 @@ export const TimelineEditorGeneratedClipPreview = ({
           className={actionButton}
           title={failedAction === 'file' ? (failureMessage ?? 'Copy file failed') : undefined}
           onClick={() => {
-            void runClipAction('file', globalThis.window.cutrail?.copyClipFile);
+            runClipAction('file', globalThis.window.cutrail?.copyClipFile);
           }}
         >
           {confirmedAction === 'file' ? <Check size={13} strokeWidth={2.25} /> : <Copy size={13} strokeWidth={2.25} />}
@@ -250,7 +252,7 @@ export const TimelineEditorGeneratedClipPreview = ({
           className={actionButton}
           title={failedAction === 'path' ? (failureMessage ?? 'Copy path failed') : undefined}
           onClick={() => {
-            void runClipAction('path', globalThis.window.cutrail?.copyClipPath);
+            runClipAction('path', globalThis.window.cutrail?.copyClipPath);
           }}
         >
           {confirmedAction === 'path' ? <Check size={13} strokeWidth={2.25} /> : <ClipboardCopy size={13} strokeWidth={2.25} />}
@@ -262,7 +264,7 @@ export const TimelineEditorGeneratedClipPreview = ({
           className={actionButton}
           title={failedAction === 'reveal' ? (failureMessage ?? 'Reveal failed') : undefined}
           onClick={() => {
-            void runClipAction('reveal', globalThis.window.cutrail?.revealClip);
+            runClipAction('reveal', globalThis.window.cutrail?.revealClip);
           }}
         >
           {confirmedAction === 'reveal' ? <Check size={13} strokeWidth={2.25} /> : <FolderOpen size={13} strokeWidth={2.25} />}

@@ -15,15 +15,15 @@ import {
 } from './WindowDecoration.css';
 
 const closeWindow = () => {
-  void globalThis.cutrail?.closeWindow?.();
+  globalThis.cutrail?.closeWindow?.();
 };
 
 const minimizeWindow = () => {
-  void globalThis.cutrail?.minimizeWindow?.();
+  globalThis.cutrail?.minimizeWindow?.();
 };
 
 const toggleWindowMaximize = () => {
-  void globalThis.cutrail?.toggleWindowMaximize?.();
+  globalThis.cutrail?.toggleWindowMaximize?.();
 };
 
 type WindowDecorationProps = {

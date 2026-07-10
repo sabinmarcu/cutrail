@@ -1,4 +1,6 @@
 import {
+  type MouseEvent,
+  type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useRef,
@@ -9,6 +11,8 @@ import {
   useClippingActions,
   useClippingState,
 } from '@renderer/core/clipping';
+import type { ClipRange } from '@renderer/core/clipping/clipping.types';
+import type { RangeDragMode } from './TimelineEditor';
 import { formatSeconds } from './TimelineEditor.utils';
 import {
   handle,
@@ -21,7 +25,16 @@ import {
   timecode,
 } from './TimelineEditor.css';
 
-export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
+type TimelineEditorTimelineSectionProps = {
+  onCreateDragHandler: (
+    range: ClipRange,
+    mode: RangeDragMode,
+  ) => (event: ReactPointerEvent<HTMLElement>) => void;
+};
+
+export const TimelineEditorTimelineSection = ({
+  onCreateDragHandler,
+}: TimelineEditorTimelineSectionProps) => {
   const state = useClippingState();
   const {
     clipEntries,
@@ -38,7 +51,7 @@ export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
   } = useClippingActions(state);
   const isSeekingReference = useRef(false);
 
-  const setPlaybackFromClientX = useCallback((clientX) => {
+  const setPlaybackFromClientX = useCallback((clientX: number) => {
     if (!timelineRef.current || duration <= 0) {
       return;
     }
@@ -54,7 +67,7 @@ export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
   }, [duration, setPlaybackTime, timelineRef]);
 
   useEffect(() => {
-    const onPointerMove = (event) => {
+    const onPointerMove = (event: PointerEvent) => {
       if (!isSeekingReference.current) {
         return;
       }
@@ -95,7 +108,7 @@ export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
         <div
           className={timeline}
           ref={timelineRef}
-          onPointerDown={(event) => {
+          onPointerDown={(event: ReactPointerEvent<HTMLDivElement>) => {
             isSeekingReference.current = true;
             setPlaybackFromClientX(event.clientX);
           }}
@@ -121,7 +134,7 @@ export const TimelineEditorTimelineSection = ({ onCreateDragHandler }) => {
                   inlineSize: `${Math.max(width, 0.5)}%`,
                 }}
                 onPointerDown={isLocked ? undefined : onCreateDragHandler(range, 'move')}
-                onClick={(event) => {
+                onClick={(event: MouseEvent<HTMLButtonElement>) => {
                   event.stopPropagation();
                   setSelectedRangeId(range.id);
                 }}

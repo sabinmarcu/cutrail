@@ -5,8 +5,17 @@ import {
   useClippingActions,
   useClippingState,
 } from '@renderer/core/clipping';
+import type { RangeDragState } from './TimelineEditor';
 
-export const useTimelineRangeDrag = ({ dragState, setDragState }) => {
+type UseTimelineRangeDragProps = {
+  dragState: RangeDragState | null;
+  setDragState: (value: RangeDragState | null) => void;
+};
+
+export const useTimelineRangeDrag = ({
+  dragState,
+  setDragState,
+}: UseTimelineRangeDragProps) => {
   const state = useClippingState();
   const {
     duration,
@@ -21,7 +30,7 @@ export const useTimelineRangeDrag = ({ dragState, setDragState }) => {
       return undefined;
     }
 
-    const onPointerMove = (event) => {
+    const onPointerMove = (event: PointerEvent) => {
       if (duration <= 0) {
         return;
       }
@@ -47,7 +56,11 @@ export const useTimelineRangeDrag = ({ dragState, setDragState }) => {
 
         if (dragState.mode === 'move') {
           const span = dragState.originEnd - dragState.originStart;
-          const nextStart = clamp(dragState.originStart + deltaSeconds, 0, Math.max(0, duration - span));
+          const nextStart = clamp(
+            dragState.originStart + deltaSeconds,
+            0,
+            Math.max(0, duration - span),
+          );
 
           return {
             ...range,
@@ -57,7 +70,11 @@ export const useTimelineRangeDrag = ({ dragState, setDragState }) => {
         }
 
         if (dragState.mode === 'resize-start') {
-          const nextStart = clamp(dragState.originStart + deltaSeconds, 0, dragState.originEnd - MIN_RANGE_DURATION);
+          const nextStart = clamp(
+            dragState.originStart + deltaSeconds,
+            0,
+            dragState.originEnd - MIN_RANGE_DURATION,
+          );
 
           return {
             ...range,
@@ -65,7 +82,11 @@ export const useTimelineRangeDrag = ({ dragState, setDragState }) => {
           };
         }
 
-        const nextEnd = clamp(dragState.originEnd + deltaSeconds, dragState.originStart + MIN_RANGE_DURATION, duration);
+        const nextEnd = clamp(
+          dragState.originEnd + deltaSeconds,
+          dragState.originStart + MIN_RANGE_DURATION,
+          duration,
+        );
 
         return {
           ...range,

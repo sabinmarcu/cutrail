@@ -40,7 +40,7 @@ export const AboutWindow = () => {
   useEffect(() => {
     let mounted = true;
 
-    void globalThis.cutrail?.getAppMetadata?.().then((metadata) => {
+    globalThis.cutrail?.getAppMetadata?.().then((metadata) => {
       if (!mounted || !metadata) {
         return;
       }
@@ -74,7 +74,9 @@ export const AboutWindow = () => {
           <section className={hero}>
             <img className={icon} src={logoPath} alt="Cutrail" />
             <h1 className={title}>Cutrail</h1>
-            <p className={subtitle}>An open-source desktop utility for clipping segments from longer videos.</p>
+            <p className={subtitle}>
+              An open-source desktop utility for clipping segments from longer videos.
+            </p>
           </section>
 
           <section className={infoGrid}>
@@ -92,7 +94,12 @@ export const AboutWindow = () => {
             <a className={link} href="https://github.com/sabinmarcu/cutrail" rel="noreferrer" target="_blank">
               Project page
             </a>
-            <a className={link} href="https://github.com/sabinmarcu/cutrail/issues" rel="noreferrer" target="_blank">
+            <a
+              className={link}
+              href="https://github.com/sabinmarcu/cutrail/issues"
+              rel="noreferrer"
+              target="_blank"
+            >
               Report an issue
             </a>
           </div>

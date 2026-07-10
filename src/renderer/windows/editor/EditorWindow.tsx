@@ -18,7 +18,7 @@ const getInitialSourcePath = () => {
   return search.get('source') ?? '';
 };
 
-const getSourceFilename = (sourcePath) => {
+const getSourceFilename = (sourcePath: string): string => {
   if (!sourcePath) {
     return 'Timeline clipping workspace';
   }

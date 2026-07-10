@@ -2,10 +2,16 @@ import {
   createContext,
   useContext,
 } from 'react';
+import type {
+  ClippingActions,
+  ClippingStateModel,
+} from './clipping.types';
 
-export const ClippingContext = createContext(null);
+type ClippingContextValue = ClippingStateModel & ClippingActions;
 
-export const useClippingContext = () => {
+export const ClippingContext = createContext<ClippingContextValue | null>(null);
+
+export const useClippingContext = (): ClippingContextValue => {
   const value = useContext(ClippingContext);
 
   if (!value) {

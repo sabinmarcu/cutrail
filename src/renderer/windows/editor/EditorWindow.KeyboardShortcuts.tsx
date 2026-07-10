@@ -4,7 +4,7 @@ import {
   useClippingState,
 } from '@renderer/core/clipping';
 
-const isEditableTarget = (target) => {
+const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) {
     return false;
   }
@@ -29,7 +29,7 @@ export const EditorWindowKeyboardShortcuts = () => {
     const seekStepSeconds = 1;
     const seekStepPreciseSeconds = 0.1;
 
-    const onKeyDown = (event) => {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (isEditableTarget(event.target)) {
         return;
       }
@@ -50,7 +50,7 @@ export const EditorWindowKeyboardShortcuts = () => {
         }
 
         if (media.paused) {
-          void media.play();
+          media.play();
 
           return;
         }

@@ -3,6 +3,10 @@ import {
   useState,
 } from 'react';
 import '@renderer/windows/globalReset.css';
+import type {
+  FfmpegAvailabilityResult,
+  RuntimeInfo,
+} from '@renderer/core/clipping/clipping.types';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
   heading,
@@ -13,20 +17,20 @@ import {
 } from './DiagnosticsWindow.css';
 
 export const DiagnosticsWindow = () => {
-  const runtimeInfo = globalThis.cutrail?.getRuntimeInfo?.() ?? null;
-  const [ffmpegStatus, setFfmpegStatus] = useState(null);
+  const runtimeInfo: RuntimeInfo | null = globalThis.cutrail?.getRuntimeInfo?.() ?? null;
+  const [ffmpegStatus, setFfmpegStatus] = useState<FfmpegAvailabilityResult | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     if (typeof globalThis.cutrail?.getFfmpegDiagnostics === 'function') {
-      void globalThis.cutrail.getFfmpegDiagnostics().then((status) => {
+      globalThis.cutrail.getFfmpegDiagnostics().then((status) => {
         if (mounted) {
           setFfmpegStatus(status ?? null);
         }
       });
     } else {
-      void globalThis.cutrail?.checkFfmpeg?.().then((status) => {
+      globalThis.cutrail?.checkFfmpeg?.().then((status) => {
         if (mounted) {
           setFfmpegStatus(status ?? null);
         }

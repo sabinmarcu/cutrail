@@ -18,9 +18,23 @@ export const TimelineEditorRangeList = () => {
   return (
     <ul className={rangeList}>
       {clipEntries.map((clipEntry) => (
-        <li key={clipEntry.range.id} className={rangeRow({ selected: selectedRangeId === clipEntry.range.id })}>
-          <span className={rangeLabel}>{clipEntry.range.id}: {formatSeconds(clipEntry.range.start)} - {formatSeconds(clipEntry.range.end)}</span>
-          <Button type="button" variant="danger" onClick={() => removeRange(clipEntry.range.id)} disabled={clipEntry.isLocked}>Remove</Button>
+        <li
+          key={clipEntry.range.id}
+          className={rangeRow({ selected: selectedRangeId === clipEntry.range.id })}
+        >
+          <span className={rangeLabel}>
+            {clipEntry.range.id}: {formatSeconds(clipEntry.range.start)}
+            {' - '}
+            {formatSeconds(clipEntry.range.end)}
+          </span>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={() => removeRange(clipEntry.range.id)}
+            disabled={clipEntry.isLocked}
+          >
+            Remove
+          </Button>
         </li>
       ))}
     </ul>

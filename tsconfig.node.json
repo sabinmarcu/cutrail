@@ -2,12 +2,19 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false,
-    "noImplicitAny": true,
+    "checkJs": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2023"],
     "types": ["node", "electron"]
   },
-  "include": ["src/main/**/*.mjs", "src/preload/**/*.mjs"]
+  "include": [
+    "src/main/**/*.mjs",
+    "src/main/**/*.ts",
+    "src/preload/**/*.mjs",
+    "src/preload/**/*.ts",
+    "src/shared/**/*.ts",
+    "src/domain/**/*.ts",
+    "src/infra/**/*.ts"
+  ]
 }

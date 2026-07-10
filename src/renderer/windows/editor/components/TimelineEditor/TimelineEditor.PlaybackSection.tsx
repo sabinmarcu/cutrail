@@ -1,4 +1,5 @@
 import {
+  type SyntheticEvent,
   useCallback,
   useEffect,
   useRef,
@@ -31,7 +32,7 @@ export const TimelineEditorPlaybackSection = () => {
     videoUrl,
   } = state;
   const [showOverlayControl, setShowOverlayControl] = useState(true);
-  const hideTimerReference = useRef(null);
+  const hideTimerReference = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
 
   const scheduleOverlayHide = useCallback(() => {
     if (hideTimerReference.current) {
@@ -109,12 +110,12 @@ export const TimelineEditorPlaybackSection = () => {
               controls={false}
               src={videoUrl}
               key={videoUrl}
-              onLoadedMetadata={(event) => {
+              onLoadedMetadata={(event: SyntheticEvent<HTMLVideoElement>) => {
                 setDuration(Number(event.currentTarget.duration) || 0);
                 setCurrentTime(0);
                 setIsPlaying(false);
               }}
-              onTimeUpdate={(event) => {
+              onTimeUpdate={(event: SyntheticEvent<HTMLVideoElement>) => {
                 setCurrentTime(event.currentTarget.currentTime);
               }}
               onPlay={() => setIsPlaying(true)}
@@ -128,7 +129,7 @@ export const TimelineEditorPlaybackSection = () => {
               className={`${overlayPlayButton} ${overlayVisible ? overlayPlayButtonVisible : ''}`}
               aria-label={isPlaying ? 'Pause playback' : 'Play playback'}
               onClick={() => {
-                void togglePlayback();
+                togglePlayback();
                 setShowOverlayControl(true);
                 scheduleOverlayHide();
               }}

@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import type { PointerEvent } from 'react';
 import {
   useClippingActions,
   useClippingState,
 } from '@renderer/core/clipping';
+import type { ClipRange } from '@renderer/core/clipping/clipping.types';
 import {
   editorPanel,
   panelHeading,
@@ -13,17 +15,37 @@ import { TimelineEditorRangeList } from './TimelineEditor.RangeList';
 import { TimelineEditorTimelineSection } from './TimelineEditor.TimelineSection';
 import { useTimelineRangeDrag } from './TimelineEditor.useRangeDrag';
 
-export const TimelineEditor = ({ hideHeading = false, showRangeList = true }) => {
+export type RangeDragMode = 'move' | 'resize-start' | 'resize-end';
+
+export type RangeDragState = {
+  id: string;
+  mode: RangeDragMode;
+  originX: number;
+  originStart: number;
+  originEnd: number;
+};
+
+type TimelineEditorProps = {
+  hideHeading?: boolean;
+  showRangeList?: boolean;
+};
+
+export const TimelineEditor = ({
+  hideHeading = false,
+  showRangeList = true,
+}: TimelineEditorProps) => {
   const state = useClippingState();
   const { setSelectedRangeId } = useClippingActions(state);
-  const [dragState, setDragState] = useState(null);
+  const [dragState, setDragState] = useState<RangeDragState | null>(null);
 
   useTimelineRangeDrag({
     dragState,
     setDragState,
   });
 
-  const createDragHandler = (range, mode) => (event) => {
+  const createDragHandler = (range: ClipRange, mode: RangeDragMode) => (
+    event: PointerEvent<HTMLElement>,
+  ) => {
     event.stopPropagation();
     setSelectedRangeId(range.id);
     setDragState({

@@ -45,7 +45,13 @@ const getRendererApp = () => {
   return <AppWindow />;
 };
 
-createRoot(document.querySelector('#root')).render(
+const rootContainer = document.querySelector('#root');
+
+if (!(rootContainer instanceof HTMLElement)) {
+  throw new TypeError('Renderer root element #root was not found.');
+}
+
+createRoot(rootContainer).render(
   <StrictMode>
     {getRendererApp()}
   </StrictMode>,

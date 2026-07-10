@@ -47,6 +47,9 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - User-facing documentation command style policy: when writing docs intended for users (for example `README.md`, `BUILD.md`, `CONTRIBUTING.md`), use direct script commands like `yarn lint` instead of `proto run yarn -- lint`.
 - Lint policy: `eslint.config.mjs` must extend `@sabinmarcu/eslint-config` as the baseline shared flat config.
 - Lint workflow policy: run `proto run yarn -- lint:fix` before running strict checks (`proto run yarn -- lint`, `proto run yarn -- typecheck`), and only apply manual code fixes for issues that remain after autofix.
+- Lint enforcement policy: do not modify lint configuration (for example `eslint.config.mjs`) to silence violations during implementation work.
+- Lint exception policy: prefer fixing source code over suppressions; use inline `eslint-disable` comments only when there is no practical code-only alternative and keep each suppression line-scoped with a short reason.
+- Lint exception escalation policy: if resolving a lint rule would require configuration changes, stop and ask the user before proposing any lint-config exception.
 - Temporary-file policy: use `logs/` for local temporary outputs and artifacts instead of writing temporary files elsewhere in the repository.
 - Command redirection policy: when capturing command output with shell redirection (`>`, `2>`, `&>`), write to files under `logs/` (for example `logs/lint.log`) and do not use `/tmp`.
 - Runtime config policy: type and validate environment/config values with `zod` in main-process config modules, even when implementation is JavaScript (`.mjs`), to keep runtime behavior explicit and future TypeScript migration-ready.
@@ -72,7 +75,7 @@ If scripts are missing, propose adding only the minimum required scripts in `pac
 - Keep media-processing logic isolated from UI concerns.
 - Prefer pure utility modules for ffmpeg argument building and timeline math.
 - Wrap external process calls behind small interfaces to simplify testing.
-- Electron main and preload code should be written as ESM `.mjs` modules, with `src/main/main.mjs` as the application entrypoint.
+- Electron main and preload source code should remain ESM-aligned modules in `src/main` and `src/preload`, with the runtime entrypoint resolved from compiled output at `dist/electron/main/main.js`.
 - Prefer bundled ffmpeg resolution first, with explicit override support (`CUTRAIL_FFMPEG_PATH`) and system-path fallback only as a last resort.
 - Keep renderer views separated by responsibility (main workflow vs utility windows such as About).
 - Open one editor window per selected source video so multiple videos can be edited/exported independently at the same time.

@@ -6,7 +6,7 @@ Repository: `cutrail`
 
 cutrail is a desktop utility focused on clipping segments from longer videos with a clean, maintainable architecture.
 
-The project is currently in early Phase 1 (single-video clipping MVP), with a timeline-driven clipping workflow and a custom renderer-managed About window in place.
+The project is beyond the original early Phase 1 state: the core single-video clipping workflow is in place, accurate trim support exists, and release/updater groundwork has started, but the Phase 2 library/persistence work and the remaining Phase 3 preset/diagnostic work are still incomplete.
 
 Product name: **cutrail**.
 
@@ -31,7 +31,7 @@ How it currently functions:
 1. Tooling is version-pinned through `.prototools` (`node ~22`, `yarn ~4`) for reproducible environments.
 2. Toolchain execution policy is proto-first: use `proto` for Node/Yarn resolution and do not use `corepack`.
 3. Package management uses Yarn Berry with the `node-modules` linker for Electron compatibility.
-4. Electron main and preload code use ESM `.mjs` modules, with `src/main/main.mjs` as the app entrypoint.
+4. Electron main and preload source code lives under `src/main` and `src/preload`, with runtime entry resolved from compiled output at `dist/electron/main/main.js`.
 5. Renderer source is TypeScript-first (`.ts` / `.tsx`) with alias imports (`@renderer/*`, `@assets/*`).
 6. Electron `.mjs` modules are JavaScript with `// @ts-check` and explicit JSDoc types for exported APIs.
 7. Runtime stack uses:
@@ -168,7 +168,11 @@ Use a short imperative summary after the type. Keep each commit focused on one c
 
 ### Current Status
 
-- A Phase 1 desktop workflow is runnable through Electron with timeline-based range editing.
+- The Phase 1 desktop workflow is runnable through Electron with timeline-based range editing and batch export.
+- Fast and accurate trim modes are available in the editor workflow.
+- Diagnostics, options, licenses, about, and update utility windows exist.
+- Release automation and updater groundwork exist, but that should be treated as partial Phase 4 progress rather than a finished release-readiness state.
+- Source-library scanning, recent-context persistence, and a structured preset model are not implemented yet.
 - Core source layout now exists:
 	- `src/main`
 	- `src/preload`
@@ -176,7 +180,7 @@ Use a short imperative summary after the type. Keep each commit focused on one c
 	- `src/domain`
 	- `src/infra`
 - Main clipping UI now embeds video playback and a synchronized interactive timeline.
-- About and license details are presented in a separate Electron utility window.
+- About and license details are presented in separate Electron utility windows.
 - The next milestones are documented in:
   - [docs/technical-background-and-plan.md](docs/technical-background-and-plan.md)
 	- [docs/phased-implementation-plan.md](docs/phased-implementation-plan.md)
@@ -197,9 +201,11 @@ Use a short imperative summary after the type. Keep each commit focused on one c
 
 Current available commands:
 
-- `yarn dev` to run Vite renderer + Electron main process together.
+- `yarn dev` to run Vite renderer + node-runtime TypeScript watch + Electron together.
+- `yarn build:node` to compile Electron/runtime TypeScript into `dist/electron`.
+- `yarn build:node:watch` to continuously compile Electron/runtime TypeScript into `dist/electron`.
 - `yarn build` to build the renderer into `dist/renderer`.
-- `yarn start` to run Electron against the local project entrypoint.
+- `yarn start` to build renderer + node runtime and run Electron from compiled entry.
 - `yarn package` to create an unpacked Electron app bundle via `electron-builder`.
 - `yarn dist` to create packaged distribution artifacts via `electron-builder`.
 - `yarn dist:appimage` to build a Linux AppImage locally.

@@ -10,7 +10,7 @@ Repository tool skillbook: setup, intent, and operational commands.
 
 ## External Package Documentation
 
- Electron main and preload code use ESM `.mjs` modules, with `src/main/main.mjs` as the entrypoint.
+ Electron main and preload source modules live under `src/main` and `src/preload`, while runtime execution enters through compiled output at `dist/electron/main/main.js`.
  Renderer code is TypeScript-first (`.ts` / `.tsx`).
  Electron `.mjs` modules are JS with `// @ts-check` and explicit JSDoc typing on exported APIs.
  Runtime environment/config values in main process should be validated with `zod`.
@@ -218,6 +218,12 @@ This repository uses local flat config in `eslint.config.mjs`.
 Core lint command:
 
 - `yarn lint`
+
+Lint enforcement guidance for agents:
+
+- Fix violations in source code first; do not change `eslint.config.mjs` to bypass rule failures.
+- Use inline lint suppressions only when a code-only fix is not practical; keep suppressions narrowly scoped to the specific line.
+- If a lint rule appears to require configuration changes, ask the user before introducing any config exception.
 
 ### Type test support
 

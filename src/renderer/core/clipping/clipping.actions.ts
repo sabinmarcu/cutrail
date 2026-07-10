@@ -5,11 +5,20 @@ import {
   DEFAULT_RANGE_DURATION,
   MIN_RANGE_DURATION,
 } from './clipping';
+import type {
+  ClipRange,
+  ClippingActions,
+  ClippingStateModel,
+  FfmpegAvailabilityResult,
+  TrimMode,
+} from './clipping.types';
 
-const getFfmpegStatus = async () => {
+const getFfmpegStatus = async (): Promise<FfmpegAvailabilityResult> => {
   if (typeof globalThis.cutrail?.checkFfmpeg !== 'function') {
     return {
       available: false,
+      path: '',
+      source: 'UNKNOWN',
       code: 'FFMPEG_CHECK_UNAVAILABLE',
       error: 'FFmpeg check API is unavailable.',
     };
@@ -18,9 +27,11 @@ const getFfmpegStatus = async () => {
   return globalThis.cutrail.checkFfmpeg();
 };
 
-const buildRangeLookupKey = (range) => `${Math.floor(range.start)}:${Math.floor(range.end)}`;
+const buildRangeLookupKey = (range: { start: number; end: number }): string => (
+  `${Math.floor(range.start)}:${Math.floor(range.end)}`
+);
 
-export const useClippingActions = (state) => {
+export const useClippingActions = (state: ClippingStateModel): ClippingActions => {
   const resetPlan = useCallback(() => {
     state.setPlan({
       jobs: [],
@@ -30,7 +41,7 @@ export const useClippingActions = (state) => {
     state.setProgressById({});
   }, [state]);
 
-  const removeRangeById = useCallback((id, { allowLocked = false } = {}) => {
+  const removeRangeById = useCallback((id: string, { allowLocked = false } = {}) => {
     const clipEntry = state.clipEntries.find((entry) => entry.range.id === id);
 
     if (!allowLocked && clipEntry?.isLocked) {
@@ -50,15 +61,15 @@ export const useClippingActions = (state) => {
     state.setIsPlaying(false);
   }, [state]);
 
-  const setPlaybackTime = useCallback((time) => {
+  const setPlaybackTime = useCallback((time: number) => {
     state.setCurrentTime(time);
   }, [state]);
 
-  const setSelectedRangeId = useCallback((rangeId) => {
+  const setSelectedRangeId = useCallback((rangeId: string | null) => {
     state.setSelectedRangeId(rangeId);
   }, [state]);
 
-  const setTrimMode = useCallback((nextTrimMode) => {
+  const setTrimMode = useCallback((nextTrimMode: TrimMode) => {
     if (state.trimMode === nextTrimMode) {
       return;
     }
@@ -87,20 +98,24 @@ export const useClippingActions = (state) => {
     resetPlan();
   }, [resetPlan, state]);
 
-  const removeRange = useCallback((id) => {
+  const removeRange = useCallback((id: string) => {
     removeRangeById(id);
   }, [removeRangeById]);
 
-  const removeClip = useCallback(async (range) => {
+  const removeClip = useCallback(async (range: ClipRange | null | undefined) => {
     if (!range) {
       return;
     }
 
+    const bridge = globalThis.cutrail;
+
     const rangeKey = buildRangeLookupKey(range);
-    const hasGeneratedOutputs = state.existingClips.some((clip) => buildRangeLookupKey(clip.range) === rangeKey);
+    const hasGeneratedOutputs = state.existingClips.some(
+      (clip) => buildRangeLookupKey(clip.range) === rangeKey,
+    );
 
     if (hasGeneratedOutputs) {
-      const result = await globalThis.cutrail?.deleteClipRangeOutputs?.({
+      const result = await bridge?.deleteClipRangeOutputs?.({
         outputDirectory: state.outputDirectory,
         range: {
           start: range.start,
@@ -116,7 +131,9 @@ export const useClippingActions = (state) => {
       }
     }
 
-    state.setExistingClips((previous) => previous.filter((clip) => buildRangeLookupKey(clip.range) !== rangeKey));
+    state.setExistingClips(
+      (previous) => previous.filter((clip) => buildRangeLookupKey(clip.range) !== rangeKey),
+    );
     state.setErrorMessage('');
     removeRangeById(range.id, { allowLocked: true });
   }, [removeRangeById, state]);
@@ -125,6 +142,8 @@ export const useClippingActions = (state) => {
     pausePlayback();
 
     try {
+      const bridge = globalThis.cutrail;
+
       const status = await getFfmpegStatus();
 
       if (!status.available) {
@@ -133,7 +152,13 @@ export const useClippingActions = (state) => {
         return;
       }
 
-      const nextPlan = await globalThis.cutrail.createExportPlan({
+      if (typeof bridge?.createExportPlan !== 'function' || typeof bridge.runExportPlan !== 'function') {
+        state.setErrorMessage('Export APIs are unavailable.');
+
+        return;
+      }
+
+      const nextPlan = await bridge.createExportPlan({
         sourcePath: state.sourcePath,
         outputDirectory: state.outputDirectory,
         ranges: state.ranges,
@@ -146,16 +171,20 @@ export const useClippingActions = (state) => {
       state.setRunResult(null);
 
       if (nextPlan.errors.length > 0 || nextPlan.jobs.length === 0) {
-        state.setErrorMessage(nextPlan.errors.length > 0 ? 'Clip ranges contain validation errors.' : 'No clips available to export.');
+        state.setErrorMessage(
+          nextPlan.errors.length > 0
+            ? 'Clip ranges contain validation errors.'
+            : 'No clips available to export.',
+        );
 
         return;
       }
 
-      const result = await globalThis.cutrail.runExportPlan({ jobs: nextPlan.jobs });
+      const result = await bridge.runExportPlan({ jobs: nextPlan.jobs });
       state.setRunResult(result);
 
-      if (typeof globalThis.cutrail?.syncExistingExportClips === 'function') {
-        void globalThis.cutrail.syncExistingExportClips({
+      if (typeof bridge.syncExistingExportClips === 'function') {
+        bridge.syncExistingExportClips({
           sourcePath: state.sourcePath,
           outputDirectory: state.outputDirectory,
         });

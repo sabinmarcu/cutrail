@@ -5,6 +5,13 @@ import {
   useClippingActions,
   useClippingState,
 } from '@renderer/core/clipping';
+import type {
+  ClipEntry,
+  ClipRange,
+  ExistingClip,
+  ProgressById,
+  TrimMode,
+} from '@renderer/core/clipping/clipping.types';
 import { TimelineEditorGeneratedClipPreview } from './components/TimelineEditor/TimelineEditor.GeneratedClipPreview';
 import { formatSeconds } from './components/TimelineEditor/TimelineEditor.utils';
 import {
@@ -25,11 +32,22 @@ import {
 } from './EditorWindow.css';
 
 type PlannedClipJob = {
-  id?: string;
+  id: string;
   outputPath?: string;
 };
 
-function buildClipTitle(range, existingClip) {
+type ClipRow = {
+  key: string;
+  filePath: string | undefined;
+  hasPlannedOutput: boolean;
+  progressText: string;
+  range: ClipRange;
+  sortStart: number;
+  status: string;
+  title: string;
+};
+
+function buildClipTitle(range: ClipRange, existingClip: ExistingClip | null): string {
   if (existingClip) {
     return `${existingClip.trimMode} ${formatSeconds(existingClip.range.start)} - ${formatSeconds(existingClip.range.end)}`;
   }
@@ -37,11 +55,11 @@ function buildClipTitle(range, existingClip) {
   return `${range.id}: ${formatSeconds(range.start)} - ${formatSeconds(range.end)}`;
 }
 
-function compareClipRows(left, right) {
+function compareClipRows(left: ClipRow, right: ClipRow): number {
   return left.sortStart - right.sortStart || left.title.localeCompare(right.title);
 }
 
-function buildExistingStatus(existingClips) {
+function buildExistingStatus(existingClips: ExistingClip[]): string {
   const hasFast = existingClips.some((clip) => clip.trimMode === 'fast');
   const hasAccurate = existingClips.some((clip) => clip.trimMode === 'accurate');
 
@@ -65,7 +83,12 @@ function buildClipRows({
   clipStatusMap,
   planJobs,
   progressById,
-}) {
+}: {
+  clipEntries: ClipEntry[];
+  clipStatusMap: Record<string, string>;
+  planJobs: Map<string, PlannedClipJob>;
+  progressById: ProgressById;
+}): ClipRow[] {
   return clipEntries.map((clipEntry) => {
     const {
       currentModeClip,
@@ -109,7 +132,10 @@ export const EditorWindowSidebar = () => {
     startExport,
   } = useClippingActions(state);
   const clipJobById = useMemo(() => plan.jobs.reduce(
-    (nextMap, job) => nextMap.set(String((job as PlannedClipJob).id ?? ''), job as PlannedClipJob),
+    (nextMap, job) => nextMap.set(String(job.id), {
+      id: String(job.id),
+      outputPath: job.outputPath,
+    }),
     new Map<string, PlannedClipJob>(),
   ), [plan.jobs]);
 
@@ -125,13 +151,21 @@ export const EditorWindowSidebar = () => {
       <section className={`${panel} ${clipPanel}`}>
         <h2 className={panelHeading}>Clips List</h2>
         <ul className={clipList}>
-          {clipRows.length === 0 && <li className={clipMeta}>No clips planned or found on disk.</li>}
+          {clipRows.length === 0 && (
+            <li className={clipMeta}>No clips planned or found on disk.</li>
+          )}
           {clipRows.map((clipRow) => (
             <li key={clipRow.key} className={clipItem}>
               <div className={clipTitle}>{clipRow.title}</div>
               <div className={clipMeta}>Status: {clipRow.status}</div>
               <div className={clipMeta}>
-                Progress: {clipRow.filePath ? clipRow.progressText : (clipRow.hasPlannedOutput ? 'syncing preview' : clipRow.progressText)}
+                Progress:
+                {' '}
+                {clipRow.filePath
+                  ? clipRow.progressText
+                  : (clipRow.hasPlannedOutput
+                    ? 'syncing preview'
+                    : clipRow.progressText)}
               </div>
               {clipRow.filePath && (
                 <TimelineEditorGeneratedClipPreview
@@ -145,7 +179,7 @@ export const EditorWindowSidebar = () => {
                   variant="danger"
                   className={clipActionButton}
                   onClick={() => {
-                    void removeClip(clipRow.range);
+                    removeClip(clipRow.range);
                   }}
                 >
                   Remove
@@ -163,7 +197,7 @@ export const EditorWindowSidebar = () => {
             ariaLabel="Trim mode"
             value={trimMode}
             onChange={(nextMode) => {
-              setTrimMode(nextMode);
+              setTrimMode(nextMode as TrimMode);
             }}
             options={[
               {
@@ -178,7 +212,12 @@ export const EditorWindowSidebar = () => {
           />
         </div>
         <div className={sideActions}>
-          <Button type="button" variant="primary" onClick={() => { void startExport(); }} disabled={!readyToStart}>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => { startExport(); }}
+            disabled={!readyToStart}
+          >
             Start Export
           </Button>
           {errorMessage.length > 0 && <p className={errorText}>{errorMessage}</p>}

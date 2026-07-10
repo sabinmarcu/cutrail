@@ -19,7 +19,7 @@ export const LicensesWindow = () => {
     let mounted = true;
 
     if (typeof globalThis.cutrail?.getThirdPartyNotices === 'function') {
-      void globalThis.cutrail.getThirdPartyNotices().then((content) => {
+      globalThis.cutrail.getThirdPartyNotices().then((content) => {
         if (mounted) {
           setNoticesMarkdown(
             typeof content === 'string' && content.length > 0

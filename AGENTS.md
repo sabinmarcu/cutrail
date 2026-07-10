@@ -23,7 +23,7 @@ This file defines how coding agents should work in this repository.
 	- `src/renderer`
 	- `src/domain`
 	- `src/infra`
-- Electron main and preload modules are ESM `.mjs` files, with `src/main/main.mjs` as the application entrypoint.
+- Electron main and preload sources remain under `src/main` and `src/preload`, with runtime execution entering from compiled output at `dist/electron/main/main.js`.
 - Renderer now has multiple runtime modes from the same entrypoint:
 	- Main clipping workflow window
 	- About utility window
@@ -114,6 +114,9 @@ Maintenance rule:
 - Run lint checks with `proto run yarn -- lint`.
 - Run autofix with `proto run yarn -- lint:fix`.
 - Agent lint workflow rule: run `proto run yarn -- lint:fix` first, then run `proto run yarn -- lint` and `proto run yarn -- typecheck`; only manually fix issues that remain after autofix.
+- Agent lint enforcement rule: do not relax lint rules or modify `eslint.config.mjs` to make violations pass by default.
+- Agent lint suppression rule: prefer code changes over lint suppressions; if a suppression is unavoidable, keep it line-scoped and document why.
+- Agent escalation rule: ask the user before proposing any lint configuration exception.
 - Staged files are linted with fix via `proto run yarn -- lint:staged`.
 - Pre-commit hook runs `proto run yarn -- lint:staged` through Husky.
 - Commit messages are validated with Commitlint against Conventional Commits.

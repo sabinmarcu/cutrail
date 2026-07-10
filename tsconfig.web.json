@@ -7,5 +7,5 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["vite/client"]
   },
-  "include": ["src/renderer/**/*"]
+  "include": ["src/renderer/**/*", "src/shared/**/*.ts"]
 }

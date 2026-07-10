@@ -1,10 +1,14 @@
+import type {
+  ButtonHTMLAttributes,
+  ReactNode,
+} from 'react';
 import { button } from './Button.css';
 
 type ButtonProps = {
-  children: import('react').ReactNode;
+  children: ReactNode;
   className?: string;
   variant?: 'primary' | 'secondary' | 'danger';
-} & import('react').ButtonHTMLAttributes<HTMLButtonElement>;
+} & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button = ({
   children, className = '', variant = 'primary', ...props

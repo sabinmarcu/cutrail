@@ -1,19 +1,29 @@
 import { useEffect } from 'react';
 import { buildRangeId } from './clipping';
+import type {
+  ClipRange,
+  ClippingActions,
+  ClippingStateModel,
+  ExistingClip,
+  ExistingExportClipsSnapshot,
+  ExportProgressPayload,
+} from './clipping.types';
 
-type ExistingClip = {
-  range: {
-    start: number;
-    end: number;
-  };
-};
+const buildRangeLookupKey = (range: { start: number; end: number }): string => (
+  `${Math.floor(range.start)}:${Math.floor(range.end)}`
+);
 
-const buildRangeLookupKey = (range) => `${Math.floor(range.start)}:${Math.floor(range.end)}`;
-
-const mergeRangesWithExistingClips = (previousRanges, existingClips: ExistingClip[]) => {
+const mergeRangesWithExistingClips = (
+  previousRanges: ClipRange[],
+  existingClips: ExistingClip[],
+): ClipRange[] => {
   const nextRanges = [...previousRanges];
-  const existingRangeKeys = new Set(previousRanges.map((range) => buildRangeLookupKey(range)));
-  const uniqueClipsByRangeKey = new Map(existingClips.map((clip) => [buildRangeLookupKey(clip.range), clip]));
+  const existingRangeKeys = new Set(
+    previousRanges.map((range) => buildRangeLookupKey(range)),
+  );
+  const uniqueClipsByRangeKey = new Map(
+    existingClips.map((clip) => [buildRangeLookupKey(clip.range), clip]),
+  );
 
   for (const clip of uniqueClipsByRangeKey.values()) {
     const rangeKey = buildRangeLookupKey(clip.range);
@@ -28,16 +38,28 @@ const mergeRangesWithExistingClips = (previousRanges, existingClips: ExistingCli
     }
   }
 
-  return nextRanges.sort((left, right) => left.start - right.start || left.end - right.end || left.id.localeCompare(right.id));
+  return nextRanges.sort(
+    (left, right) => (
+      left.start - right.start
+      || left.end - right.end
+      || left.id.localeCompare(right.id)
+    ),
+  );
 };
 
-export const useClippingSubscriptions = ({ actions, state }) => {
+export const useClippingSubscriptions = ({
+  actions,
+  state,
+}: {
+  actions: ClippingActions;
+  state: ClippingStateModel;
+}): void => {
   useEffect(() => {
     if (typeof globalThis.cutrail?.onExportProgress !== 'function') {
       return undefined;
     }
 
-    return globalThis.cutrail.onExportProgress((progress) => {
+    return globalThis.cutrail.onExportProgress((progress: ExportProgressPayload) => {
       state.setProgressById((previous) => ({
         ...previous,
         [progress.jobId]: progress,
@@ -50,13 +72,22 @@ export const useClippingSubscriptions = ({ actions, state }) => {
       return undefined;
     }
 
-    return globalThis.cutrail.onExistingExportClipsUpdated((payload) => {
-      if (!payload || payload.sourcePath !== state.sourcePath || payload.outputDirectory !== state.outputDirectory) {
+    return globalThis.cutrail.onExistingExportClipsUpdated((
+      payload: ExistingExportClipsSnapshot,
+    ) => {
+      if (
+        !payload
+        || payload.sourcePath !== state.sourcePath
+        || payload.outputDirectory !== state.outputDirectory
+      ) {
         return;
       }
 
       state.setExistingClips(Array.isArray(payload.clips) ? payload.clips : []);
-      state.setRanges((previousRanges) => mergeRangesWithExistingClips(previousRanges, Array.isArray(payload.clips) ? payload.clips : []));
+      state.setRanges((previousRanges) => mergeRangesWithExistingClips(
+        previousRanges,
+        Array.isArray(payload.clips) ? payload.clips : [],
+      ));
     });
   }, [state]);
 
@@ -65,7 +96,7 @@ export const useClippingSubscriptions = ({ actions, state }) => {
       return undefined;
     }
 
-    return globalThis.cutrail.onSourceVideoSelected((nextPath) => {
+    return globalThis.cutrail.onSourceVideoSelected((nextPath: string) => {
       if (typeof nextPath !== 'string' || nextPath.length === 0) {
         return;
       }
@@ -89,7 +120,7 @@ export const useClippingSubscriptions = ({ actions, state }) => {
       return undefined;
     }
 
-    void globalThis.cutrail.getOutputDirectory().then((savedPath) => {
+    globalThis.cutrail.getOutputDirectory().then((savedPath: string | null) => {
       if (mounted && typeof savedPath === 'string' && savedPath.length > 0) {
         state.setOutputDirectory(savedPath);
       }
@@ -105,7 +136,7 @@ export const useClippingSubscriptions = ({ actions, state }) => {
       return undefined;
     }
 
-    return globalThis.cutrail.onOutputDirectoryUpdated((nextPath) => {
+    return globalThis.cutrail.onOutputDirectoryUpdated((nextPath: string) => {
       if (typeof nextPath === 'string' && nextPath.length > 0) {
         state.setOutputDirectory(nextPath);
         state.setExistingClips([]);
@@ -118,7 +149,7 @@ export const useClippingSubscriptions = ({ actions, state }) => {
       return undefined;
     }
 
-    void globalThis.cutrail.syncExistingExportClips({
+    globalThis.cutrail.syncExistingExportClips({
       sourcePath: state.sourcePath,
       outputDirectory: state.outputDirectory,
     });

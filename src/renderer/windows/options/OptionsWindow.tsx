@@ -19,7 +19,7 @@ export const OptionsWindow = () => {
     let mounted = true;
 
     if (typeof globalThis.cutrail?.getOutputDirectory === 'function') {
-      void globalThis.cutrail.getOutputDirectory().then((path) => {
+      globalThis.cutrail.getOutputDirectory().then((path) => {
         if (mounted) {
           setOutputDirectory(typeof path === 'string' && path.length > 0 ? path : 'Not configured');
         }
@@ -54,12 +54,14 @@ export const OptionsWindow = () => {
           type="button"
           variant="primary"
           onClick={() => {
-            void globalThis.cutrail?.selectOutputDirectory?.();
+            globalThis.cutrail?.selectOutputDirectory?.();
           }}
         >
           Change Output Directory
         </Button>
-        <p className={helperText}>This path is used as the default export destination in the editor window.</p>
+        <p className={helperText}>
+          This path is used as the default export destination in the editor window.
+        </p>
       </section>
     </UtilityWindow>
   );
