@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.0](https://github.com/sabinmarcu/cutrail/compare/v0.5.0...v0.6.0) (2026-07-10)
+
+
+### Features
+
+* **library:** add source-driven video library window and saved controls ([0f72b51](https://github.com/sabinmarcu/cutrail/commit/0f72b518747cfea90f92e2ceafc53f05930f1b0b))
+* **library:** style new/clip states and persist seen tracking ([6f371e5](https://github.com/sabinmarcu/cutrail/commit/6f371e59ddc5934ac9d9e8c9e5c1b3d075940e69))
+* **options:** add persisted startup window selection ([eef16fd](https://github.com/sabinmarcu/cutrail/commit/eef16fd68a151cb5ea00490b31add99dd146b053))
+* sync generated clips with editor timeline ([8e54f64](https://github.com/sabinmarcu/cutrail/commit/8e54f64145fc929b83721cb48c77ac06a7399a69))
+
 ## [0.5.0](https://github.com/sabinmarcu/cutrail/compare/v0.4.0...v0.5.0) (2026-07-10)
 
 
