@@ -63,6 +63,10 @@ export const useClippingActions = (state: ClippingStateModel): ClippingActions =
 
   const setPlaybackTime = useCallback((time: number) => {
     state.setCurrentTime(time);
+    state.setPlaybackSeekRequest((previous) => ({
+      revision: previous.revision + 1,
+      time,
+    }));
   }, [state]);
 
   const setSelectedRangeId = useCallback((rangeId: string | null) => {
@@ -163,6 +167,9 @@ export const useClippingActions = (state: ClippingStateModel): ClippingActions =
         outputDirectory: state.outputDirectory,
         ranges: state.ranges,
         trimMode: state.trimMode,
+        audioStreamIndices: state.selectedAudioTrackIndices,
+        selectedAudioTrackIndices: state.selectedAudioTrackIndices,
+        mutedAudioTrackIndices: state.mutedAudioTrackIndices,
       });
 
       state.setPlan(nextPlan);

@@ -21,6 +21,18 @@ export type CreateExportPlanPayload = {
   ranges?: ExportRangeLike[];
   extension?: string;
   trimMode?: BridgeTrimMode;
+  audioStreamIndices?: number[];
+  selectedAudioTrackIndices?: number[];
+  mutedAudioTrackIndices?: number[];
+};
+
+export type GetSourceAudioTracksPayload = {
+  sourcePath?: string;
+};
+
+export type GetSourceAudioTrackWaveformPayload = {
+  sourcePath?: string;
+  trackIndex?: number;
 };
 
 export type RunExportPlanPayload = {
@@ -67,6 +79,7 @@ export type FfmpegAvailabilityResult = {
 export type ExistingExportClip = {
   fileName: string;
   filePath: string;
+  modifiedAtMs: number;
   sourceName: string;
   trimMode: BridgeTrimMode;
   range: {
@@ -99,17 +112,40 @@ export type VideoLibrarySnapshot = {
   videos: VideoLibraryEntry[];
 };
 
+export type SourceAudioTrack = {
+  trackIndex: number;
+  streamIndex: number;
+  label: string;
+  isDefault: boolean;
+  waveformDataUrl: string | null;
+};
+
+export type SourceAudioTrackSnapshot = {
+  sourcePath: string;
+  tracks: SourceAudioTrack[];
+};
+
+export type SourceAudioTrackWaveform = {
+  sourcePath: string;
+  trackIndex: number;
+  waveformDataUrl: string | null;
+};
+
 export type ExportPlanJob = {
   id: string;
   inputPath: string;
   outputPath: string;
   range: {
     id: string;
+    selectedAudioTrackIndices?: number[];
+    mutedAudioTrackIndices?: number[];
     start: number;
     end: number;
     duration: number;
   };
   args: string[];
+  selectedAudioTrackIndices?: number[];
+  mutedAudioTrackIndices?: number[];
 };
 
 export type ExportPlan = {
@@ -176,9 +212,16 @@ export type CutrailBridge = {
   getSourceDirectory: () => Promise<string | null>;
   getOutputDirectory: () => Promise<string | null>;
   getVideoLibrary: () => Promise<VideoLibrarySnapshot>;
+  getSourceAudioTracks: (
+    payload?: GetSourceAudioTracksPayload,
+  ) => Promise<SourceAudioTrackSnapshot>;
+  getSourceAudioTrackWaveform: (
+    payload?: GetSourceAudioTrackWaveformPayload,
+  ) => Promise<SourceAudioTrackWaveform>;
   getFfmpegDiagnostics: () => Promise<FfmpegAvailabilityResult>;
   getThirdPartyNotices: () => Promise<string>;
   getUpdateDialogState: () => Promise<UpdateDialogState | null>;
+  getHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
   getPathForFile: (file: File | null | undefined) => string | null;
   deleteClipRangeOutputs: (payload: {
     sourcePath?: string;
@@ -195,6 +238,7 @@ export type CutrailBridge = {
   selectSourceVideo: () => Promise<string | null>;
   selectSourceDirectory: () => Promise<string | null>;
   selectOutputDirectory: () => Promise<string | null>;
+  setHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<boolean>;
   resolveMediaUrl: (inputPath: string) => string;
   checkFfmpeg: () => Promise<FfmpegAvailabilityResult>;
   createExportPlan: (payload: CreateExportPlanPayload) => Promise<ExportPlan>;
@@ -205,6 +249,7 @@ export type CutrailBridge = {
   revealClip: (filePath: string) => Promise<ClipFileActionResult>;
   submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: string) => void) => () => void;
+  onHideDefaultAudioTrackWhenMultipleUpdated: (listener: (payload: boolean) => void) => () => void;
   onStartupWindowModeUpdated: (listener: (payload: StartupWindowMode) => void) => () => void;
   onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;

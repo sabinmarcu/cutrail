@@ -13,6 +13,7 @@ import {
 } from '@renderer/core/clipping';
 import type { ClipRange } from '@renderer/core/clipping/clipping.types';
 import type { RangeDragMode } from './TimelineEditor';
+import { useVisualPlaybackTime } from './TimelineEditor.useVisualPlaybackTime';
 import { formatSeconds } from './TimelineEditor.utils';
 import {
   handle,
@@ -40,9 +41,11 @@ export const TimelineEditorTimelineSection = ({
     clipEntries,
     currentTime,
     duration,
+    isPlaying,
     selectedRangeId,
     sourcePath,
     timelineRef,
+    videoRef,
   } = state;
   const {
     addRangeAtPlayhead,
@@ -50,6 +53,11 @@ export const TimelineEditorTimelineSection = ({
     setSelectedRangeId,
   } = useClippingActions(state);
   const isSeekingReference = useRef(false);
+  const visualCurrentTime = useVisualPlaybackTime({
+    currentTime,
+    isPlaying,
+    videoElementRef: videoRef,
+  });
 
   const setPlaybackFromClientX = useCallback((clientX: number) => {
     if (!timelineRef.current || duration <= 0) {
@@ -101,7 +109,9 @@ export const TimelineEditorTimelineSection = ({
         >
           Add Range
         </Button>
-        <span className={timecode}>{formatSeconds(currentTime)} / {formatSeconds(duration)}</span>
+        <span className={timecode}>
+          {formatSeconds(visualCurrentTime)} / {formatSeconds(duration)}
+        </span>
       </div>
 
       <div className={timelineWrap}>
@@ -113,7 +123,10 @@ export const TimelineEditorTimelineSection = ({
             setPlaybackFromClientX(event.clientX);
           }}
         >
-          <span className={playhead} style={{ insetInlineStart: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }} />
+          <span
+            className={playhead}
+            style={{ insetInlineStart: `${duration > 0 ? (visualCurrentTime / duration) * 100 : 0}%` }}
+          />
           {clipEntries.map((clipEntry) => {
             const { isLocked, range } = clipEntry;
             const left = duration > 0 ? (range.start / duration) * 100 : 0;

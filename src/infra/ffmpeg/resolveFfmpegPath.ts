@@ -4,6 +4,7 @@ import {
 } from 'node:fs';
 
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+import { parseEnvironment } from '../env.ts';
 
 const APP_ASAR_PATH_SEGMENT = /([\\/])app\.asar([\\/])/u;
 
@@ -65,7 +66,7 @@ export const resolveFfmpegPath = ({
   bundledPath = ffmpegInstaller?.path,
   canExecuteImpl = canExecute,
 }: ResolveFfmpegPathOptions = {}): ResolvedFfmpegPath => {
-  const envOverride = env.CUTRAIL_FFMPEG_PATH;
+  const { ffmpegOverridePath: envOverride } = parseEnvironment(env);
   const resolvedEnvOverride = resolveExecutableCandidate(envOverride, canExecuteImpl);
 
   if (resolvedEnvOverride) {

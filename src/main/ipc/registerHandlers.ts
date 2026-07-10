@@ -5,7 +5,10 @@ import { registerCreateExportPlanHandler } from './handlers/createExportPlan.ts'
 import { registerDeleteClipRangeOutputsHandler } from './handlers/deleteClipRangeOutputs.ts';
 import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.ts';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.ts';
+import { registerGetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/getHideDefaultAudioTrackWhenMultiple.ts';
 import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory.ts';
+import { registerGetSourceAudioTracksHandler } from './handlers/getSourceAudioTracks.ts';
+import { registerGetSourceAudioTrackWaveformHandler } from './handlers/getSourceAudioTrackWaveform.ts';
 import { registerGetSourceDirectoryHandler } from './handlers/getSourceDirectory.ts';
 import { registerGetStartupWindowModeHandler } from './handlers/getStartupWindowMode.ts';
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.ts';
@@ -19,6 +22,7 @@ import { registerRunExportPlanHandler } from './handlers/runExportPlan.ts';
 import { registerSelectOutputDirectoryHandler } from './handlers/selectOutputDirectory.ts';
 import { registerSelectSourceDirectoryHandler } from './handlers/selectSourceDirectory.ts';
 import { registerSelectSourceVideoHandler } from './handlers/selectSourceVideo.ts';
+import { registerSetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/setHideDefaultAudioTrackWhenMultiple.ts';
 import { registerSetStartupWindowModeHandler } from './handlers/setStartupWindowMode.ts';
 import { registerSubmitUpdateDialogActionHandler } from './handlers/submitUpdateDialogAction.ts';
 import { registerWindowControlsHandler } from './handlers/windowControls.ts';
@@ -32,6 +36,7 @@ type HandlerDependencies = {
   }>;
   getPersistedOutputDirectory: () => Promise<string | null>;
   getPersistedSourceDirectory: () => Promise<string | null>;
+  getPersistedHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
   openLibraryWindow: () => boolean;
@@ -46,6 +51,7 @@ type HandlerDependencies = {
   ) => boolean;
   setPersistedOutputDirectory: (outputDirectory: string) => Promise<void>;
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
+  setPersistedHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
 };
 
@@ -62,8 +68,11 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerSelectOutputDirectoryHandler(deps);
   registerGetSourceDirectoryHandler(deps);
   registerGetStartupWindowModeHandler(deps);
+  registerGetHideDefaultAudioTrackWhenMultipleHandler(deps);
   registerGetOutputDirectoryHandler(deps);
   registerGetVideoLibraryHandler(deps);
+  registerGetSourceAudioTracksHandler();
+  registerGetSourceAudioTrackWaveformHandler();
   registerGetFfmpegDiagnosticsHandler();
   registerGetThirdPartyNoticesHandler(deps);
   registerGetUpdateDialogStateHandler(deps);
@@ -75,6 +84,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerStartFileDragHandler();
   registerClipFileActionsHandler();
   registerSubmitUpdateDialogActionHandler(deps);
+  registerSetHideDefaultAudioTrackWhenMultipleHandler(deps);
   registerSetStartupWindowModeHandler(deps);
   registerWindowControlsHandler();
 };

@@ -6,6 +6,7 @@ const SETTINGS_FILE_NAME = 'settings.json';
 const SOURCE_DIRECTORY_KEY = 'sourceDirectory';
 const OUTPUT_DIRECTORY_KEY = 'outputDirectory';
 const STARTUP_WINDOW_MODE_KEY = 'startupWindowMode';
+const HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY = 'hideDefaultAudioTrackWhenMultiple';
 
 type StartupWindowMode = 'splash' | 'library';
 
@@ -39,6 +40,12 @@ const parseStartupWindowMode = (value: unknown): StartupWindowMode | null => {
   }
 
   return null;
+};
+
+const readBooleanSetting = (settings: Record<string, unknown>, key: string): boolean | null => {
+  const value = settings[key];
+
+  return typeof value === 'boolean' ? value : null;
 };
 
 const getDefaultSourceDirectory = (): string | null => {
@@ -85,6 +92,12 @@ const getPersistedStartupWindowMode = async (): Promise<StartupWindowMode> => {
   return parseStartupWindowMode(settings[STARTUP_WINDOW_MODE_KEY]) ?? 'splash';
 };
 
+const getPersistedHideDefaultAudioTrackWhenMultiple = async (): Promise<boolean> => {
+  const settings = await readSettings();
+
+  return readBooleanSetting(settings, HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY) ?? false;
+};
+
 const setPersistedSourceDirectory = async (sourceDirectory: string): Promise<void> => {
   const settings = await readSettings();
   settings[SOURCE_DIRECTORY_KEY] = sourceDirectory;
@@ -108,6 +121,13 @@ const setPersistedStartupWindowMode = async (
 ): Promise<void> => {
   const settings = await readSettings();
   settings[STARTUP_WINDOW_MODE_KEY] = startupWindowMode;
+
+  await writeSettings(settings);
+};
+
+const setPersistedHideDefaultAudioTrackWhenMultiple = async (value: boolean): Promise<void> => {
+  const settings = await readSettings();
+  settings[HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY] = value;
 
   await writeSettings(settings);
 };
@@ -138,6 +158,11 @@ const ensurePersistedDirectories = async (): Promise<void> => {
     hasChanges = true;
   }
 
+  if (readBooleanSetting(settings, HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY) === null) {
+    settings[HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY] = false;
+    hasChanges = true;
+  }
+
   if (hasChanges) {
     await writeSettings(settings);
   }
@@ -145,9 +170,11 @@ const ensurePersistedDirectories = async (): Promise<void> => {
 
 export {
   ensurePersistedDirectories,
+  getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedSourceDirectory,
   getPersistedOutputDirectory,
   getPersistedStartupWindowMode,
+  setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedSourceDirectory,
   setPersistedOutputDirectory,
   setPersistedStartupWindowMode,

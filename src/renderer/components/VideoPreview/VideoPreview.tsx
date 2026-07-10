@@ -20,17 +20,32 @@ import {
 } from './VideoPreview.css';
 
 type VideoPreviewProps = {
+  cacheKey?: number;
   filePath: string;
   title: string;
+};
+
+const withCacheKey = (url: string, cacheKey?: number): string => {
+  if (url.length === 0 || typeof cacheKey !== 'number' || !Number.isFinite(cacheKey)) {
+    return url;
+  }
+
+  const separator = url.includes('?') ? '&' : '?';
+
+  return `${url}${separator}v=${encodeURIComponent(String(cacheKey))}`;
 };
 
 const formatSeconds = (value: number): string => `${Math.max(0, value).toFixed(1)}s`;
 
 export const VideoPreview = ({
+  cacheKey,
   filePath,
   title,
 }: VideoPreviewProps) => {
-  const playbackUrl = useMemo(() => normalizeVideoPath(filePath), [filePath]);
+  const playbackUrl = useMemo(
+    () => withCacheKey(normalizeVideoPath(filePath), cacheKey),
+    [cacheKey, filePath],
+  );
   const videoReference = useRef<HTMLVideoElement | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);

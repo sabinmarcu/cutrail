@@ -53,3 +53,23 @@ export const controlSelect = style({
   minBlockSize: '1.9rem',
   paddingInline: theme.grid.xs,
 });
+
+export const checkboxRow = style({
+  alignItems: 'center',
+  display: 'flex',
+  gap: theme.grid.s,
+});
+
+export const checkboxInput = style({
+  accentColor: theme.colors.secondary.base,
+  blockSize: '1rem',
+  cursor: 'pointer',
+  inlineSize: '1rem',
+  margin: 0,
+});
+
+export const checkboxLabel = style({
+  color: theme.colors.primary.emphasis,
+  fontSize: '0.8rem',
+  lineHeight: 1.4,
+});

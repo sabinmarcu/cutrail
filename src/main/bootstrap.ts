@@ -1,7 +1,7 @@
 import { app } from 'electron';
 
+import { getAppEnvironment } from '../infra/env.ts';
 import { registerIpcHandlers } from './ipc.ts';
-import { getRuntimeConfig } from './config/runtimeConfig.ts';
 import { selectValidSourceVideo } from './sourceSelection.ts';
 import {
   registerMediaProtocol,
@@ -22,9 +22,11 @@ import {
 } from './linuxStandaloneInstall.ts';
 import {
   ensurePersistedDirectories,
+  getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
   getPersistedStartupWindowMode,
+  setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedSourceDirectory,
   setPersistedOutputDirectory,
   setPersistedStartupWindowMode,
@@ -32,13 +34,16 @@ import {
 import { createAppUpdater } from './updater.ts';
 import { createWindowManager } from './windows/windowManager.ts';
 
+// Allow renderer playback to use HTMLMediaElement.audioTracks when Chromium keeps it gated.
+app.commandLine.appendSwitch('enable-blink-features', 'AudioVideoTracks');
+
 registerMediaSchemes();
 
-const runtimeConfig = getRuntimeConfig();
+const environment = getAppEnvironment();
 const windows = createWindowManager({
   appIconPath: APP_ICON_PATH,
-  devServerUrl: runtimeConfig.devServerUrl,
-  openDevToolsOnStart: runtimeConfig.openDevToolsOnStart,
+  devServerUrl: environment.devServerUrl,
+  openDevToolsOnStart: environment.openDevToolsOnStart,
   preloadEntry: PRELOAD_ENTRY,
   rendererEntry: RENDERER_ENTRY,
 });
@@ -105,6 +110,7 @@ const startApp = async (): Promise<void> => {
       getAppMetadata,
       getPersistedOutputDirectory,
       getPersistedSourceDirectory,
+      getPersistedHideDefaultAudioTrackWhenMultiple,
       getPersistedStartupWindowMode,
       getUpdateDialogState: windows.getUpdateDialogState,
       openLibraryWindow: windows.openLibraryWindow,
@@ -112,6 +118,7 @@ const startApp = async (): Promise<void> => {
       readThirdPartyNotices,
       submitUpdateDialogAction: windows.submitUpdateDialogAction,
       setPersistedOutputDirectory,
+      setPersistedHideDefaultAudioTrackWhenMultiple,
       setPersistedSourceDirectory,
       setPersistedStartupWindowMode,
     });

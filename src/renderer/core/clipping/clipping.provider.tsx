@@ -21,7 +21,6 @@ export const ClippingProvider = ({ children, initialSourcePath = '' }: ClippingP
   const actions = useClippingActions(state);
 
   useClippingSubscriptions({
-    actions,
     state,
   });
 

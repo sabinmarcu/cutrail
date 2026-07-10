@@ -56,9 +56,12 @@ export const cutrailBridge: CutrailBridge = {
   getSourceDirectory: () => ipcRenderer.invoke('cutrail:get-source-directory'),
   getOutputDirectory: () => ipcRenderer.invoke('cutrail:get-output-directory'),
   getVideoLibrary: () => ipcRenderer.invoke('cutrail:get-video-library'),
+  getSourceAudioTracks: (payload: Parameters<CutrailBridge['getSourceAudioTracks']>[0]) => ipcRenderer.invoke('cutrail:get-source-audio-tracks', payload),
+  getSourceAudioTrackWaveform: (payload: Parameters<CutrailBridge['getSourceAudioTrackWaveform']>[0]) => ipcRenderer.invoke('cutrail:get-source-audio-track-waveform', payload),
   getFfmpegDiagnostics: () => ipcRenderer.invoke('cutrail:get-ffmpeg-diagnostics'),
   getThirdPartyNotices: () => ipcRenderer.invoke('cutrail:get-third-party-notices'),
   getUpdateDialogState: () => ipcRenderer.invoke('cutrail:get-update-dialog-state'),
+  getHideDefaultAudioTrackWhenMultiple: () => ipcRenderer.invoke('cutrail:get-hide-default-audio-track-when-multiple'),
   getPathForFile: (file: Parameters<CutrailBridge['getPathForFile']>[0]) => {
     if (!file) {
       return null;
@@ -82,6 +85,7 @@ export const cutrailBridge: CutrailBridge = {
   selectSourceVideo: () => ipcRenderer.invoke('cutrail:select-source-video'),
   selectSourceDirectory: () => ipcRenderer.invoke('cutrail:select-source-directory'),
   selectOutputDirectory: () => ipcRenderer.invoke('cutrail:select-output-directory'),
+  setHideDefaultAudioTrackWhenMultiple: (value: Parameters<CutrailBridge['setHideDefaultAudioTrackWhenMultiple']>[0]) => ipcRenderer.invoke('cutrail:set-hide-default-audio-track-when-multiple', value),
   resolveMediaUrl,
   checkFfmpeg: () => ipcRenderer.invoke('cutrail:check-ffmpeg'),
   createExportPlan: (payload: Parameters<CutrailBridge['createExportPlan']>[0]) => ipcRenderer.invoke('cutrail:create-export-plan', payload),
@@ -101,6 +105,7 @@ export const cutrailBridge: CutrailBridge = {
   }),
   submitUpdateDialogAction: (action: Parameters<CutrailBridge['submitUpdateDialogAction']>[0]) => ipcRenderer.invoke('cutrail:submit-update-dialog-action', action),
   onSourceVideoSelected: (listener: Parameters<CutrailBridge['onSourceVideoSelected']>[0]) => subscribeToChannel<string>('cutrail:source-video-selected', listener),
+  onHideDefaultAudioTrackWhenMultipleUpdated: (listener: Parameters<CutrailBridge['onHideDefaultAudioTrackWhenMultipleUpdated']>[0]) => subscribeToChannel<boolean>('cutrail:hide-default-audio-track-when-multiple-updated', listener),
   onStartupWindowModeUpdated: (listener: Parameters<CutrailBridge['onStartupWindowModeUpdated']>[0]) => subscribeToChannel<StartupWindowMode>('cutrail:startup-window-mode-updated', listener),
   onSourceDirectoryUpdated: (listener: Parameters<CutrailBridge['onSourceDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:source-directory-updated', listener),
   onOutputDirectoryUpdated: (listener: Parameters<CutrailBridge['onOutputDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:output-directory-updated', listener),

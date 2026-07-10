@@ -5,15 +5,24 @@ import { theme } from '@sabinmarcu/theme';
 export const editor = style({
   display: 'grid',
   gap: 0,
-  gridTemplateRows: 'minmax(0, 1fr) auto',
+  gridTemplateRows: 'minmax(12rem, 3fr) minmax(0, 2fr)',
   blockSize: '100%',
   minBlockSize: 0,
+  overflow: 'hidden',
+  overflowInline: 'hidden',
+});
+
+export const controlsStack = style({
+  minBlockSize: 0,
+  overflowBlock: 'auto',
+  overflowInline: 'hidden',
 });
 
 export const playbackSection = style({
   display: 'grid',
   gap: 0,
   minBlockSize: 0,
+  overflow: 'hidden',
 });
 
 export const overlayPlayButton = style({
@@ -52,12 +61,14 @@ export const timelineSection = style({
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
   display: 'grid',
   gap: theme.grid.xs,
+  marginBlockEnd: `${theme.grid.s}`,
   paddingBlockStart: `${theme.grid.s}`,
   paddingInline: `${theme.grid.s}`,
   paddingBlockEnd: '0',
 });
 
 export const videoFrame = style({
+  aspectRatio: '16 / 9',
   background: '#020805',
   borderInlineStart: 'none',
   borderInlineEnd: 'none',
@@ -65,7 +76,8 @@ export const videoFrame = style({
   borderBlockEnd: 'none',
   borderRadius: 0,
   blockSize: '100%',
-  minBlockSize: '28rem',
+  minBlockSize: 0,
+  maxBlockSize: '100%',
   overflow: 'hidden',
   position: 'relative',
   selectors: {
@@ -77,9 +89,6 @@ export const videoFrame = style({
       position: 'absolute',
       zIndex: 0,
     },
-  },
-  '@media': {
-    'screen and (max-width: 980px)': { minBlockSize: '18rem' },
   },
 });
 

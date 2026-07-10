@@ -11,6 +11,7 @@ type RegisterIpcDeps = {
   }>;
   getPersistedOutputDirectory: () => Promise<string | null>;
   getPersistedSourceDirectory: () => Promise<string | null>;
+  getPersistedHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
   openLibraryWindow: () => boolean;
@@ -22,6 +23,7 @@ type RegisterIpcDeps = {
   ) => boolean;
   setPersistedOutputDirectory: (outputDirectory: string) => Promise<void>;
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
+  setPersistedHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
 };
 
@@ -29,6 +31,7 @@ const registerIpcHandlers = ({
   getAppMetadata,
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
+  getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedStartupWindowMode,
   getUpdateDialogState,
   openLibraryWindow,
@@ -37,12 +40,14 @@ const registerIpcHandlers = ({
   submitUpdateDialogAction,
   setPersistedOutputDirectory,
   setPersistedSourceDirectory,
+  setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedStartupWindowMode,
 }: RegisterIpcDeps): void => {
   registerHandlers({
     getAppMetadata,
     getPersistedOutputDirectory,
     getPersistedSourceDirectory,
+    getPersistedHideDefaultAudioTrackWhenMultiple,
     getPersistedStartupWindowMode,
     getUpdateDialogState,
     openLibraryWindow,
@@ -52,6 +57,7 @@ const registerIpcHandlers = ({
     submitUpdateDialogAction,
     setPersistedOutputDirectory,
     setPersistedSourceDirectory,
+    setPersistedHideDefaultAudioTrackWhenMultiple,
     setPersistedStartupWindowMode,
   });
 };

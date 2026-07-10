@@ -22,6 +22,7 @@ import {
 
 type GeneratedClipPreviewProps = {
   filePath: string;
+  modifiedAtMs?: number;
   title: string;
 };
 
@@ -33,6 +34,7 @@ type ClipActionResult = {
 
 export const TimelineEditorGeneratedClipPreview = ({
   filePath,
+  modifiedAtMs,
   title,
 }: GeneratedClipPreviewProps) => {
   const [confirmedAction, setConfirmedAction] = useState<'file' | 'path' | 'reveal' | null>(null);
@@ -95,7 +97,7 @@ export const TimelineEditorGeneratedClipPreview = ({
   return (
     <section className={preview}>
       <div className={frame} draggable onDragStart={startDragFromPreview}>
-        <VideoPreview filePath={filePath} title={title} />
+        <VideoPreview filePath={filePath} title={title} cacheKey={modifiedAtMs} />
       </div>
 
       <div className={actionsRow}>

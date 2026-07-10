@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { getAppEnvironment } from '../infra/env.ts';
 import {
   getStandalonePaths,
   STANDALONE_NAME,
@@ -29,7 +30,7 @@ const installStandaloneAppImage = async ({
   appIconPath,
   openDialog,
 }: InstallStandaloneOptions): Promise<void> => {
-  const appImagePath = process.env.APPIMAGE;
+  const { appImagePath } = getAppEnvironment();
 
   if (!appImagePath) {
     await openDialog({

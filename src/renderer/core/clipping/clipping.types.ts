@@ -2,6 +2,7 @@ import type {
   ExistingExportClip as SharedExistingExportClip,
   ExportProgressPayload,
   FfmpegAvailabilityResult,
+  SourceAudioTrack as SharedSourceAudioTrack,
 } from '../../../shared/contracts';
 
 export type {
@@ -9,6 +10,7 @@ export type {
   ExportProgressPayload,
   FfmpegAvailabilityResult,
   RuntimeInfo,
+  SourceAudioTrackSnapshot,
   UpdateDialogAction,
   UpdateDialogState,
 } from '../../../shared/contracts';
@@ -22,6 +24,7 @@ export type ClipRange = {
 };
 
 export type ExistingClip = SharedExistingExportClip;
+export type SourceAudioTrack = SharedSourceAudioTrack;
 
 export type ClipEntry = {
   range: ClipRange;
@@ -72,27 +75,42 @@ export type SharedReference<T> = {
 
 export type StateSetter<T> = (value: T | ((previous: T) => T)) => void;
 
+export type PlaybackSeekRequest = {
+  revision: number;
+  time: number;
+};
+
 export type ClippingStateModel = {
+  audioTracks: SourceAudioTrack[];
   clipStatusMap: Record<string, string>;
   clipEntries: ClipEntry[];
   currentTime: number;
   duration: number;
   errorMessage: string;
   existingClips: ExistingClip[];
+  hasMultipleAudioTracks: boolean;
+  hideDefaultAudioTrackWhenMultiple: boolean;
   isPlaying: boolean;
+  mutedAudioTrackIndices: number[];
   outputDirectory: string;
+  playbackSeekRequest: PlaybackSeekRequest;
   plan: ExportPlan;
   progressById: ProgressById;
   ranges: ClipRange[];
   readyToStart: boolean;
   runResult: ExportRunResult;
+  selectedAudioTrackIndices: number[];
   selectedRangeId: string | null;
+  setAudioTracks: StateSetter<SourceAudioTrack[]>;
   setCurrentTime: StateSetter<number>;
   setDuration: StateSetter<number>;
   setErrorMessage: StateSetter<string>;
   setExistingClips: StateSetter<ExistingClip[]>;
+  setHideDefaultAudioTrackWhenMultiple: StateSetter<boolean>;
   setIsPlaying: StateSetter<boolean>;
+  setMutedAudioTrackIndices: StateSetter<number[]>;
   setOutputDirectory: StateSetter<string>;
+  setPlaybackSeekRequest: StateSetter<PlaybackSeekRequest>;
   setPlan: StateSetter<ExportPlan>;
   setProgressById: StateSetter<ProgressById>;
   setRanges: StateSetter<ClipRange[]>;
@@ -105,6 +123,7 @@ export type ClippingStateModel = {
   trimMode: TrimMode;
   videoRef: SharedReference<HTMLVideoElement | null>;
   videoUrl: string;
+  visibleAudioTracks: SourceAudioTrack[];
 };
 
 export type ClippingActions = {

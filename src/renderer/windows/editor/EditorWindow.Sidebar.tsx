@@ -39,6 +39,7 @@ type PlannedClipJob = {
 type ClipRow = {
   key: string;
   filePath: string | undefined;
+  modifiedAtMs: number | undefined;
   hasPlannedOutput: boolean;
   progressText: string;
   range: ClipRange;
@@ -105,6 +106,7 @@ function buildClipRows({
     return {
       key: `range:${range.id}`,
       filePath: currentModeClip?.filePath,
+      modifiedAtMs: currentModeClip?.modifiedAtMs,
       hasPlannedOutput: typeof clipJob?.outputPath === 'string' && clipJob.outputPath.length > 0,
       progressText: progress === undefined || progress === null ? 'pending' : `${Math.round(progress * 100)}%`,
       range,
@@ -170,6 +172,7 @@ export const EditorWindowSidebar = () => {
               {clipRow.filePath && (
                 <TimelineEditorGeneratedClipPreview
                   filePath={clipRow.filePath}
+                  modifiedAtMs={clipRow.modifiedAtMs}
                   title={clipRow.title}
                 />
               )}

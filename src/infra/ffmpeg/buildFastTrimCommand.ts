@@ -6,6 +6,58 @@ export type BuildFastTrimCommandInput = {
   outputPath: string;
   range: TrimRange;
   trimMode?: 'fast' | 'accurate';
+  audioStreamIndices?: number[];
+};
+
+const assertValidAudioStreamIndices = (audioStreamIndices: number[]): void => {
+  if (!Array.isArray(audioStreamIndices)) {
+    throw new TypeError('audioStreamIndices must be an array of non-negative integers');
+  }
+
+  if (audioStreamIndices.some((index) => !Number.isInteger(index) || index < 0)) {
+    throw new TypeError('audioStreamIndices must be an array of non-negative integers');
+  }
+};
+
+const buildAudioMixFilter = (audioStreamIndices: number[]): string => (
+  `${audioStreamIndices.map((index) => `[0:a:${index}]`).join('')}amix=inputs=${audioStreamIndices.length}:duration=longest:dropout_transition=0[aout]`
+);
+
+const buildAudioArguments = (
+  audioStreamIndices: number[] | undefined,
+): { args: string[]; hasAudioOutput: boolean } => {
+  if (audioStreamIndices === undefined) {
+    return {
+      args: ['-map', '0:a?'],
+      hasAudioOutput: true,
+    };
+  }
+
+  assertValidAudioStreamIndices(audioStreamIndices);
+
+  if (audioStreamIndices.length === 0) {
+    return {
+      args: [],
+      hasAudioOutput: false,
+    };
+  }
+
+  if (audioStreamIndices.length === 1) {
+    return {
+      args: ['-map', `0:a:${audioStreamIndices[0]}?`],
+      hasAudioOutput: true,
+    };
+  }
+
+  return {
+    args: [
+      '-filter_complex',
+      buildAudioMixFilter(audioStreamIndices),
+      '-map',
+      '[aout]',
+    ],
+    hasAudioOutput: true,
+  };
 };
 
 const toFfmpegSeconds = (seconds: number): string => {
@@ -17,7 +69,11 @@ const toFfmpegSeconds = (seconds: number): string => {
 };
 
 export const buildFastTrimCommand = ({
-  inputPath, outputPath, range, trimMode = 'accurate',
+  inputPath,
+  outputPath,
+  range,
+  trimMode = 'accurate',
+  audioStreamIndices,
 }: BuildFastTrimCommandInput): string[] => {
   if (typeof inputPath !== 'string' || inputPath.trim().length === 0) {
     throw new TypeError('inputPath must be a non-empty string');
@@ -36,6 +92,9 @@ export const buildFastTrimCommand = ({
   }
 
   const outputExtension = path.extname(outputPath).toLowerCase();
+  const audioSelection = buildAudioArguments(audioStreamIndices);
+  const audioArguments = audioSelection.args;
+  const { hasAudioOutput } = audioSelection;
 
   // Use accurate trim for MP4 outputs to avoid keyframe-boundary artifacts at clip start.
   // This re-encodes both video and audio for clean first frames/samples.
@@ -55,8 +114,7 @@ export const buildFastTrimCommand = ({
       toFfmpegSeconds(range.duration),
       '-map',
       '0:v:0?',
-      '-map',
-      '0:a?',
+      ...audioArguments,
       '-c:v',
       'libx264',
       '-preset',
@@ -65,10 +123,14 @@ export const buildFastTrimCommand = ({
       '18',
       '-pix_fmt',
       'yuv420p',
-      '-c:a',
-      'aac',
-      '-b:a',
-      '192k',
+      ...(hasAudioOutput
+        ? [
+          '-c:a',
+          'aac',
+          '-b:a',
+          '192k',
+        ]
+        : ['-an']),
       '-movflags',
       '+faststart',
       '-y',
@@ -92,14 +154,10 @@ export const buildFastTrimCommand = ({
       toFfmpegSeconds(range.duration),
       '-map',
       '0:v:0?',
-      '-map',
-      '0:a?',
+      ...audioArguments,
       '-c:v',
       'copy',
-      '-c:a',
-      'aac',
-      '-b:a',
-      '192k',
+      ...(hasAudioOutput ? ['-c:a', 'aac', '-b:a', '192k'] : ['-an']),
       '-movflags',
       '+faststart',
       '-y',
@@ -122,12 +180,14 @@ export const buildFastTrimCommand = ({
     toFfmpegSeconds(range.duration),
     '-map',
     '0:v:0?',
-    '-map',
-    '0:a?',
+    ...audioArguments,
     '-map',
     '0:s?',
-    '-c',
-    'copy',
+    ...(hasAudioOutput
+      ? (audioStreamIndices === undefined || audioStreamIndices.length === 1
+        ? ['-c', 'copy']
+        : ['-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-c:s', 'copy'])
+      : ['-c:v', 'copy', '-c:s', 'copy', '-an']),
     '-y',
     outputPath,
   ];

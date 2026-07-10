@@ -1,6 +1,9 @@
 import { watch } from 'node:fs';
 import type { FSWatcher } from 'node:fs';
-import { readdir } from 'node:fs/promises';
+import {
+  readdir,
+  stat,
+} from 'node:fs/promises';
 import path from 'node:path';
 import { ipcMain } from 'electron';
 import type { WebContents } from 'electron';
@@ -13,6 +16,7 @@ import {
 type ExistingClipPayload = {
   fileName: string;
   filePath: string;
+  modifiedAtMs: number;
   sourceName: string;
   trimMode: 'fast' | 'accurate';
   range: {
@@ -107,21 +111,26 @@ const syncWatcherSnapshot = async (
   const refreshSnapshot = async () => {
     try {
       const entries = await readdir(outputDirectory, { withFileTypes: true });
-      const clips = entries
+      const clipResults = await Promise.all(entries
         .filter((entry) => entry.isFile())
-        .map((entry) => {
+        .map(async (entry) => {
           const parsed = parseClipOutputName(entry.name);
 
           if (!parsed || parsed.sourceName !== sourceName) {
             return null;
           }
 
+          const filePath = path.join(outputDirectory, entry.name);
+          const fileStats = await stat(filePath).catch(() => null);
+
           return {
             fileName: entry.name,
-            filePath: path.join(outputDirectory, entry.name),
+            filePath,
+            modifiedAtMs: fileStats?.mtimeMs ?? 0,
             ...parsed,
           } satisfies ExistingClipPayload;
-        })
+        }));
+      const clips = clipResults
         .filter((clip): clip is ExistingClipPayload => clip !== null);
 
       sendExistingClipsUpdate(sender, {

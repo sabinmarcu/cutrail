@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { app } from 'electron';
+import { getAppEnvironment } from '../infra/env.ts';
 
 const APP_UPDATE_CONFIG_PATH = path.join(process.resourcesPath, 'app-update.yml');
 const AUR_STANDALONE_PREFIX = '/opt/cutrail-bin/';
@@ -40,7 +41,7 @@ const hasGitHubReleaseProviderConfig = async (): Promise<boolean> => {
 };
 
 const isPortableAppImageRun = (): boolean => {
-  const appImagePath = process.env.APPIMAGE;
+  const { appImagePath } = getAppEnvironment();
 
   return typeof appImagePath === 'string' && appImagePath.length > 0
     && !appImagePath.startsWith(AUR_STANDALONE_PREFIX);

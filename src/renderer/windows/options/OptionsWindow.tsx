@@ -6,6 +6,9 @@ import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
+  checkboxInput,
+  checkboxLabel,
+  checkboxRow,
   controlSelect,
   heading,
   helperText,
@@ -17,6 +20,7 @@ export const OptionsWindow = () => {
   const [startupWindowMode, setStartupWindowMode] = useState<'splash' | 'library'>('splash');
   const [sourceDirectory, setSourceDirectory] = useState('Loading...');
   const [outputDirectory, setOutputDirectory] = useState('Loading...');
+  const [hideDefaultAudioTrackWhenMultiple, setHideDefaultAudioTrackWhenMultiple] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -45,6 +49,14 @@ export const OptionsWindow = () => {
       });
     }
 
+    if (typeof globalThis.cutrail?.getHideDefaultAudioTrackWhenMultiple === 'function') {
+      globalThis.cutrail.getHideDefaultAudioTrackWhenMultiple().then((value) => {
+        if (mounted) {
+          setHideDefaultAudioTrackWhenMultiple(value === true);
+        }
+      });
+    }
+
     const unsubscribeSource = typeof globalThis.cutrail?.onSourceDirectoryUpdated === 'function'
       ? globalThis.cutrail.onSourceDirectoryUpdated((path) => {
         setSourceDirectory(typeof path === 'string' && path.length > 0 ? path : 'Not configured');
@@ -63,11 +75,18 @@ export const OptionsWindow = () => {
       })
       : () => {};
 
+    const unsubscribeHideDefaultAudioTrack = typeof globalThis.cutrail?.onHideDefaultAudioTrackWhenMultipleUpdated === 'function'
+      ? globalThis.cutrail.onHideDefaultAudioTrackWhenMultipleUpdated((value) => {
+        setHideDefaultAudioTrackWhenMultiple(value === true);
+      })
+      : () => {};
+
     return () => {
       mounted = false;
       unsubscribeSource();
       unsubscribeOutput();
       unsubscribeStartupMode();
+      unsubscribeHideDefaultAudioTrack();
     };
   }, []);
 
@@ -127,6 +146,30 @@ export const OptionsWindow = () => {
         </Button>
         <p className={helperText}>
           This path is used as the default export destination in the editor window.
+        </p>
+      </section>
+
+      <section className={panel}>
+        <h2 className={heading}>Multi-Track Audio</h2>
+        <label className={checkboxRow}>
+          <input
+            className={checkboxInput}
+            type="checkbox"
+            checked={hideDefaultAudioTrackWhenMultiple}
+            onChange={(event) => {
+              const nextValue = event.currentTarget.checked;
+
+              setHideDefaultAudioTrackWhenMultiple(nextValue);
+              globalThis.cutrail?.setHideDefaultAudioTrackWhenMultiple?.(nextValue);
+            }}
+          />
+          <span className={checkboxLabel}>
+            Hide the default audio track when a source has multiple audio tracks.
+          </span>
+        </label>
+        <p className={helperText}>
+          When enabled, only non-default tracks are shown in the editor and counted
+          for clip exports.
         </p>
       </section>
     </UtilityWindow>

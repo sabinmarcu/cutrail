@@ -7,6 +7,8 @@ import {
   useMemo,
 } from 'react';
 import { normalizeVideoPath } from './clipping';
+import { mutedAudioTrackIndicesAtom } from './clipping.audioTracks.state';
+import { playbackSeekRequestAtom } from './clipping.playback.state';
 import type {
   ClipEntry,
   ClipRange,
@@ -16,6 +18,7 @@ import type {
   ExportRunResult,
   ProgressById,
   SharedReference,
+  SourceAudioTrack,
   TrimMode,
 } from './clipping.types';
 
@@ -37,6 +40,8 @@ const currentTimeAtom = atom<number>(0);
 const isPlayingAtom = atom<boolean>(false);
 const selectedRangeIdAtom = atom<string | null>(null);
 const existingClipsAtom = atom<ExistingClip[]>([]);
+const audioTracksAtom = atom<SourceAudioTrack[]>([]);
+const hideDefaultAudioTrackWhenMultipleAtom = atom<boolean>(false);
 const videoReferenceAtom = atom<SharedReference<HTMLVideoElement | null>>(
   createSharedReference<HTMLVideoElement | null>(null),
 );
@@ -61,9 +66,15 @@ export const useClippingState = (
   const [trimMode, setTrimMode] = useAtom(trimModeAtom);
   const [duration, setDuration] = useAtom(durationAtom);
   const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
+  const [playbackSeekRequest, setPlaybackSeekRequest] = useAtom(playbackSeekRequestAtom);
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
   const [selectedRangeId, setSelectedRangeId] = useAtom(selectedRangeIdAtom);
   const [existingClips, setExistingClips] = useAtom(existingClipsAtom);
+  const [audioTracks, setAudioTracks] = useAtom(audioTracksAtom);
+  const [hideDefaultAudioTrackWhenMultiple, setHideDefaultAudioTrackWhenMultiple] = useAtom(
+    hideDefaultAudioTrackWhenMultipleAtom,
+  );
+  const [mutedAudioTrackIndices, setMutedAudioTrackIndices] = useAtom(mutedAudioTrackIndicesAtom);
   const [videoReference] = useAtom(videoReferenceAtom);
   const [timelineReference] = useAtom(timelineReferenceAtom);
 
@@ -78,6 +89,17 @@ export const useClippingState = (
   }, [initialSourcePath, setSourcePath]);
 
   const videoUrl = useMemo(() => normalizeVideoPath(sourcePath), [sourcePath]);
+  const hasMultipleAudioTracks = audioTracks.length > 1;
+  const visibleAudioTracks = useMemo(() => {
+    if (!hasMultipleAudioTracks || !hideDefaultAudioTrackWhenMultiple) {
+      return audioTracks;
+    }
+
+    return audioTracks.filter((track) => track.trackIndex !== 0);
+  }, [audioTracks, hasMultipleAudioTracks, hideDefaultAudioTrackWhenMultiple]);
+  const selectedAudioTrackIndices = useMemo(() => visibleAudioTracks
+    .filter((track) => !mutedAudioTrackIndices.includes(track.trackIndex))
+    .map((track) => track.trackIndex), [mutedAudioTrackIndices, visibleAudioTracks]);
   const readyToStart = (
     sourcePath.length > 0
     && outputDirectory.length > 0
@@ -126,26 +148,36 @@ export const useClippingState = (
   }, [plan.jobs, ranges, runResult]);
 
   return {
+    audioTracks,
     clipStatusMap,
     clipEntries,
     currentTime,
     duration,
     errorMessage,
     existingClips,
+    hasMultipleAudioTracks,
+    hideDefaultAudioTrackWhenMultiple,
     isPlaying,
+    mutedAudioTrackIndices,
     outputDirectory,
+    playbackSeekRequest,
     plan,
     progressById,
     ranges,
     readyToStart,
     runResult,
+    selectedAudioTrackIndices,
     selectedRangeId,
+    setAudioTracks,
     setCurrentTime,
     setDuration,
     setErrorMessage,
     setExistingClips,
+    setHideDefaultAudioTrackWhenMultiple,
     setIsPlaying,
+    setMutedAudioTrackIndices,
     setOutputDirectory,
+    setPlaybackSeekRequest,
     setPlan,
     setProgressById,
     setRanges,
@@ -158,5 +190,6 @@ export const useClippingState = (
     trimMode,
     videoRef: videoReference,
     videoUrl,
+    visibleAudioTracks,
   };
 };

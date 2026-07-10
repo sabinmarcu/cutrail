@@ -3,6 +3,7 @@ import {
 } from 'electron';
 import electronUpdater from 'electron-updater';
 import type { UpdateInfo } from 'electron-updater';
+import { getAppEnvironment } from '../infra/env.ts';
 import { fetchReleaseNotesFromGitHub } from './releaseNotes.ts';
 
 const { autoUpdater } = electronUpdater;
@@ -78,7 +79,7 @@ const getUpdaterAvailability = () => {
     };
   }
 
-  if (process.platform === 'linux' && !process.env.APPIMAGE) {
+  if (process.platform === 'linux' && !getAppEnvironment().appImagePath) {
     return {
       enabled: false,
       reason: 'Self-update is enabled only for AppImage installs on Linux.',

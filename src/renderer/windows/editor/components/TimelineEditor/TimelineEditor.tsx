@@ -9,7 +9,11 @@ import {
   editorPanel,
   panelHeading,
 } from '../../EditorWindow.css';
-import { editor } from './TimelineEditor.css';
+import {
+  controlsStack,
+  editor,
+} from './TimelineEditor.css';
+import { TimelineEditorAudioTracks } from './TimelineEditor.AudioTracks';
 import { TimelineEditorPlaybackSection } from './TimelineEditor.PlaybackSection';
 import { TimelineEditorRangeList } from './TimelineEditor.RangeList';
 import { TimelineEditorTimelineSection } from './TimelineEditor.TimelineSection';
@@ -62,8 +66,11 @@ export const TimelineEditor = ({
       {!hideHeading && <h2 className={panelHeading}>Clip Timeline Editor</h2>}
       <div className={editor}>
         <TimelineEditorPlaybackSection />
-        <TimelineEditorTimelineSection onCreateDragHandler={createDragHandler} />
-        {showRangeList && <TimelineEditorRangeList />}
+        <div className={controlsStack}>
+          <TimelineEditorTimelineSection onCreateDragHandler={createDragHandler} />
+          <TimelineEditorAudioTracks />
+          {showRangeList && <TimelineEditorRangeList />}
+        </div>
       </div>
     </section>
   );
