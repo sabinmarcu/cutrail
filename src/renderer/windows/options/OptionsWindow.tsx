@@ -185,6 +185,17 @@ export const OptionsWindow = () => {
             }}
           />
           <span className={colorValue}>{themePrimaryColor.toUpperCase()}</span>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={themePrimaryColor === defaultThemePrimaryColor}
+            onClick={() => {
+              setThemePrimaryColor(defaultThemePrimaryColor);
+              globalThis.cutrail?.setThemePrimaryColor?.(defaultThemePrimaryColor);
+            }}
+          >
+            Reset to Default
+          </Button>
         </div>
         <p className={helperText}>
           Controls the terminal-style glow/accent used across renderer windows.
