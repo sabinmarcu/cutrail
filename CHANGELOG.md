@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.0](https://github.com/sabinmarcu/cutrail/compare/v0.8.0...v0.9.0) (2026-07-11)
+
+
+### Features
+
+* **theme:** add live primary color picker and runtime propagation ([33f9b06](https://github.com/sabinmarcu/cutrail/commit/33f9b06ee74272bf1c3305fa4d6a213852283a01))
+* **updates:** show latest and previous changelogs ([971a1d9](https://github.com/sabinmarcu/cutrail/commit/971a1d9cb81ba567a76ca18a69def43c76cee6ee))
+
 ## [0.8.0](https://github.com/sabinmarcu/cutrail/compare/v0.7.3...v0.8.0) (2026-07-11)
 
 
