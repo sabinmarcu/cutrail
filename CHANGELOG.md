@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3](https://github.com/sabinmarcu/cutrail/compare/v0.7.2...v0.7.3) (2026-07-11)
+
+
+### Bug Fixes
+
+* **editor:** mute hidden default audio track on startup ([8a4922e](https://github.com/sabinmarcu/cutrail/commit/8a4922e0231662cfc180c9a3f827f236b74dddab))
+
 ## [0.7.2](https://github.com/sabinmarcu/cutrail/compare/v0.7.1...v0.7.2) (2026-07-11)
 
 
