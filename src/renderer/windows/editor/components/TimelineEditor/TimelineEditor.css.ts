@@ -27,23 +27,20 @@ export const playbackSection = style({
 
 export const overlayPlayButton = style({
   alignItems: 'center',
-  background: theme.colors.background.surface,
+  background: 'rgba(2, 8, 5, 0.82)',
   borderInlineStart: `1px solid ${theme.colors.primary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
   borderBlockStart: `1px solid ${theme.colors.primary.base}`,
   borderBlockEnd: `1px solid ${theme.colors.primary.base}`,
   borderRadius: '999px',
   color: theme.colors.primary.emphasis,
-  cursor: 'pointer',
+  cursor: 'default',
   display: 'inline-flex',
   justifyContent: 'center',
-  fontSize: '0.84rem',
-  fontWeight: 600,
   insetInlineStart: '50%',
-  minInlineSize: '6rem',
+  blockSize: '3rem',
+  inlineSize: '3rem',
   opacity: 0,
-  paddingBlock: `${theme.grid.xxs}`,
-  paddingInline: `${theme.grid.s}`,
   pointerEvents: 'none',
   position: 'absolute',
   insetBlockStart: '50%',
@@ -54,7 +51,6 @@ export const overlayPlayButton = style({
 
 export const overlayPlayButtonVisible = style({
   opacity: 1,
-  pointerEvents: 'auto',
 });
 
 export const timelineSection = style({
@@ -107,10 +103,68 @@ export const video = style({
   display: 'block',
   blockSize: '100%',
   background: 'transparent',
-  objectFit: 'contain',
+  transition: 'transform 220ms ease',
+  transform: 'scale(1)',
+  transformOrigin: 'center center',
   position: 'relative',
   inlineSize: '100%',
   zIndex: 2,
+});
+
+export const videoFitContain = style({
+  objectFit: 'contain',
+  transform: 'scale(1)',
+});
+
+export const videoFitCover = style({
+  objectFit: 'cover',
+  transform: 'scale(1.04)',
+});
+
+export const videoFitToggleButton = style({
+  alignItems: 'center',
+  background: 'rgba(2, 8, 5, 0.82)',
+  borderInlineStart: `1px solid ${theme.colors.primary.base}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.base}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.base}`,
+  borderRadius: '999px',
+  color: theme.colors.primary.emphasis,
+  cursor: 'pointer',
+  display: 'inline-flex',
+  blockSize: '2.15rem',
+  inlineSize: '2.15rem',
+  insetBlockEnd: `${theme.grid.xs}`,
+  insetInlineEnd: `${theme.grid.xs}`,
+  justifyContent: 'center',
+  opacity: 0,
+  padding: 0,
+  pointerEvents: 'none',
+  position: 'absolute',
+  transition: 'background-color 180ms ease, color 180ms ease, opacity 180ms ease',
+  zIndex: 9,
+  selectors: {
+    '&:hover': {
+      background: 'rgba(2, 8, 5, 0.95)',
+    },
+    '&:focus-visible': {
+      outline: `1px solid ${theme.colors.secondary.emphasis}`,
+      outlineOffset: '1px',
+    },
+  },
+});
+
+export const videoFitToggleButtonVisible = style({
+  opacity: 1,
+  pointerEvents: 'auto',
+});
+
+export const videoFitToggleIcon = style({
+  transition: 'transform 220ms ease',
+});
+
+export const videoFitToggleIconActive = style({
+  transform: 'rotate(45deg)',
 });
 
 export const emptyVideo = style({

@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import {
+  Expand,
   Pause,
   Play,
 } from 'lucide-react';
@@ -16,6 +17,12 @@ import {
   overlayPlayButtonVisible,
   playbackSection,
   video,
+  videoFitContain,
+  videoFitCover,
+  videoFitToggleIcon,
+  videoFitToggleIconActive,
+  videoFitToggleButton,
+  videoFitToggleButtonVisible,
   videoFrame,
 } from './TimelineEditor.css';
 
@@ -66,7 +73,8 @@ export const TimelineEditorPlaybackSection = () => {
     videoRef,
     videoUrl,
   } = useClippingState();
-  const [showOverlayControl, setShowOverlayControl] = useState(true);
+  const [showOverlayControl, setShowOverlayControl] = useState(false);
+  const [useCoverFit, setUseCoverFit] = useState(false);
   const hideTimerReference = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const audioLayerMapReference = useRef<Map<number, HTMLAudioElement>>(new Map());
   const lastHardSyncTimestampReference = useRef<Map<number, number>>(new Map());
@@ -263,29 +271,23 @@ export const TimelineEditorPlaybackSection = () => {
     return cancelFrame;
   }, [isPlaying, setCurrentTime, stabilizeAudioLayerDrift, videoRef]);
 
-  const scheduleOverlayHide = useCallback(() => {
+  const revealOverlayIndicator = useCallback(() => {
+    setShowOverlayControl(true);
+
     if (hideTimerReference.current) {
       globalThis.clearTimeout(hideTimerReference.current);
     }
 
-    if (!isPlaying) {
-      return;
-    }
-
     hideTimerReference.current = globalThis.setTimeout(() => {
       setShowOverlayControl(false);
-    }, 1800);
-  }, [isPlaying]);
+    }, 2000);
+  }, []);
 
-  useEffect(() => {
-    scheduleOverlayHide();
-
-    return () => {
-      if (hideTimerReference.current) {
-        globalThis.clearTimeout(hideTimerReference.current);
-      }
-    };
-  }, [scheduleOverlayHide, sourcePath]);
+  useEffect(() => () => {
+    if (hideTimerReference.current) {
+      globalThis.clearTimeout(hideTimerReference.current);
+    }
+  }, [sourcePath]);
 
   useEffect(() => {
     const layerMap = audioLayerMapReference.current;
@@ -383,27 +385,49 @@ export const TimelineEditorPlaybackSection = () => {
     }
   };
 
-  const overlayVisible = !isPlaying || showOverlayControl;
+  const handleFrameToggle = () => {
+    togglePlayback().catch(() => {});
+    revealOverlayIndicator();
+  };
 
   return (
     <section className={playbackSection}>
       <div
         className={videoFrame}
+        role={sourcePath ? 'button' : undefined}
+        tabIndex={sourcePath ? 0 : undefined}
+        onClick={() => {
+          if (!sourcePath) {
+            return;
+          }
+
+          handleFrameToggle();
+        }}
+        onKeyDown={(event) => {
+          if (!sourcePath) {
+            return;
+          }
+
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleFrameToggle();
+          }
+        }}
         onMouseMove={() => {
-          setShowOverlayControl(true);
-          scheduleOverlayHide();
+          if (!sourcePath) {
+            return;
+          }
+
+          revealOverlayIndicator();
         }}
-        onPointerDown={() => {
-          setShowOverlayControl(true);
-          scheduleOverlayHide();
-        }}
+        aria-label={sourcePath ? (isPlaying ? 'Pause playback' : 'Play playback') : undefined}
       >
         {sourcePath
           ? (
             <>
               <video
                 ref={videoRef}
-                className={video}
+                className={`${video} ${useCoverFit ? videoFitCover : videoFitContain}`}
                 controls={false}
                 src={videoUrl}
                 key={videoUrl}
@@ -429,30 +453,46 @@ export const TimelineEditorPlaybackSection = () => {
                   mediaElement.muted = true;
                   syncAudioLayers('sync-play').catch(() => {});
                   setIsPlaying(true);
+                  revealOverlayIndicator();
                 }}
                 onPause={() => {
                   for (const audioLayer of audioLayerMapReference.current.values()) {
                     audioLayer.pause();
                   }
                   setIsPlaying(false);
+                  revealOverlayIndicator();
                 }}
               >
                 <track kind="captions" />
               </video>
 
-              <button
-                type="button"
-                className={`${overlayPlayButton} ${overlayVisible ? overlayPlayButtonVisible : ''}`}
-                aria-label={isPlaying ? 'Pause playback' : 'Play playback'}
-                onClick={() => {
-                  togglePlayback().catch(() => {});
-                  setShowOverlayControl(true);
-                  scheduleOverlayHide();
-                }}
+              <div
+                className={`${overlayPlayButton} ${showOverlayControl ? overlayPlayButtonVisible : ''}`}
+                aria-hidden="true"
               >
                 {isPlaying
                   ? <Pause size={16} strokeWidth={2} />
                   : <Play size={16} strokeWidth={2} />}
+              </div>
+
+              <button
+                type="button"
+                className={`${videoFitToggleButton} ${showOverlayControl ? videoFitToggleButtonVisible : ''}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setUseCoverFit((previous) => !previous);
+                  revealOverlayIndicator();
+                }}
+                onKeyDown={(event) => {
+                  event.stopPropagation();
+                }}
+                aria-label={useCoverFit ? 'Switch video fit to contain' : 'Switch video fit to cover'}
+              >
+                  <Expand
+                    size={15}
+                    strokeWidth={2}
+                    className={`${videoFitToggleIcon} ${useCoverFit ? videoFitToggleIconActive : ''}`}
+                  />
               </button>
             </>
           )
