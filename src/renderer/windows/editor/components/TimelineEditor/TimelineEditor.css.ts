@@ -5,7 +5,7 @@ import { theme } from '@sabinmarcu/theme';
 export const editor = style({
   display: 'grid',
   gap: 0,
-  gridTemplateRows: 'minmax(12rem, 3fr) minmax(0, 2fr)',
+  gridTemplateRows: 'minmax(12rem, 1fr) auto',
   blockSize: '100%',
   minBlockSize: 0,
   overflow: 'hidden',
@@ -13,6 +13,7 @@ export const editor = style({
 });
 
 export const controlsStack = style({
+  alignSelf: 'end',
   minBlockSize: 0,
   overflowBlock: 'auto',
   overflowInline: 'hidden',
