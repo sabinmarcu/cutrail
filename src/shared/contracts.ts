@@ -185,11 +185,18 @@ export type UpdateDialogAction = {
   variant?: 'primary' | 'secondary';
 };
 
+export type UpdateDialogVersionNotes = {
+  version: string;
+  notes: string;
+};
+
 export type UpdateDialogState = {
   title: string;
   subtitle?: string;
   message: string;
   detail?: string;
+  latestDetail?: string;
+  olderVersionDetails?: UpdateDialogVersionNotes[];
   actions: UpdateDialogAction[];
   cancelAction?: string;
   progressPercent?: number;

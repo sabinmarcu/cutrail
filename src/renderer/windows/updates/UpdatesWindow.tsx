@@ -9,9 +9,13 @@ import { Button } from '@renderer/components/Button';
 import { ProgressBar } from '@renderer/components/ProgressBar/ProgressBar';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import {
+  changelogSectionTitle,
   detailMarkdown,
   heading,
   message,
+  olderVersionEntry,
+  olderVersionsContainer,
+  olderVersionHeading,
   panel,
   progressPanel,
 } from './UpdatesWindow.css';
@@ -27,6 +31,11 @@ type UpdateDialogState = {
   subtitle?: string;
   message?: string;
   detail?: string;
+  latestDetail?: string;
+  olderVersionDetails?: Array<{
+    version?: string;
+    notes?: string;
+  }>;
   progressPercent?: number;
   progressLabel?: string;
   showProgress?: boolean;
@@ -67,6 +76,18 @@ const parseUpdateDialogState = (payload: unknown): UpdateDialogState => {
     detail: typeof candidate.detail === 'string' && candidate.detail.length > 0
       ? candidate.detail
       : '',
+    latestDetail: typeof candidate.latestDetail === 'string' && candidate.latestDetail.length > 0
+      ? candidate.latestDetail
+      : (typeof candidate.detail === 'string' ? candidate.detail : ''),
+    olderVersionDetails: Array.isArray(candidate.olderVersionDetails)
+      ? candidate.olderVersionDetails.filter((entry) => (
+        !!entry
+        && typeof entry.version === 'string'
+        && entry.version.length > 0
+        && typeof entry.notes === 'string'
+        && entry.notes.length > 0
+      ))
+      : [],
     progressPercent: typeof candidate.progressPercent === 'number'
       ? candidate.progressPercent
       : (defaultState.progressPercent ?? 0),
@@ -139,10 +160,28 @@ export const UpdatesWindow = () => {
       <section className={panel}>
         <h2 className={heading}>{dialog.title ?? defaultState.title}</h2>
         <p className={message}>{dialog.message ?? defaultState.message}</p>
-        {dialog.detail
+        {dialog.latestDetail
           ? (
-            <div className={detailMarkdown}>
-              <ReactMarkdown rehypePlugins={[rehypeRaw]}>{dialog.detail}</ReactMarkdown>
+            <>
+              <h3 className={changelogSectionTitle}>Latest Version</h3>
+              <div className={detailMarkdown}>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{dialog.latestDetail}</ReactMarkdown>
+              </div>
+            </>
+          )
+          : null}
+        {Array.isArray(dialog.olderVersionDetails) && dialog.olderVersionDetails.length > 0
+          ? (
+            <div className={olderVersionsContainer}>
+              <h3 className={changelogSectionTitle}>Previous Versions</h3>
+              {dialog.olderVersionDetails.map((entry) => (
+                <section key={entry.version} className={olderVersionEntry}>
+                  <h4 className={olderVersionHeading}>{entry.version}</h4>
+                  <div className={detailMarkdown}>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{entry.notes ?? ''}</ReactMarkdown>
+                  </div>
+                </section>
+              ))}
             </div>
           )
           : null}

@@ -35,6 +35,16 @@ export const heading = style({
   textTransform: 'uppercase',
 });
 
+export const changelogSectionTitle = style({
+  color: theme.colors.primary.base,
+  fontSize: '0.78rem',
+  letterSpacing: '0.08em',
+  marginBlockStart: `${theme.grid.s}`,
+  marginInline: 0,
+  marginBlockEnd: `${theme.grid.xs}`,
+  textTransform: 'uppercase',
+});
+
 export const message = style({
   color: theme.colors.secondary.emphasis,
   fontSize: '0.8rem',
@@ -52,6 +62,25 @@ export const detailMarkdown = style({
   marginBlockStart: `${theme.grid.s}`,
   minBlockSize: '8rem',
   padding: theme.grid.s,
+});
+
+export const olderVersionsContainer = style({
+  display: 'grid',
+  gap: theme.grid.s,
+  marginBlockStart: theme.grid.s,
+});
+
+export const olderVersionEntry = style({
+  display: 'grid',
+  gap: theme.grid.xs,
+});
+
+export const olderVersionHeading = style({
+  color: theme.colors.primary.emphasis,
+  fontSize: '0.76rem',
+  letterSpacing: '0.08em',
+  margin: 0,
+  textTransform: 'uppercase',
 });
 
 globalStyle(`${detailMarkdown} :is(h1, h2, h3, h4)`, {

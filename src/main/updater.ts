@@ -4,7 +4,8 @@ import {
 import electronUpdater from 'electron-updater';
 import type { UpdateInfo } from 'electron-updater';
 import { getAppEnvironment } from '../infra/env.ts';
-import { fetchReleaseNotesFromGitHub } from './releaseNotes.ts';
+import { fetchReleaseNotesBundleFromGitHub } from './releaseNotes.ts';
+import { normalizeReleaseNotesText } from './releaseNotesFormatting.ts';
 
 const { autoUpdater } = electronUpdater;
 
@@ -14,11 +15,18 @@ type UpdateDialogAction = {
   variant?: 'primary' | 'secondary';
 };
 
+type UpdateDialogVersionNotes = {
+  version: string;
+  notes: string;
+};
+
 type UpdateDialogState = {
   title: string;
   subtitle?: string;
   message: string;
   detail?: string;
+  latestDetail?: string;
+  olderVersionDetails?: UpdateDialogVersionNotes[];
   actions: UpdateDialogAction[];
   cancelAction?: string;
   progressPercent?: number;
@@ -41,31 +49,57 @@ type CreateAppUpdaterDeps = {
   updateUpdateDialogState: (patch: Partial<UpdateDialogState>) => boolean;
 };
 
-const formatReleaseNotes = async (updateInfo: UpdateInfo): Promise<string> => {
+const formatReleaseNotes = async (updateInfo: UpdateInfo): Promise<{
+  latestDetail: string;
+  olderVersionDetails: UpdateDialogVersionNotes[];
+}> => {
   const { releaseNotes } = updateInfo;
 
   if (typeof releaseNotes === 'string' && releaseNotes.trim().length > 0) {
-    return releaseNotes;
+    return {
+      latestDetail: normalizeReleaseNotesText(releaseNotes),
+      olderVersionDetails: [],
+    };
   }
 
   if (Array.isArray(releaseNotes)) {
-    const text = releaseNotes
-      .map((entry) => (typeof entry?.note === 'string' ? entry.note.trim() : ''))
-      .filter((entry) => entry.trim().length > 0)
-      .join('\n\n');
+    const releaseNotesEntries = releaseNotes
+      .map((entry) => ({
+        version: typeof entry?.version === 'string' ? entry.version.trim() : '',
+        notes: typeof entry?.note === 'string' ? normalizeReleaseNotesText(entry.note).trim() : '',
+      }))
+      .filter((entry) => entry.notes.length > 0);
 
-    if (text.length > 0) {
-      return text;
+    if (releaseNotesEntries.length > 0) {
+      const latestEntry = releaseNotesEntries[0];
+      const olderVersionDetails = releaseNotesEntries
+        .slice(1)
+        .filter((entry) => entry.version.length > 0)
+        .map((entry) => ({
+          version: entry.version,
+          notes: entry.notes,
+        }));
+
+      return {
+        latestDetail: latestEntry.notes,
+        olderVersionDetails,
+      };
     }
   }
 
-  const fallbackReleaseNotes = await fetchReleaseNotesFromGitHub(updateInfo.version || '');
+  const fallbackBundle = await fetchReleaseNotesBundleFromGitHub(updateInfo.version || '');
 
-  if (fallbackReleaseNotes) {
-    return fallbackReleaseNotes;
+  if (fallbackBundle && fallbackBundle.latest.length > 0) {
+    return {
+      latestDetail: fallbackBundle.latest,
+      olderVersionDetails: fallbackBundle.older,
+    };
   }
 
-  return 'Release notes are not available for this version.';
+  return {
+    latestDetail: 'Release notes are not available for this version.',
+    olderVersionDetails: [],
+  };
 };
 
 /**
@@ -134,12 +168,14 @@ const createAppUpdater = ({
 
   autoUpdater.on('update-available', async (updateInfo: UpdateInfo) => {
     const version = updateInfo.version || 'a newer version';
-    const releaseNotes = await formatReleaseNotes(updateInfo);
+    const notes = await formatReleaseNotes(updateInfo);
 
     const action = await openUpdateDialog({
       title: 'Update Available',
       message: `Cutrail ${version} is available.`,
-      detail: releaseNotes,
+      detail: notes.latestDetail,
+      latestDetail: notes.latestDetail,
+      olderVersionDetails: notes.olderVersionDetails,
       showProgress: false,
       progressPercent: 0,
       progressLabel: '0%',
@@ -167,6 +203,9 @@ const createAppUpdater = ({
         title: 'Downloading Update',
         subtitle: 'Downloading release package',
         message: 'Downloading update package. You can continue using Cutrail while this completes.',
+        detail: '',
+        latestDetail: '',
+        olderVersionDetails: [],
         showProgress: true,
         progressPercent: 0,
         progressLabel: '0%',

@@ -6,11 +6,18 @@ type UpdateDialogAction = {
   variant?: 'primary' | 'secondary',
 };
 
+type UpdateDialogVersionNotes = {
+  version: string,
+  notes: string,
+};
+
 type UpdateDialogState = {
   title: string,
   subtitle?: string,
   message: string,
   detail?: string,
+  latestDetail?: string,
+  olderVersionDetails?: UpdateDialogVersionNotes[],
   actions: UpdateDialogAction[],
   cancelAction?: string,
   progressPercent?: number,
