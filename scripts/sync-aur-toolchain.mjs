@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import {
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
+import path from 'node:path';
 
+const resolve = path.resolve.bind(path);
 const root = resolve(new URL('..', import.meta.url).pathname);
 const mode = process.argv.includes('--check') ? 'check' : 'write';
 
@@ -15,18 +19,47 @@ const files = {
 };
 
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-
 const electronRaw = packageJson.devDependencies?.electron;
+
 if (!electronRaw) {
   throw new Error('Unable to find devDependencies.electron in package.json');
 }
 
 const electronMajor = Number(electronRaw.replace(/^[^0-9]+/, '').split('.')[0]);
-
-let changed = false;
-
 const sharedElectronDepends = `'electron${electronMajor}' 'glibc' 'gtk3' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 'libdrm' 'alsa-lib'`;
 const protoMakeDepends = 'proto-bin';
+
+const packageBuildBlockPattern = /\t(?:proto install\n)?(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?\t(?:corepack )?yarn install --immutable\n\t(?:corepack )?(?:yarn build|yarn electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto run yarn -- build|proto run yarn -- electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto exec node yarn -- yarn build)|\tproto install\n(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?(?:\tproto run yarn -- install --immutable\n\tproto run yarn -- build|\tproto exec node yarn -- yarn install --immutable\n\tproto exec node yarn -- yarn build)/;
+const srcinfoDependsPattern = /\tdepends = .*\n(?:\tdepends = .*\n)*/;
+const srcinfoMakedependsPattern = /\tmakedepends = .*\n(?:\tmakedepends = .*\n)*/;
+const gitSourcePattern = /source=\('cutrail::git\+https:\/\/github\.com\/sabinmarcu\/cutrail\.git#branch=[^']+'\)/;
+const gitSrcinfoSourcePattern = /\tsource = cutrail::git\+https:\/\/github\.com\/sabinmarcu\/cutrail\.git#branch=.*/;
+
+const normalizedBuildBlock = [
+  '\tproto install',
+  '\tproto exec node yarn -- yarn install --immutable',
+  '\tproto exec node yarn -- yarn build',
+].join('\n');
+
+const normalizedCutrailDependsSrcinfo = [
+  `\tdepends = electron${electronMajor}`,
+  '\tdepends = glibc',
+  '\tdepends = gtk3',
+  '\tdepends = nss',
+  '\tdepends = libxss',
+  '\tdepends = libxtst',
+  '\tdepends = xdg-utils',
+  '\tdepends = at-spi2-core',
+  '\tdepends = libdrm',
+  '\tdepends = alsa-lib',
+  '',
+].join('\n');
+
+const normalizedCutrailGitMakedependsSrcinfo = [
+  '\tmakedepends = git',
+  `\tmakedepends = ${protoMakeDepends}`,
+  '',
+].join('\n');
 
 const replacements = {
   cutrailPkgbuild: [
@@ -39,31 +72,17 @@ const replacements = {
       to: `makedepends=('${protoMakeDepends}')`,
     },
     {
-      from:
-        /	(?:proto install\n)?(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?\t(?:corepack )?yarn install --immutable\n\t(?:corepack )?(?:yarn build|yarn electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto run yarn -- build|proto run yarn -- electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto exec node yarn -- yarn build)|\tproto install\n(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?(?:\tproto run yarn -- install --immutable\n\tproto run yarn -- build|\tproto exec node yarn -- yarn install --immutable\n\tproto exec node yarn -- yarn build)/,
-      to:
-        '\tproto install\n' +
-        '\tproto exec node yarn -- yarn install --immutable\n' +
-        '\tproto exec node yarn -- yarn build',
+      from: packageBuildBlockPattern,
+      to: normalizedBuildBlock,
     },
   ],
   cutrailSrcinfo: [
     {
-      from: /\tdepends = .*\n(?:\tdepends = .*\n)*/,
-      to:
-        `\tdepends = electron${electronMajor}\n` +
-        '\tdepends = glibc\n' +
-        '\tdepends = gtk3\n' +
-        '\tdepends = nss\n' +
-        '\tdepends = libxss\n' +
-        '\tdepends = libxtst\n' +
-        '\tdepends = xdg-utils\n' +
-        '\tdepends = at-spi2-core\n' +
-        '\tdepends = libdrm\n' +
-        '\tdepends = alsa-lib\n',
+      from: srcinfoDependsPattern,
+      to: normalizedCutrailDependsSrcinfo,
     },
     {
-      from: /\tmakedepends = .*\n(?:\tmakedepends = .*\n)*/,
+      from: srcinfoMakedependsPattern,
       to: `\tmakedepends = ${protoMakeDepends}\n`,
     },
   ],
@@ -77,43 +96,31 @@ const replacements = {
       to: `makedepends=('git' '${protoMakeDepends}')`,
     },
     {
-      from: /source=\('cutrail::git\+https:\/\/github\.com\/sabinmarcu\/cutrail\.git#branch=[^']+'\)/,
+      from: gitSourcePattern,
       to: "source=('cutrail::git+https://github.com/sabinmarcu/cutrail.git#branch=master')",
     },
     {
-      from:
-        /	(?:proto install\n)?(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?\t(?:corepack )?yarn install --immutable\n\t(?:corepack )?(?:yarn build|yarn electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto run yarn -- build|proto run yarn -- electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto exec node yarn -- yarn build)|\tproto install\n(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?(?:\tproto run yarn -- install --immutable\n\tproto run yarn -- build|\tproto exec node yarn -- yarn install --immutable\n\tproto exec node yarn -- yarn build)/,
-      to:
-        '\tproto install\n' +
-        '\tproto exec node yarn -- yarn install --immutable\n' +
-        '\tproto exec node yarn -- yarn build',
+      from: packageBuildBlockPattern,
+      to: normalizedBuildBlock,
     },
   ],
   cutrailGitSrcinfo: [
     {
-      from: /\tdepends = .*\n(?:\tdepends = .*\n)*/,
-      to:
-        `\tdepends = electron${electronMajor}\n` +
-        '\tdepends = glibc\n' +
-        '\tdepends = gtk3\n' +
-        '\tdepends = nss\n' +
-        '\tdepends = libxss\n' +
-        '\tdepends = libxtst\n' +
-        '\tdepends = xdg-utils\n' +
-        '\tdepends = at-spi2-core\n' +
-        '\tdepends = libdrm\n' +
-        '\tdepends = alsa-lib\n',
+      from: srcinfoDependsPattern,
+      to: normalizedCutrailDependsSrcinfo,
     },
     {
-      from: /\tmakedepends = .*\n(?:\tmakedepends = .*\n)*/,
-      to: `\tmakedepends = git\n\tmakedepends = ${protoMakeDepends}\n`,
+      from: srcinfoMakedependsPattern,
+      to: normalizedCutrailGitMakedependsSrcinfo,
     },
     {
-      from: /\tsource = cutrail::git\+https:\/\/github\.com\/sabinmarcu\/cutrail\.git#branch=.*/,
+      from: gitSrcinfoSourcePattern,
       to: '\tsource = cutrail::git+https://github.com/sabinmarcu/cutrail.git#branch=master',
     },
   ],
 };
+
+let changed = false;
 
 for (const [key, filePath] of Object.entries(files)) {
   let content = readFileSync(filePath, 'utf8');
@@ -125,6 +132,7 @@ for (const [key, filePath] of Object.entries(files)) {
 
   if (content !== original) {
     changed = true;
+
     if (mode === 'write') {
       writeFileSync(filePath, content, 'utf8');
       console.log(`updated ${filePath}`);

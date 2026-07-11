@@ -1,5 +1,5 @@
-import { checkFfmpegAvailability } from '../src/infra/ffmpeg/checkFfmpegAvailability.js';
-import { resolveFfmpegPath } from '../src/infra/ffmpeg/resolveFfmpegPath.js';
+import { checkFfmpegAvailability } from '../src/infra/ffmpeg/checkFfmpegAvailability.ts';
+import { resolveFfmpegPath } from '../src/infra/ffmpeg/resolveFfmpegPath.ts';
 
 const requireBundled = process.env.CUTRAIL_ALLOW_SYSTEM_FFMPEG !== '1';
 

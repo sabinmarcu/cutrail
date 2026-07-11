@@ -35,4 +35,12 @@ export default defineConfig([
       'import/extensions': 'off',
     },
   },
+  {
+    name: 'Cutrail Script CLI Exceptions',
+    files: ['scripts/*.mjs'],
+    rules: {
+      'no-console': 'off',
+      'unicorn/no-process-exit': 'off',
+    },
+  },
 ]);
