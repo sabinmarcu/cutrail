@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/sabinmarcu/cutrail/compare/v0.7.0...v0.7.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* **ci:** align scripts with ts runtime and lint rules ([dff2d61](https://github.com/sabinmarcu/cutrail/commit/dff2d612a88d2e5a193d0c2c5ff2304d98c39f3e))
+
 ## [0.7.0](https://github.com/sabinmarcu/cutrail/compare/v0.6.0...v0.7.0) (2026-07-10)
 
 
