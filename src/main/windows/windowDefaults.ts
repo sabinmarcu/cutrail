@@ -2,6 +2,7 @@ import type { BrowserWindowConstructorOptions } from 'electron';
 
 type WindowOptionInput = {
   appIconPath: string;
+  forceNativeWindowDecorations: boolean;
   height: number;
   minHeight?: number;
   minWidth?: number;
@@ -13,7 +14,16 @@ type WindowOptionInput = {
 };
 
 const buildWindowOptions = ({
-  appIconPath, height, minHeight, minWidth, preloadEntry, title, x, y, width,
+  appIconPath,
+  forceNativeWindowDecorations,
+  height,
+  minHeight,
+  minWidth,
+  preloadEntry,
+  title,
+  x,
+  y,
+  width,
 }: WindowOptionInput): BrowserWindowConstructorOptions => ({
   center: false,
   width,
@@ -24,10 +34,10 @@ const buildWindowOptions = ({
   minHeight,
   title,
   icon: appIconPath,
-  frame: false,
-  transparent: true,
-  backgroundColor: '#00000000',
-  autoHideMenuBar: true,
+  frame: forceNativeWindowDecorations,
+  transparent: !forceNativeWindowDecorations,
+  backgroundColor: forceNativeWindowDecorations ? '#111111' : '#00000000',
+  autoHideMenuBar: process.platform !== 'win32',
   webPreferences: {
     preload: preloadEntry,
     contextIsolation: true,

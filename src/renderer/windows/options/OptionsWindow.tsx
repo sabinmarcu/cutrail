@@ -5,6 +5,7 @@ import {
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
+import type { WindowDecorationMenuPreferenceState } from '../../../shared/contracts';
 import {
   checkboxInput,
   checkboxLabel,
@@ -16,12 +17,20 @@ import {
   pathValue,
 } from './OptionsWindow.css';
 
+const defaultWindowDecorationMenuPreference: WindowDecorationMenuPreferenceState = {
+  configuredEnabled: false,
+  effectiveEnabled: false,
+  forcedByEnvironment: false,
+};
+
 export const OptionsWindow = () => {
   const [startupWindowMode, setStartupWindowMode] = useState<'splash' | 'library'>('splash');
   const [sourceDirectory, setSourceDirectory] = useState('Loading...');
   const [outputDirectory, setOutputDirectory] = useState('Loading...');
   const [hideDefaultAudioTrackWhenMultiple, setHideDefaultAudioTrackWhenMultiple] = useState(false);
-
+  const [windowDecorationMenuPreference, setWindowDecorationMenuPreference] = useState(
+    defaultWindowDecorationMenuPreference,
+  );
   useEffect(() => {
     let mounted = true;
 
@@ -57,6 +66,14 @@ export const OptionsWindow = () => {
       });
     }
 
+    if (typeof globalThis.cutrail?.getWindowDecorationMenuPreference === 'function') {
+      globalThis.cutrail.getWindowDecorationMenuPreference().then((nextPreference) => {
+        if (mounted) {
+          setWindowDecorationMenuPreference(nextPreference);
+        }
+      });
+    }
+
     const unsubscribeSource = typeof globalThis.cutrail?.onSourceDirectoryUpdated === 'function'
       ? globalThis.cutrail.onSourceDirectoryUpdated((path) => {
         setSourceDirectory(typeof path === 'string' && path.length > 0 ? path : 'Not configured');
@@ -81,12 +98,19 @@ export const OptionsWindow = () => {
       })
       : () => {};
 
+    const unsubscribeWindowDecorationMenuPreference = typeof globalThis.cutrail?.onWindowDecorationMenuPreferenceUpdated === 'function'
+      ? globalThis.cutrail.onWindowDecorationMenuPreferenceUpdated((nextPreference) => {
+        setWindowDecorationMenuPreference(nextPreference);
+      })
+      : () => {};
+
     return () => {
       mounted = false;
       unsubscribeSource();
       unsubscribeOutput();
       unsubscribeStartupMode();
       unsubscribeHideDefaultAudioTrack();
+      unsubscribeWindowDecorationMenuPreference();
     };
   }, []);
 
@@ -102,7 +126,6 @@ export const OptionsWindow = () => {
           value={startupWindowMode}
           onChange={(event) => {
             const nextMode = event.currentTarget.value === 'library' ? 'library' : 'splash';
-
             setStartupWindowMode(nextMode);
             globalThis.cutrail?.setStartupWindowMode?.(nextMode);
           }}
@@ -114,7 +137,6 @@ export const OptionsWindow = () => {
           This controls what opens first when Cutrail starts or reopens with no windows.
         </p>
       </section>
-
       <section className={panel}>
         <h2 className={heading}>Source Folder</h2>
         <p className={pathValue}>{sourceDirectory}</p>
@@ -148,7 +170,32 @@ export const OptionsWindow = () => {
           This path is used as the default export destination in the editor window.
         </p>
       </section>
-
+      <section className={panel}>
+        <h2 className={heading}>Window Decoration Menu</h2>
+        <label className={checkboxRow}>
+          <input
+            className={checkboxInput}
+            type="checkbox"
+            checked={windowDecorationMenuPreference.configuredEnabled}
+            disabled={windowDecorationMenuPreference.forcedByEnvironment}
+            onChange={(event) => {
+              const nextValue = event.currentTarget.checked;
+              globalThis.cutrail?.setWindowDecorationMenuPreference?.(nextValue)
+                .then((nextPreference) => {
+                  setWindowDecorationMenuPreference(nextPreference);
+                });
+            }}
+          />
+          <span className={checkboxLabel}>
+            Show the in-window menu strip below the titlebar.
+          </span>
+        </label>
+        <p className={helperText}>
+          {windowDecorationMenuPreference.forcedByEnvironment
+            ? 'Forced on by CUTRAIL_FORCE_WINDOW_DECORATION_MENU.'
+            : 'Default is seeded from environment detection on first run.'}
+        </p>
+      </section>
       <section className={panel}>
         <h2 className={heading}>Multi-Track Audio</h2>
         <label className={checkboxRow}>
@@ -158,7 +205,6 @@ export const OptionsWindow = () => {
             checked={hideDefaultAudioTrackWhenMultiple}
             onChange={(event) => {
               const nextValue = event.currentTarget.checked;
-
               setHideDefaultAudioTrackWhenMultiple(nextValue);
               globalThis.cutrail?.setHideDefaultAudioTrackWhenMultiple?.(nextValue);
             }}

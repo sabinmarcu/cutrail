@@ -7,6 +7,7 @@ import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
 import {
+  actionsRow,
   dragActive,
   dropHint,
   logo,
@@ -193,16 +194,28 @@ export const AppWindow = () => {
           >
             Select Video File
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            className={noDrag}
-            onClick={() => {
-              globalThis.cutrail?.openLibraryWindow?.();
-            }}
-          >
-            Open Library
-          </Button>
+          <div className={actionsRow}>
+            <Button
+              type="button"
+              variant="secondary"
+              className={noDrag}
+              onClick={() => {
+                globalThis.cutrail?.openLibraryWindow?.();
+              }}
+            >
+              Open Library
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className={noDrag}
+              onClick={() => {
+                globalThis.cutrail?.openOptionsWindow?.();
+              }}
+            >
+              Options
+            </Button>
+          </div>
         </section>
         <footer className={footer}>
           <Button

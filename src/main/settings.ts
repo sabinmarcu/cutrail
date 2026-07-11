@@ -7,6 +7,7 @@ const SOURCE_DIRECTORY_KEY = 'sourceDirectory';
 const OUTPUT_DIRECTORY_KEY = 'outputDirectory';
 const STARTUP_WINDOW_MODE_KEY = 'startupWindowMode';
 const HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY = 'hideDefaultAudioTrackWhenMultiple';
+const WINDOW_DECORATION_MENU_ENABLED_KEY = 'windowDecorationMenuEnabled';
 
 type StartupWindowMode = 'splash' | 'library';
 
@@ -76,32 +77,33 @@ const getDefaultOutputDirectory = (sourceDirectory: string): string => path.join
 
 const getPersistedSourceDirectory = async (): Promise<string | null> => {
   const settings = await readSettings();
-
   return readStringSetting(settings, SOURCE_DIRECTORY_KEY);
 };
 
 const getPersistedOutputDirectory = async (): Promise<string | null> => {
   const settings = await readSettings();
-
   return readStringSetting(settings, OUTPUT_DIRECTORY_KEY);
 };
 
 const getPersistedStartupWindowMode = async (): Promise<StartupWindowMode> => {
   const settings = await readSettings();
-
   return parseStartupWindowMode(settings[STARTUP_WINDOW_MODE_KEY]) ?? 'splash';
 };
 
 const getPersistedHideDefaultAudioTrackWhenMultiple = async (): Promise<boolean> => {
   const settings = await readSettings();
-
   return readBooleanSetting(settings, HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY) ?? false;
+};
+
+const getPersistedWindowDecorationMenuEnabled = async (): Promise<boolean> => {
+  const settings = await readSettings();
+
+  return readBooleanSetting(settings, WINDOW_DECORATION_MENU_ENABLED_KEY) ?? false;
 };
 
 const setPersistedSourceDirectory = async (sourceDirectory: string): Promise<void> => {
   const settings = await readSettings();
   settings[SOURCE_DIRECTORY_KEY] = sourceDirectory;
-
   if (!readStringSetting(settings, OUTPUT_DIRECTORY_KEY)) {
     settings[OUTPUT_DIRECTORY_KEY] = getDefaultOutputDirectory(sourceDirectory);
   }
@@ -121,7 +123,6 @@ const setPersistedStartupWindowMode = async (
 ): Promise<void> => {
   const settings = await readSettings();
   settings[STARTUP_WINDOW_MODE_KEY] = startupWindowMode;
-
   await writeSettings(settings);
 };
 
@@ -132,7 +133,16 @@ const setPersistedHideDefaultAudioTrackWhenMultiple = async (value: boolean): Pr
   await writeSettings(settings);
 };
 
-const ensurePersistedDirectories = async (): Promise<void> => {
+const setPersistedWindowDecorationMenuEnabled = async (value: boolean): Promise<void> => {
+  const settings = await readSettings();
+  settings[WINDOW_DECORATION_MENU_ENABLED_KEY] = value;
+
+  await writeSettings(settings);
+};
+
+const ensurePersistedDirectories = async (
+  defaultWindowDecorationMenuEnabled: boolean,
+): Promise<void> => {
   const settings = await readSettings();
   let hasChanges = false;
   let sourceDirectory = readStringSetting(settings, SOURCE_DIRECTORY_KEY);
@@ -163,6 +173,11 @@ const ensurePersistedDirectories = async (): Promise<void> => {
     hasChanges = true;
   }
 
+  if (readBooleanSetting(settings, WINDOW_DECORATION_MENU_ENABLED_KEY) === null) {
+    settings[WINDOW_DECORATION_MENU_ENABLED_KEY] = defaultWindowDecorationMenuEnabled;
+    hasChanges = true;
+  }
+
   if (hasChanges) {
     await writeSettings(settings);
   }
@@ -171,10 +186,12 @@ const ensurePersistedDirectories = async (): Promise<void> => {
 export {
   ensurePersistedDirectories,
   getPersistedHideDefaultAudioTrackWhenMultiple,
+  getPersistedWindowDecorationMenuEnabled,
   getPersistedSourceDirectory,
   getPersistedOutputDirectory,
   getPersistedStartupWindowMode,
   setPersistedHideDefaultAudioTrackWhenMultiple,
+  setPersistedWindowDecorationMenuEnabled,
   setPersistedSourceDirectory,
   setPersistedOutputDirectory,
   setPersistedStartupWindowMode,

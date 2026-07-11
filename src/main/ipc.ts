@@ -1,6 +1,8 @@
 import type { BrowserWindow } from 'electron';
 import { registerHandlers } from './ipc/registerHandlers.ts';
 import { selectValidSourceVideo } from './sourceSelection.ts';
+import type { WindowDecorationMenuPreferenceState } from '../shared/contracts.ts';
+import type { WindowMenuModel } from '../shared/windowMenu.ts';
 
 type RegisterIpcDeps = {
   getAppMetadata: () => Promise<{
@@ -13,8 +15,18 @@ type RegisterIpcDeps = {
   getPersistedSourceDirectory: () => Promise<string | null>;
   getPersistedHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
+  getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
+  getWindowMenuModel: () => WindowMenuModel;
+  invokeWindowMenuAction: (
+    actionId: string,
+    senderWindow: BrowserWindow | null,
+  ) => Promise<boolean>;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
+  openAboutWindow: () => Promise<boolean> | boolean;
+  openDiagnosticsWindow: () => boolean;
   openLibraryWindow: () => boolean;
+  openLicensesWindow: () => boolean;
+  openOptionsWindow: () => boolean;
   openEditorWindow: (sourcePath: string) => boolean;
   readThirdPartyNotices: () => Promise<string>;
   submitUpdateDialogAction: (
@@ -25,6 +37,9 @@ type RegisterIpcDeps = {
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
   setPersistedHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
+  setWindowDecorationMenuPreference: (
+    enabled: boolean,
+  ) => Promise<WindowDecorationMenuPreferenceState>;
 };
 
 const registerIpcHandlers = ({
@@ -33,8 +48,15 @@ const registerIpcHandlers = ({
   getPersistedSourceDirectory,
   getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedStartupWindowMode,
+  getWindowDecorationMenuPreference,
+  getWindowMenuModel,
+  invokeWindowMenuAction,
   getUpdateDialogState,
+  openAboutWindow,
+  openDiagnosticsWindow,
   openLibraryWindow,
+  openLicensesWindow,
+  openOptionsWindow,
   openEditorWindow,
   readThirdPartyNotices,
   submitUpdateDialogAction,
@@ -42,6 +64,7 @@ const registerIpcHandlers = ({
   setPersistedSourceDirectory,
   setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedStartupWindowMode,
+  setWindowDecorationMenuPreference,
 }: RegisterIpcDeps): void => {
   registerHandlers({
     getAppMetadata,
@@ -49,8 +72,15 @@ const registerIpcHandlers = ({
     getPersistedSourceDirectory,
     getPersistedHideDefaultAudioTrackWhenMultiple,
     getPersistedStartupWindowMode,
+    getWindowDecorationMenuPreference,
+    getWindowMenuModel,
+    invokeWindowMenuAction,
     getUpdateDialogState,
+    openAboutWindow,
+    openDiagnosticsWindow,
     openLibraryWindow,
+    openLicensesWindow,
+    openOptionsWindow,
     openEditorWindow,
     readThirdPartyNotices,
     selectValidSourceVideo,
@@ -59,6 +89,7 @@ const registerIpcHandlers = ({
     setPersistedSourceDirectory,
     setPersistedHideDefaultAudioTrackWhenMultiple,
     setPersistedStartupWindowMode,
+    setWindowDecorationMenuPreference,
   });
 };
 

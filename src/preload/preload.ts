@@ -50,7 +50,17 @@ export const cutrailBridge: CutrailBridge = {
   closeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'close'),
   minimizeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'minimize'),
   toggleWindowMaximize: () => ipcRenderer.invoke('cutrail:window-control', 'maximize'),
+  openAboutWindow: () => ipcRenderer.invoke('cutrail:open-about-window'),
+  openDiagnosticsWindow: () => ipcRenderer.invoke('cutrail:open-diagnostics-window'),
   openLibraryWindow: () => ipcRenderer.invoke('cutrail:open-library-window'),
+  openLicensesWindow: () => ipcRenderer.invoke('cutrail:open-licenses-window'),
+  openOptionsWindow: () => ipcRenderer.invoke('cutrail:open-options-window'),
+  getWindowDecorationMenuPreference: () => ipcRenderer.invoke('cutrail:get-window-decoration-menu-preference'),
+  setWindowDecorationMenuPreference: (
+    enabled: Parameters<CutrailBridge['setWindowDecorationMenuPreference']>[0],
+  ) => ipcRenderer.invoke('cutrail:set-window-decoration-menu-preference', enabled),
+  getWindowMenuModel: () => ipcRenderer.invoke('cutrail:get-window-menu-model'),
+  invokeWindowMenuAction: (actionId: Parameters<CutrailBridge['invokeWindowMenuAction']>[0]) => ipcRenderer.invoke('cutrail:invoke-window-menu-action', actionId),
   getStartupWindowMode: () => ipcRenderer.invoke('cutrail:get-startup-window-mode'),
   setStartupWindowMode: (mode: Parameters<CutrailBridge['setStartupWindowMode']>[0]) => ipcRenderer.invoke('cutrail:set-startup-window-mode', mode),
   getSourceDirectory: () => ipcRenderer.invoke('cutrail:get-source-directory'),
@@ -109,6 +119,12 @@ export const cutrailBridge: CutrailBridge = {
   onStartupWindowModeUpdated: (listener: Parameters<CutrailBridge['onStartupWindowModeUpdated']>[0]) => subscribeToChannel<StartupWindowMode>('cutrail:startup-window-mode-updated', listener),
   onSourceDirectoryUpdated: (listener: Parameters<CutrailBridge['onSourceDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:source-directory-updated', listener),
   onOutputDirectoryUpdated: (listener: Parameters<CutrailBridge['onOutputDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:output-directory-updated', listener),
+  onWindowDecorationMenuPreferenceUpdated: (
+    listener: Parameters<CutrailBridge['onWindowDecorationMenuPreferenceUpdated']>[0],
+  ) => subscribeToChannel(
+    'cutrail:window-decoration-menu-preference-updated',
+    listener,
+  ),
   onExportProgress: (listener: Parameters<CutrailBridge['onExportProgress']>[0]) => subscribeToChannel<ExportProgressPayload>('cutrail:export-progress', listener),
   onUpdateDialogState: (listener: Parameters<CutrailBridge['onUpdateDialogState']>[0]) => subscribeToChannel<UpdateDialogState>('cutrail:update-dialog-state', listener),
 };

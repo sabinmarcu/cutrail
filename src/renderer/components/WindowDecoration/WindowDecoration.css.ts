@@ -12,11 +12,12 @@ export const root = recipe({
     borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
     color: theme.colors.primary.emphasis,
     display: 'grid',
-    gap: theme.grid.xs,
+    gap: 0,
     gridTemplateColumns: 'minmax(0, 1fr) auto',
+    gridTemplateAreas: '"title controls" "menu menu"',
     minBlockSize: '2rem',
-    paddingBlock: `${theme.grid.xxs}`,
-    paddingInline: `${theme.grid.s}`,
+    paddingBlockStart: `${theme.grid.xxs}`,
+    paddingInline: 0,
     boxShadow: 'inset 0 -1px 0 rgba(80, 255, 160, 0.08)',
     ...dragAppRegion,
   },
@@ -42,8 +43,11 @@ export const root = recipe({
 export const titleGroup = style({
   alignItems: 'center',
   display: 'flex',
+  gridArea: 'title',
   gap: theme.grid.xs,
   minInlineSize: 0,
+  paddingBlockEnd: `${theme.grid.xxs}`,
+  paddingInlineStart: `${theme.grid.s}`,
 });
 
 export const title = style({
@@ -70,6 +74,18 @@ export const controls = style({
   alignItems: 'center',
   display: 'flex',
   gap: theme.grid.xxs,
+  gridArea: 'controls',
+  paddingBlockEnd: `${theme.grid.xxs}`,
+  paddingInlineEnd: `${theme.grid.s}`,
+  ...noDragAppRegion,
+});
+
+export const menuRow = style({
+  gridArea: 'menu',
+  inlineSize: '100%',
+  marginInline: 0,
+  marginBlockStart: `${theme.grid.xxs}`,
+  marginBlockEnd: 0,
   ...noDragAppRegion,
 });
 

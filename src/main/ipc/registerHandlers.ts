@@ -14,7 +14,14 @@ import { registerGetStartupWindowModeHandler } from './handlers/getStartupWindow
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.ts';
 import { registerGetUpdateDialogStateHandler } from './handlers/getUpdateDialogState.ts';
 import { registerGetVideoLibraryHandler } from './handlers/getVideoLibrary.ts';
+import { registerGetWindowDecorationMenuPreferenceHandler } from './handlers/getWindowDecorationMenuPreference.ts';
+import { registerGetWindowMenuModelHandler } from './handlers/getWindowMenuModel.ts';
+import { registerInvokeWindowMenuActionHandler } from './handlers/invokeWindowMenuAction.ts';
+import { registerOpenAboutWindowHandler } from './handlers/openAboutWindow.ts';
+import { registerOpenDiagnosticsWindowHandler } from './handlers/openDiagnosticsWindow.ts';
 import { registerOpenLibraryWindowHandler } from './handlers/openLibraryWindow.ts';
+import { registerOpenLicensesWindowHandler } from './handlers/openLicensesWindow.ts';
+import { registerOpenOptionsWindowHandler } from './handlers/openOptionsWindow.ts';
 import { registerOpenVideoEditorHandler } from './handlers/openVideoEditor.ts';
 import { registerSyncExistingExportClipsHandler } from './handlers/syncExistingExportClips.ts';
 import { registerStartFileDragHandler } from './handlers/startFileDrag.ts';
@@ -24,8 +31,11 @@ import { registerSelectSourceDirectoryHandler } from './handlers/selectSourceDir
 import { registerSelectSourceVideoHandler } from './handlers/selectSourceVideo.ts';
 import { registerSetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/setHideDefaultAudioTrackWhenMultiple.ts';
 import { registerSetStartupWindowModeHandler } from './handlers/setStartupWindowMode.ts';
+import { registerSetWindowDecorationMenuPreferenceHandler } from './handlers/setWindowDecorationMenuPreference.ts';
 import { registerSubmitUpdateDialogActionHandler } from './handlers/submitUpdateDialogAction.ts';
 import { registerWindowControlsHandler } from './handlers/windowControls.ts';
+import type { WindowDecorationMenuPreferenceState } from '../../shared/contracts.ts';
+import type { WindowMenuModel } from '../../shared/windowMenu.ts';
 
 type HandlerDependencies = {
   getAppMetadata: () => Promise<{
@@ -38,8 +48,18 @@ type HandlerDependencies = {
   getPersistedSourceDirectory: () => Promise<string | null>;
   getPersistedHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
+  getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
+  getWindowMenuModel: () => WindowMenuModel;
+  invokeWindowMenuAction: (
+    actionId: string,
+    senderWindow: BrowserWindow | null,
+  ) => Promise<boolean>;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
+  openAboutWindow: () => Promise<boolean> | boolean;
+  openDiagnosticsWindow: () => boolean;
   openLibraryWindow: () => boolean;
+  openLicensesWindow: () => boolean;
+  openOptionsWindow: () => boolean;
   openEditorWindow: (sourcePath: string) => boolean;
   readThirdPartyNotices: () => Promise<string>;
   selectValidSourceVideo: (
@@ -53,6 +73,9 @@ type HandlerDependencies = {
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
   setPersistedHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
+  setWindowDecorationMenuPreference: (
+    enabled: boolean,
+  ) => Promise<WindowDecorationMenuPreferenceState>;
 };
 
 /**
@@ -75,8 +98,15 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerGetSourceAudioTrackWaveformHandler();
   registerGetFfmpegDiagnosticsHandler();
   registerGetThirdPartyNoticesHandler(deps);
+  registerGetWindowDecorationMenuPreferenceHandler(deps);
+  registerGetWindowMenuModelHandler(deps);
   registerGetUpdateDialogStateHandler(deps);
+  registerInvokeWindowMenuActionHandler(deps);
+  registerOpenAboutWindowHandler(deps);
+  registerOpenDiagnosticsWindowHandler(deps);
   registerCreateExportPlanHandler();
+  registerOpenLicensesWindowHandler(deps);
+  registerOpenOptionsWindowHandler(deps);
   registerDeleteClipRangeOutputsHandler();
   registerSyncExistingExportClipsHandler();
   registerCheckFfmpegHandler();
@@ -86,6 +116,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerSubmitUpdateDialogActionHandler(deps);
   registerSetHideDefaultAudioTrackWhenMultipleHandler(deps);
   registerSetStartupWindowModeHandler(deps);
+  registerSetWindowDecorationMenuPreferenceHandler(deps);
   registerWindowControlsHandler();
 };
 

@@ -9,6 +9,7 @@ const getWindowCount = (): number => BrowserWindow.getAllWindows().length;
 type WindowManagerCreateInput = {
   appIconPath: string;
   devServerUrl?: string;
+  forceNativeWindowDecorations: boolean;
   openDevToolsOnStart: boolean;
   preloadEntry: string;
   rendererEntry: string;
@@ -57,6 +58,7 @@ type OpenUtilityWindowOptions = {
 const createWindowManager = ({
   appIconPath,
   devServerUrl,
+  forceNativeWindowDecorations,
   openDevToolsOnStart,
   preloadEntry,
   rendererEntry,
@@ -113,6 +115,7 @@ const createWindowManager = ({
 
     const next = new BrowserWindow(buildWindowOptions({
       appIconPath,
+      forceNativeWindowDecorations,
       height,
       minHeight,
       minWidth,

@@ -1,3 +1,5 @@
+import type { WindowMenuModel } from './windowMenu.ts';
+
 export type BridgeTrimMode = 'fast' | 'accurate';
 
 export type ExportRangeLike = {
@@ -195,6 +197,12 @@ export type UpdateDialogState = {
   persistOnActions?: string[];
 };
 
+export type WindowDecorationMenuPreferenceState = {
+  configuredEnabled: boolean;
+  effectiveEnabled: boolean;
+  forcedByEnvironment: boolean;
+};
+
 export type CutrailBridge = {
   getRuntimeInfo: () => RuntimeInfo;
   getAppMetadata: () => Promise<{
@@ -206,7 +214,17 @@ export type CutrailBridge = {
   closeWindow: () => Promise<unknown>;
   minimizeWindow: () => Promise<unknown>;
   toggleWindowMaximize: () => Promise<unknown>;
+  openAboutWindow: () => Promise<boolean>;
+  openDiagnosticsWindow: () => Promise<boolean>;
   openLibraryWindow: () => Promise<boolean>;
+  openLicensesWindow: () => Promise<boolean>;
+  openOptionsWindow: () => Promise<boolean>;
+  getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
+  setWindowDecorationMenuPreference: (
+    enabled: boolean,
+  ) => Promise<WindowDecorationMenuPreferenceState>;
+  getWindowMenuModel: () => Promise<WindowMenuModel>;
+  invokeWindowMenuAction: (actionId: string) => Promise<boolean>;
   getStartupWindowMode: () => Promise<StartupWindowMode>;
   setStartupWindowMode: (mode: StartupWindowMode) => Promise<StartupWindowMode>;
   getSourceDirectory: () => Promise<string | null>;
@@ -253,6 +271,9 @@ export type CutrailBridge = {
   onStartupWindowModeUpdated: (listener: (payload: StartupWindowMode) => void) => () => void;
   onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;
+  onWindowDecorationMenuPreferenceUpdated: (
+    listener: (payload: WindowDecorationMenuPreferenceState) => void,
+  ) => () => void;
   onExportProgress: (listener: (payload: ExportProgressPayload) => void) => () => void;
   onUpdateDialogState: (listener: (payload: UpdateDialogState) => void) => () => void;
 };

@@ -78,6 +78,13 @@ export const dropHint = style({
   textTransform: 'uppercase',
 });
 
+export const actionsRow = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: theme.grid.s,
+  justifyContent: 'center',
+});
+
 export const footer = style({
   display: 'flex',
   justifyContent: 'center',

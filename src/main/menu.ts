@@ -1,203 +1,47 @@
 import {
-  BrowserWindow,
   Menu,
-  app,
 } from 'electron';
-import type { MenuItemConstructorOptions } from 'electron';
+import type { BrowserWindow } from 'electron';
+import type { WindowMenuModel } from '../shared/windowMenu.ts';
+import {
+  buildMenuState,
+  type AppMenuDependencies,
+  type MenuState,
+} from './menuModel.ts';
 
-type AppMenuDependencies = {
-  checkForUpdates: () => Promise<boolean>;
-  installStandaloneAppImage: () => Promise<void>;
-  uninstallStandaloneAppImage: () => Promise<void>;
-  standaloneAction: 'install' | 'uninstall' | null;
-  isUpdateCheckEnabled: boolean;
-  updateCheckLabel: string;
-  openAboutWindow: () => Promise<boolean> | boolean;
-  openDiagnosticsWindow: () => boolean;
-  openEditorWindow: (sourcePath: string) => boolean;
-  openLibraryWindow: () => boolean;
-  openLicensesWindow: () => boolean;
-  openOptionsWindow: () => boolean;
-  selectSourceVideo: () => Promise<string | null>;
-};
+const EMPTY_MENU_MODEL: WindowMenuModel = { groups: [] };
 
-const createAppMenu = ({
-  checkForUpdates,
-  installStandaloneAppImage,
-  uninstallStandaloneAppImage,
-  standaloneAction,
-  isUpdateCheckEnabled,
-  openAboutWindow,
-  openDiagnosticsWindow,
-  openEditorWindow,
-  openLibraryWindow,
-  openLicensesWindow,
-  openOptionsWindow,
-  selectSourceVideo,
-  updateCheckLabel,
-}: AppMenuDependencies): void => {
-  const isMac = process.platform === 'darwin';
-  const openVideoFromDialog = async () => {
-    const sourcePath = await selectSourceVideo();
+let currentMenuState: MenuState | null = null;
 
-    if (sourcePath) {
-      openEditorWindow(sourcePath);
-    }
-  };
-  const sharedFileActions = [
-    {
-      label: 'Open Video...',
-      accelerator: 'CmdOrCtrl+O',
-      click: () => { openVideoFromDialog(); },
-    },
-    {
-      label: 'Open Library',
-      accelerator: 'CmdOrCtrl+Shift+L',
-      click: () => { openLibraryWindow(); },
-    },
-    {
-      label: 'Options',
-      accelerator: 'CmdOrCtrl+,',
-      click: () => { openOptionsWindow(); },
-    },
-    {
-      label: 'Close Window',
-      accelerator: 'CmdOrCtrl+W',
-      click: () => { BrowserWindow.getFocusedWindow()?.close(); },
-    },
-    { type: 'separator' },
-  ];
-
-  const template = [
-    ...(isMac
-      ? [{
-        label: app.name,
-        submenu: [
-          {
-            label: 'About Cutrail',
-            click: () => { openAboutWindow(); },
-          },
-          { type: 'separator' },
-          { role: 'services' },
-          { type: 'separator' },
-          { role: 'hide' },
-          { role: 'hideOthers' },
-          { role: 'unhide' },
-          { type: 'separator' },
-          { role: 'quit' },
-        ],
-      }]
-      : []),
-    {
-      label: 'File',
-      submenu: [
-        ...(!isMac
-          ? [
-            {
-              label: 'About Cutrail',
-              click: () => { openAboutWindow(); },
-            },
-            {
-              label: 'Licenses & Notices',
-              click: () => { openLicensesWindow(); },
-            },
-            { type: 'separator' },
-          ]
-          : []),
-        ...sharedFileActions,
-        ...(isMac
-          ? [
-            {
-              label: 'Licenses & Notices',
-              click: () => { openLicensesWindow(); },
-            },
-            { type: 'separator' },
-          ]
-          : []),
-        { role: isMac ? 'close' : 'quit' },
-      ],
-    },
-    {
-      label: 'Development',
-      submenu: [
-        {
-          label: 'Diagnostics',
-          click: () => { openDiagnosticsWindow(); },
-        },
-        { type: 'separator' },
-        { role: 'toggleDevTools' },
-      ],
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        ...(isMac
-          ? [
-            { role: 'pasteAndMatchStyle' },
-            { role: 'delete' },
-            { role: 'selectAll' },
-          ]
-          : [
-            { role: 'delete' },
-            { type: 'separator' },
-            { role: 'selectAll' },
-          ]),
-      ],
-    },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' },
-      ],
-    },
-    {
-      label: 'Help',
-      submenu: [
-        ...(standaloneAction === 'install'
-          ? [
-            {
-              label: 'Install Standalone Shortcut (Linux AppImage)...',
-              click: () => { installStandaloneAppImage(); },
-            },
-            { type: 'separator' },
-          ]
-          : (standaloneAction === 'uninstall'
-            ? [
-              {
-                label: 'Uninstall Standalone Shortcut (Linux AppImage)...',
-                click: () => { uninstallStandaloneAppImage(); },
-              },
-              { type: 'separator' },
-            ]
-            : [])
-        ),
-        {
-          label: updateCheckLabel,
-          enabled: isUpdateCheckEnabled,
-          click: () => { checkForUpdates(); },
-        },
-      ],
-    },
-  ];
+const createAppMenu = (dependencies: AppMenuDependencies): void => {
+  currentMenuState = buildMenuState(dependencies);
 
   Menu.setApplicationMenu(
-    Menu.buildFromTemplate(template as unknown as MenuItemConstructorOptions[]),
+    Menu.buildFromTemplate(currentMenuState.nativeTemplate),
   );
+};
+
+const getWindowMenuModel = (): WindowMenuModel => {
+  if (!currentMenuState) {
+    return EMPTY_MENU_MODEL;
+  }
+
+  return currentMenuState.rendererModel;
+};
+
+const invokeWindowMenuAction = async (
+  actionId: string,
+  senderWindow: BrowserWindow | null,
+): Promise<boolean> => {
+  if (!currentMenuState) {
+    return false;
+  }
+
+  return currentMenuState.runMenuAction(actionId, senderWindow);
 };
 
 export {
   createAppMenu,
+  getWindowMenuModel,
+  invokeWindowMenuAction,
 };

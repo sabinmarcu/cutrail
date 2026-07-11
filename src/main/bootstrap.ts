@@ -7,7 +7,11 @@ import {
   registerMediaProtocol,
   registerMediaSchemes,
 } from './mediaProtocol.ts';
-import { createAppMenu } from './menu.ts';
+import {
+  createAppMenu,
+  getWindowMenuModel,
+  invokeWindowMenuAction,
+} from './menu.ts';
 import { getAppMetadata } from './appMetadata.ts';
 import { readThirdPartyNotices } from './notices.ts';
 import {
@@ -26,13 +30,17 @@ import {
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
   getPersistedStartupWindowMode,
+  getPersistedWindowDecorationMenuEnabled,
   setPersistedHideDefaultAudioTrackWhenMultiple,
+  setPersistedWindowDecorationMenuEnabled,
   setPersistedSourceDirectory,
   setPersistedOutputDirectory,
   setPersistedStartupWindowMode,
 } from './settings.ts';
 import { createAppUpdater } from './updater.ts';
 import { createWindowManager } from './windows/windowManager.ts';
+import { resolveWindowMenuPresentation } from './menuVisibility.ts';
+import type { WindowDecorationMenuPreferenceState } from '../shared/contracts.ts';
 
 // Allow renderer playback to use HTMLMediaElement.audioTracks when Chromium keeps it gated.
 app.commandLine.appendSwitch('enable-blink-features', 'AudioVideoTracks');
@@ -43,6 +51,7 @@ const environment = getAppEnvironment();
 const windows = createWindowManager({
   appIconPath: APP_ICON_PATH,
   devServerUrl: environment.devServerUrl,
+  forceNativeWindowDecorations: environment.forceNativeWindowDecorations,
   openDevToolsOnStart: environment.openDevToolsOnStart,
   preloadEntry: PRELOAD_ENTRY,
   rendererEntry: RENDERER_ENTRY,
@@ -51,7 +60,31 @@ const updater = createAppUpdater({
   openUpdateDialog: windows.openUpdateDialog,
   updateUpdateDialogState: windows.updateUpdateDialogState,
 });
-const updaterUnavailableReason = updater.getDisableReason()?.replace(/\.$/, '') ?? 'Unavailable in this build';
+const environmentMenuDefault = resolveWindowMenuPresentation(
+  environment,
+).useWindowDecorationMenu;
+const updateDisableReason = updater.getDisableReason()?.replace(/\.$/, '');
+const unavailableUpdateLabel = 'Unavailable in this build';
+const updaterUnavailableReason = updateDisableReason ?? unavailableUpdateLabel;
+
+async function resolveWindowDecorationMenuPreference() {
+  const configuredEnabled = await getPersistedWindowDecorationMenuEnabled();
+  const forcedByEnvironment = environment.forceWindowDecorationMenu;
+
+  return {
+    configuredEnabled,
+    effectiveEnabled: forcedByEnvironment || configuredEnabled,
+    forcedByEnvironment,
+  };
+}
+
+const setWindowDecorationMenuPreference = async (
+  enabled: boolean,
+): Promise<WindowDecorationMenuPreferenceState> => {
+  await setPersistedWindowDecorationMenuEnabled(enabled);
+
+  return resolveWindowDecorationMenuPreference();
+};
 
 const openStartupWindow = async (): Promise<void> => {
   const startupWindowMode = await getPersistedStartupWindowMode();
@@ -105,15 +138,22 @@ const startApp = async (): Promise<void> => {
     }
 
     registerMediaProtocol();
-    await ensurePersistedDirectories();
+    await ensurePersistedDirectories(environmentMenuDefault);
     registerIpcHandlers({
       getAppMetadata,
       getPersistedOutputDirectory,
       getPersistedSourceDirectory,
       getPersistedHideDefaultAudioTrackWhenMultiple,
       getPersistedStartupWindowMode,
+      getWindowDecorationMenuPreference: resolveWindowDecorationMenuPreference,
+      getWindowMenuModel,
+      invokeWindowMenuAction,
       getUpdateDialogState: windows.getUpdateDialogState,
+      openAboutWindow: windows.openAboutWindow,
+      openDiagnosticsWindow: windows.openDiagnosticsWindow,
       openLibraryWindow: windows.openLibraryWindow,
+      openLicensesWindow: windows.openLicensesWindow,
+      openOptionsWindow: windows.openOptionsWindow,
       openEditorWindow: windows.openEditorWindow,
       readThirdPartyNotices,
       submitUpdateDialogAction: windows.submitUpdateDialogAction,
@@ -121,6 +161,7 @@ const startApp = async (): Promise<void> => {
       setPersistedHideDefaultAudioTrackWhenMultiple,
       setPersistedSourceDirectory,
       setPersistedStartupWindowMode,
+      setWindowDecorationMenuPreference,
     });
     await syncAppMenu();
     await openStartupWindow();
