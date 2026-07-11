@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/sabinmarcu/cutrail/compare/v0.7.3...v0.8.0) (2026-07-11)
+
+
+### Features
+
+* **menu:** add shared window menu with platform labels and vim nav ([2221ffd](https://github.com/sabinmarcu/cutrail/commit/2221ffd372aa5bacc772cb87d8cec76f2954fd33))
+* **window:** hide custom decoration in fullscreen ([24c5bf3](https://github.com/sabinmarcu/cutrail/commit/24c5bf3db4458249a738cb24d3bf9d8060e5102a))
+
 ## [0.7.3](https://github.com/sabinmarcu/cutrail/compare/v0.7.2...v0.7.3) (2026-07-11)
 
 
