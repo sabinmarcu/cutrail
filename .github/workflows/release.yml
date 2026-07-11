@@ -63,7 +63,7 @@ jobs:
 
       - name: Build Linux release assets (AppImage, deb, rpm)
         if: runner.os == 'Linux'
-        run: proto run yarn -- build && proto run yarn -- electron-builder --linux AppImage deb rpm --publish never
+        run: proto run yarn -- build && proto run yarn -- build:node && proto run yarn -- electron-builder --linux AppImage deb rpm --publish never
 
       - name: Ensure canonical AppImage name for AUR
         if: runner.os == 'Linux'
@@ -78,11 +78,11 @@ jobs:
 
       - name: Build macOS release assets (dmg)
         if: runner.os == 'macOS'
-        run: proto run yarn -- build && proto run yarn -- electron-builder --mac dmg --publish never
+        run: proto run yarn -- build && proto run yarn -- build:node && proto run yarn -- electron-builder --mac dmg --publish never
 
       - name: Build Windows release assets (exe)
         if: runner.os == 'Windows'
-        run: proto run yarn -- build && proto run yarn -- electron-builder --win nsis --publish never
+        run: proto run yarn -- build && proto run yarn -- build:node && proto run yarn -- electron-builder --win nsis --publish never
 
       - name: Upload Linux release assets
         if: runner.os == 'Linux'
