@@ -7,9 +7,18 @@ import { Button } from '@renderer/components/Button';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
 import type { WindowDecorationMenuPreferenceState } from '../../../shared/contracts';
 import {
+  defaultThemePrimaryColor,
+  isThemePrimaryColorValue,
+  normalizeThemePrimaryColor,
+  type ThemePrimaryColorValue,
+} from '../../../shared/themePrimaryColor';
+import {
   checkboxInput,
   checkboxLabel,
   checkboxRow,
+  colorControlRow,
+  colorInput,
+  colorValue,
   controlSelect,
   heading,
   helperText,
@@ -25,6 +34,9 @@ const defaultWindowDecorationMenuPreference: WindowDecorationMenuPreferenceState
 
 export const OptionsWindow = () => {
   const [startupWindowMode, setStartupWindowMode] = useState<'splash' | 'library'>('splash');
+  const [themePrimaryColor, setThemePrimaryColor] = useState<ThemePrimaryColorValue>(
+    defaultThemePrimaryColor,
+  );
   const [sourceDirectory, setSourceDirectory] = useState('Loading...');
   const [outputDirectory, setOutputDirectory] = useState('Loading...');
   const [hideDefaultAudioTrackWhenMultiple, setHideDefaultAudioTrackWhenMultiple] = useState(false);
@@ -54,6 +66,14 @@ export const OptionsWindow = () => {
       globalThis.cutrail.getStartupWindowMode().then((mode) => {
         if (mounted) {
           setStartupWindowMode(mode === 'library' ? 'library' : 'splash');
+        }
+      });
+    }
+
+    if (typeof globalThis.cutrail?.getThemePrimaryColor === 'function') {
+      globalThis.cutrail.getThemePrimaryColor().then((color) => {
+        if (mounted && isThemePrimaryColorValue(color)) {
+          setThemePrimaryColor(normalizeThemePrimaryColor(color));
         }
       });
     }
@@ -92,6 +112,14 @@ export const OptionsWindow = () => {
       })
       : () => {};
 
+    const unsubscribeThemePrimaryColor = typeof globalThis.cutrail?.onThemePrimaryColorUpdated === 'function'
+      ? globalThis.cutrail.onThemePrimaryColorUpdated((color) => {
+        if (isThemePrimaryColorValue(color)) {
+          setThemePrimaryColor(normalizeThemePrimaryColor(color));
+        }
+      })
+      : () => {};
+
     const unsubscribeHideDefaultAudioTrack = typeof globalThis.cutrail?.onHideDefaultAudioTrackWhenMultipleUpdated === 'function'
       ? globalThis.cutrail.onHideDefaultAudioTrackWhenMultipleUpdated((value) => {
         setHideDefaultAudioTrackWhenMultiple(value === true);
@@ -109,6 +137,7 @@ export const OptionsWindow = () => {
       unsubscribeSource();
       unsubscribeOutput();
       unsubscribeStartupMode();
+      unsubscribeThemePrimaryColor();
       unsubscribeHideDefaultAudioTrack();
       unsubscribeWindowDecorationMenuPreference();
     };
@@ -135,6 +164,30 @@ export const OptionsWindow = () => {
         </select>
         <p className={helperText}>
           This controls what opens first when Cutrail starts or reopens with no windows.
+        </p>
+      </section>
+      <section className={panel}>
+        <h2 className={heading}>Primary Accent Color</h2>
+        <div className={colorControlRow}>
+          <input
+            className={colorInput}
+            type="color"
+            value={themePrimaryColor}
+            onChange={(event) => {
+              const nextValue = normalizeThemePrimaryColor(event.currentTarget.value);
+
+              if (!isThemePrimaryColorValue(nextValue)) {
+                return;
+              }
+
+              setThemePrimaryColor(nextValue);
+              globalThis.cutrail?.setThemePrimaryColor?.(nextValue);
+            }}
+          />
+          <span className={colorValue}>{themePrimaryColor.toUpperCase()}</span>
+        </div>
+        <p className={helperText}>
+          Controls the terminal-style glow/accent used across renderer windows.
         </p>
       </section>
       <section className={panel}>

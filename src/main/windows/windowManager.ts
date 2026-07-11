@@ -46,6 +46,34 @@ type StandardWindowOptions = {
   width?: number;
 };
 
+const toErrorText = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.stack ?? error.message;
+  }
+
+  return String(error);
+};
+
+const attachWindowDiagnostics = (window: BrowserWindow, mode: string): void => {
+  window.webContents.on('did-fail-load', (_event, code, description, validatedUrl) => {
+    process.stderr.write(`[window:${mode}] did-fail-load code=${code} description=${description} url=${validatedUrl}\n`);
+  });
+
+  window.webContents.on('render-process-gone', (_event, details) => {
+    process.stderr.write(`[window:${mode}] render-process-gone reason=${details.reason} exitCode=${details.exitCode}\n`);
+  });
+
+  window.webContents.on('preload-error', (_event, preloadPath, error) => {
+    process.stderr.write(`[window:${mode}] preload-error path=${preloadPath} error=${toErrorText(error)}\n`);
+  });
+
+  window.webContents.on('console-message', (_event, level, message) => {
+    if (level >= 2) {
+      process.stderr.write(`[window:${mode}] console-message level=${level} message=${message}\n`);
+    }
+  });
+};
+
 type UtilityWindowMode = 'licenses' | 'options' | 'diagnostics' | 'library';
 
 type OpenUtilityWindowOptions = {
@@ -125,6 +153,8 @@ const createWindowManager = ({
       y: placement.y,
       width,
     }));
+
+    attachWindowDiagnostics(next, mode);
 
     loadMode({
       targetWindow: next,

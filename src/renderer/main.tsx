@@ -9,6 +9,11 @@ import { LibraryWindow } from '@renderer/windows/library/LibraryWindow';
 import { LicensesWindow } from '@renderer/windows/licenses/LicensesWindow';
 import { OptionsWindow } from '@renderer/windows/options/OptionsWindow';
 import { UpdatesWindow } from '@renderer/windows/updates/UpdatesWindow';
+import {
+  defaultThemePrimaryColor,
+  isThemePrimaryColorValue,
+} from '../shared/themePrimaryColor';
+import { applyRendererTheme } from './theme.setup';
 
 const getRendererMode = () => {
   const search = new URLSearchParams(globalThis.location.search);
@@ -56,8 +61,48 @@ if (!(rootContainer instanceof HTMLElement)) {
   throw new TypeError('Renderer root element #root was not found.');
 }
 
-createRoot(rootContainer).render(
-  <StrictMode>
-    {getRendererApp()}
-  </StrictMode>,
-);
+const resolveThemePrimaryColor = async () => {
+  if (typeof globalThis.cutrail?.getThemePrimaryColor !== 'function') {
+    return defaultThemePrimaryColor;
+  }
+
+  try {
+    const color = await globalThis.cutrail.getThemePrimaryColor();
+
+    return isThemePrimaryColorValue(color) ? color : defaultThemePrimaryColor;
+  } catch {
+    return defaultThemePrimaryColor;
+  }
+};
+
+const bootstrapRenderer = async (): Promise<void> => {
+  const initialPrimaryColor = await resolveThemePrimaryColor();
+  applyRendererTheme(initialPrimaryColor);
+
+  if (typeof globalThis.cutrail?.onThemePrimaryColorUpdated === 'function') {
+    globalThis.cutrail.onThemePrimaryColorUpdated((nextColor) => {
+      if (isThemePrimaryColorValue(nextColor)) {
+        applyRendererTheme(nextColor);
+      }
+    });
+  }
+
+  createRoot(rootContainer).render(
+    <StrictMode>
+      {getRendererApp()}
+    </StrictMode>,
+  );
+};
+
+try {
+  await bootstrapRenderer();
+} catch (error) {
+  globalThis.console.error('Renderer bootstrap failed.', error);
+  applyRendererTheme(defaultThemePrimaryColor);
+
+  createRoot(rootContainer).render(
+    <StrictMode>
+      {getRendererApp()}
+    </StrictMode>,
+  );
+}

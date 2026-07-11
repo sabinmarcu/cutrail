@@ -54,6 +54,31 @@ export const controlSelect = style({
   paddingInline: theme.grid.xs,
 });
 
+export const colorControlRow = style({
+  alignItems: 'center',
+  display: 'flex',
+  gap: theme.grid.s,
+});
+
+export const colorInput = style({
+  background: '#010f0a',
+  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
+  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
+  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
+  blockSize: '2rem',
+  cursor: 'pointer',
+  inlineSize: '3.2rem',
+  padding: 0,
+});
+
+export const colorValue = style({
+  color: theme.colors.primary.emphasis,
+  fontSize: '0.82rem',
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+});
+
 export const checkboxRow = style({
   alignItems: 'center',
   display: 'flex',
