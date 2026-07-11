@@ -42,11 +42,28 @@ type WindowDecorationProps = {
 export const WindowDecoration = ({
   subtitleText = '', titleText = '', variant = 'bar',
 }: WindowDecorationProps) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [menuPreference, setMenuPreference] = useState<WindowDecorationMenuPreferenceState>({
     configuredEnabled: false,
     effectiveEnabled: false,
     forcedByEnvironment: false,
   });
+
+  useEffect(() => {
+    globalThis.cutrail?.getWindowFullscreenState?.().then((fullscreenState) => {
+      setIsFullscreen(fullscreenState);
+    }).catch(() => {
+      setIsFullscreen(false);
+    });
+
+    if (typeof globalThis.cutrail?.onWindowFullscreenStateUpdated !== 'function') {
+      return () => {};
+    }
+
+    return globalThis.cutrail.onWindowFullscreenStateUpdated((fullscreenState) => {
+      setIsFullscreen(fullscreenState);
+    });
+  }, []);
 
   useEffect(() => {
     globalThis.cutrail?.getWindowDecorationMenuPreference?.().then((nextPreference) => {
@@ -67,6 +84,10 @@ export const WindowDecoration = ({
       setMenuPreference(nextPreference);
     });
   }, []);
+
+  if (isFullscreen) {
+    return null;
+  }
 
   return (
     <header className={root({ variant })}>

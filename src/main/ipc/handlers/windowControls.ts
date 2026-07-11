@@ -8,6 +8,31 @@ import { assertTrustedSender } from '../assertTrustedSender.ts';
 
 /** @returns {void} */
 const registerWindowControlsHandler = () => {
+  const initializedWindows = new WeakSet<BrowserWindow>();
+
+  /**
+   * @param {BrowserWindow} window
+   * @returns {void}
+   */
+  const ensureFullscreenEvents = (window: BrowserWindow) => {
+    if (initializedWindows.has(window)) {
+      return;
+    }
+
+    const sendState = () => {
+      if (!window.isDestroyed()) {
+        window.webContents.send('cutrail:window-fullscreen-state-updated', window.isFullScreen());
+      }
+    };
+
+    window.on('enter-full-screen', sendState);
+    window.on('leave-full-screen', sendState);
+    window.on('closed', () => {
+      initializedWindows.delete(window);
+    });
+    initializedWindows.add(window);
+  };
+
   /**
    * @param {import('electron').IpcMainInvokeEvent} event
    * @param {WindowControlAction} action
@@ -21,6 +46,8 @@ const registerWindowControlsHandler = () => {
     if (!window) {
       return null;
     }
+
+    ensureFullscreenEvents(window);
 
     if (action === 'minimize') {
       window.minimize();
@@ -43,6 +70,19 @@ const registerWindowControlsHandler = () => {
     }
 
     throw new TypeError(`Unsupported window control action: ${String(action)}`);
+  });
+
+  ipcMain.handle('cutrail:get-window-fullscreen-state', async (event) => {
+    assertTrustedSender(event);
+    const window = BrowserWindow.fromWebContents(event.sender);
+
+    if (!window) {
+      return false;
+    }
+
+    ensureFullscreenEvents(window);
+
+    return window.isFullScreen();
   });
 };
 

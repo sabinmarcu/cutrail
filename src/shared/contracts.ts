@@ -214,6 +214,7 @@ export type CutrailBridge = {
   closeWindow: () => Promise<unknown>;
   minimizeWindow: () => Promise<unknown>;
   toggleWindowMaximize: () => Promise<unknown>;
+  getWindowFullscreenState: () => Promise<boolean>;
   openAboutWindow: () => Promise<boolean>;
   openDiagnosticsWindow: () => Promise<boolean>;
   openLibraryWindow: () => Promise<boolean>;
@@ -274,6 +275,7 @@ export type CutrailBridge = {
   onWindowDecorationMenuPreferenceUpdated: (
     listener: (payload: WindowDecorationMenuPreferenceState) => void,
   ) => () => void;
+  onWindowFullscreenStateUpdated: (listener: (payload: boolean) => void) => () => void;
   onExportProgress: (listener: (payload: ExportProgressPayload) => void) => () => void;
   onUpdateDialogState: (listener: (payload: UpdateDialogState) => void) => () => void;
 };
