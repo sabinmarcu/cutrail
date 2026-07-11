@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/sabinmarcu/cutrail/compare/v0.7.1...v0.7.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* trigger release-please patch release ([f118c1c](https://github.com/sabinmarcu/cutrail/commit/f118c1c3ef511c5e1b531534a266ef3c05b0679f))
+
 ## [0.7.1](https://github.com/sabinmarcu/cutrail/compare/v0.7.0...v0.7.1) (2026-07-11)
 
 
