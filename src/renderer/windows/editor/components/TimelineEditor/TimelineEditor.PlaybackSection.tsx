@@ -139,6 +139,7 @@ export const TimelineEditorPlaybackSection = () => {
     const shouldRefreshTrackMapping = (
       reason === 'loaded-metadata'
       || reason === 'selection-change'
+      || reason === 'sync-play'
     );
     const shouldForceAlign = reason === 'sync-play';
 

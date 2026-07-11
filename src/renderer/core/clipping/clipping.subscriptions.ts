@@ -53,6 +53,8 @@ export const useClippingSubscriptions = ({
   state: ClippingStateModel;
 }): void => {
   const {
+    audioTracks,
+    hideDefaultAudioTrackWhenMultiple,
     outputDirectory,
     setAudioTracks,
     setCurrentTime,
@@ -203,6 +205,26 @@ export const useClippingSubscriptions = ({
   }, [setHideDefaultAudioTrackWhenMultiple]);
 
   useEffect(() => {
+    setMutedAudioTrackIndices((previous) => {
+      const hasFirstTrack = audioTracks.some((track) => track.trackIndex === 0);
+
+      if (!hasFirstTrack || !hideDefaultAudioTrackWhenMultiple || audioTracks.length <= 1) {
+        return previous.filter((trackIndex) => trackIndex !== 0);
+      }
+
+      if (previous.includes(0)) {
+        return previous;
+      }
+
+      return [...previous, 0].sort((left, right) => left - right);
+    });
+  }, [
+    audioTracks,
+    hideDefaultAudioTrackWhenMultiple,
+    setMutedAudioTrackIndices,
+  ]);
+
+  useEffect(() => {
     if (typeof globalThis.cutrail?.onHideDefaultAudioTrackWhenMultipleUpdated !== 'function') {
       return undefined;
     }
@@ -236,14 +258,26 @@ export const useClippingSubscriptions = ({
           return;
         }
 
-        setAudioTracks(Array.isArray(payload.tracks) ? payload.tracks : []);
-        setMutedAudioTrackIndices([]);
+        const nextAudioTracks = Array.isArray(payload.tracks) ? payload.tracks : [];
+        const shouldMuteHiddenFirstTrack = (
+          hideDefaultAudioTrackWhenMultiple
+          && nextAudioTracks.length > 1
+          && nextAudioTracks.some((track) => track.trackIndex === 0)
+        );
+
+        setAudioTracks(nextAudioTracks);
+        setMutedAudioTrackIndices(shouldMuteHiddenFirstTrack ? [0] : []);
       });
 
     return () => {
       mounted = false;
     };
-  }, [setAudioTracks, setMutedAudioTrackIndices, sourcePath]);
+  }, [
+    hideDefaultAudioTrackWhenMultiple,
+    setAudioTracks,
+    setMutedAudioTrackIndices,
+    sourcePath,
+  ]);
 
   useEffect(() => {
     if (typeof globalThis.cutrail?.onOutputDirectoryUpdated !== 'function') {
