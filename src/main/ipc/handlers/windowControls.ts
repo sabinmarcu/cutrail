@@ -55,13 +55,10 @@ const registerWindowControlsHandler = () => {
     }
 
     if (action === 'maximize') {
-      if (window.isMaximized()) {
-        window.unmaximize();
-        return false;
-      }
+      const nextFullscreenState = !window.isFullScreen();
 
-      window.maximize();
-      return true;
+      window.setFullScreen(nextFullscreenState);
+      return nextFullscreenState;
     }
 
     if (action === 'close') {

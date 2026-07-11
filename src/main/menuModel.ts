@@ -338,9 +338,8 @@ const buildMenuState = (deps: AppMenuDependencies): MenuState => {
     ],
   };
 
-  const nativeTemplate: MenuItemConstructorOptions[] = rendererModel.groups.map((group) => ({
-    label: group.label,
-    submenu: group.items.map((item) => {
+  const nativeTemplate: MenuItemConstructorOptions[] = rendererModel.groups.map((group) => {
+    const submenu: MenuItemConstructorOptions[] = group.items.map((item) => {
       if (item.type === 'separator') {
         return { type: 'separator' as const };
       }
@@ -354,8 +353,26 @@ const buildMenuState = (deps: AppMenuDependencies): MenuState => {
           await actions[item.actionId]?.run(BrowserWindow.getFocusedWindow());
         },
       };
-    }),
-  }));
+    });
+
+    if (group.id === 'view') {
+      submenu.push({
+        id: 'view.toggle-fullscreen.alt-accelerator',
+        label: 'Toggle Fullscreen',
+        enabled: actions['view.toggle-fullscreen']?.enabled ?? false,
+        accelerator: 'CmdOrCtrl+Shift+F',
+        visible: false,
+        click: async () => {
+          await actions['view.toggle-fullscreen']?.run(BrowserWindow.getFocusedWindow());
+        },
+      });
+    }
+
+    return {
+      label: group.label,
+      submenu,
+    };
+  });
 
   const runMenuAction = async (
     actionId: string,

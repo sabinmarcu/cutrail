@@ -99,7 +99,7 @@ export const WindowDecoration = ({
         <button type="button" className={windowButton({ tone: 'soft' })} aria-label="Minimize window" onClick={minimizeWindow}>
           <Minus size={14} strokeWidth={2.5} />
         </button>
-        <button type="button" className={windowButton({ tone: 'accent' })} aria-label="Maximize or restore window" onClick={toggleWindowMaximize}>
+        <button type="button" className={windowButton({ tone: 'accent' })} aria-label="Toggle fullscreen" onClick={toggleWindowMaximize}>
           <Maximize2 size={13} strokeWidth={2.5} />
         </button>
         <button type="button" className={closeButton} aria-label="Close window" onClick={closeWindow}>
