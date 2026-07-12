@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.10.0](https://github.com/sabinmarcu/cutrail/compare/v0.9.0...v0.10.0) (2026-07-12)
+
+
+### Features
+
+* **renderer:** add theme color reset button in options ([e75dc2c](https://github.com/sabinmarcu/cutrail/commit/e75dc2c93a2f2e324e6113e0c72ac1fd6c95e183))
+* **renderer:** refine editor video preview controls ([e652f50](https://github.com/sabinmarcu/cutrail/commit/e652f50e7352a8d2d9be8fed3d71350d9c25e03d))
+
+
+### Bug Fixes
+
+* **main:** use native fullscreen for window controls ([e404289](https://github.com/sabinmarcu/cutrail/commit/e4042896334b0df68400a721754af751dd527a67))
+* **renderer:** anchor editor controls to content at bottom ([37423c0](https://github.com/sabinmarcu/cutrail/commit/37423c0390e917e1045392c4f626f745b378daaf))
+* **renderer:** propagate primary color across surfaces and fullscreen layout ([48d4263](https://github.com/sabinmarcu/cutrail/commit/48d42639faade32351d4d7f12fea84823175f08f))
+* **renderer:** reduce editor playback stutter in multi-track preview ([d8276d0](https://github.com/sabinmarcu/cutrail/commit/d8276d06f0de8300c8e00adbc8a6f5ebac3cdbc3))
+
 ## [0.9.0](https://github.com/sabinmarcu/cutrail/compare/v0.8.0...v0.9.0) (2026-07-11)
 
 
