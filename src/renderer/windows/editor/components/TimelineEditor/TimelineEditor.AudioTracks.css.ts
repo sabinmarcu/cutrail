@@ -2,6 +2,7 @@ import { style } from '@vanilla-extract/css';
 import { theme } from '@sabinmarcu/theme';
 
 export const audioTracksSection = style({
+  background: 'var(--cutrail-surface-elevated)',
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
   display: 'grid',
   gap: theme.grid.xs,
@@ -70,7 +71,7 @@ export const muteButton = style({
 });
 
 export const waveformFrame = style({
-  background: '#000f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -83,6 +84,7 @@ export const waveformFrame = style({
 export const waveformImage = style({
   blockSize: '100%',
   display: 'block',
+  filter: 'var(--cutrail-waveform-filter)',
   inlineSize: '100%',
   objectFit: 'cover',
   opacity: 0.95,

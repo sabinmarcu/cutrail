@@ -10,7 +10,7 @@ export const page = style({
 });
 
 export const shell = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   display: 'grid',
   gridTemplateRows: 'auto minmax(0, 1fr) auto',
   blockSize: '100%',
@@ -40,7 +40,7 @@ export const icon = style({
   borderRadius: '14px',
   blockSize: '8rem',
   inlineSize: '8rem',
-  filter: 'drop-shadow(0 0 12px rgba(49, 255, 145, 0.28))',
+  filter: 'drop-shadow(0 0 12px var(--cutrail-drop-shadow))',
 });
 
 export const title = style({

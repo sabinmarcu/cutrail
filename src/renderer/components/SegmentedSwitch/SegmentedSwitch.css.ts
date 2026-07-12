@@ -11,7 +11,7 @@ export const root = style({
 });
 
 export const optionButton = style({
-  background: '#000f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: 'none',
   borderBlockStart: 'none',
   borderBlockEnd: 'none',

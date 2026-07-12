@@ -28,7 +28,7 @@ globalStyle(`#root > .${page}`, {
 
 export const shell = style({
   ...dragAppRegion,
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   display: 'grid',
   gridTemplateRows: 'minmax(0, 1fr) auto',
   blockSize: '100%',
@@ -63,7 +63,7 @@ export const content = style({
 });
 
 export const dragActive = style({
-  backgroundColor: 'rgba(9, 27, 17, 0.55)',
+  backgroundColor: 'var(--cutrail-drag-active)',
   borderInlineStart: `1px dashed ${theme.colors.primary.base}`,
   borderInlineEnd: `1px dashed ${theme.colors.primary.base}`,
   borderBlockStart: `1px dashed ${theme.colors.primary.base}`,
@@ -97,7 +97,7 @@ export const logo = style({
   borderRadius: '14px',
   blockSize: '8.5rem',
   inlineSize: '8.5rem',
-  filter: 'drop-shadow(0 0 12px rgba(49, 255, 145, 0.28))',
+  filter: 'drop-shadow(0 0 12px var(--cutrail-drop-shadow))',
 });
 
 export const title = style({

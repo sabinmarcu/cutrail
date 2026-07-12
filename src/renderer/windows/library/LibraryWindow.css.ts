@@ -2,7 +2,7 @@ import { style } from '@vanilla-extract/css';
 import { theme } from '@sabinmarcu/theme';
 
 export const shell = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -65,7 +65,7 @@ export const controlLabel = style({
 });
 
 export const searchInput = style({
-  background: '#010f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -77,7 +77,7 @@ export const searchInput = style({
 });
 
 export const controlSelect = style({
-  background: '#010f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -109,7 +109,7 @@ export const body = style({
 });
 
 export const pathBar = style({
-  background: '#000f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -147,7 +147,7 @@ export const videosList = style({
 });
 
 export const card = style({
-  background: '#020b07',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -159,7 +159,7 @@ export const card = style({
 });
 
 export const cardWithClips = style({
-  background: '#01110e',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.secondary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.secondary.base}`,
   borderBlockStart: `1px solid ${theme.colors.secondary.base}`,
@@ -216,7 +216,7 @@ export const cardBadgeNew = style({
 });
 
 export const cardBadgeClips = style({
-  background: '#00110d',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.secondary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.secondary.base}`,
   borderBlockStart: `1px solid ${theme.colors.secondary.base}`,

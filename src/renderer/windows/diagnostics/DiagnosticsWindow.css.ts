@@ -3,7 +3,7 @@ import { recipe } from '@vanilla-extract/recipes';
 import { theme } from '@sabinmarcu/theme';
 
 export const panel = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -46,7 +46,7 @@ export const meta = style({
 });
 
 export const runtime = style({
-  background: '#000f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,

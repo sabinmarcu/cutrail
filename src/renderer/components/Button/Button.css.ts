@@ -3,7 +3,7 @@ import { theme } from '@sabinmarcu/theme';
 
 export const button = recipe({
   base: {
-    background: theme.colors.background.surface,
+    background: 'var(--cutrail-surface-elevated)',
     borderInlineStart: `1px solid ${theme.colors.primary.base}`,
     borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
     borderBlockStart: `1px solid ${theme.colors.primary.base}`,
@@ -20,11 +20,11 @@ export const button = recipe({
     transition: 'border-color 140ms ease, background-color 140ms ease, transform 80ms ease',
     ':hover': {
       borderColor: theme.colors.secondary.base,
-      background: theme.colors.background.elevated,
+      background: 'color-mix(in oklch, var(--cutrail-surface-elevated), white 8%)',
     },
     ':active': {
       borderColor: theme.colors.secondary.emphasis,
-      background: theme.colors.background.elevated,
+      background: 'var(--cutrail-surface-panel)',
       transform: 'translateY(1px)',
     },
     ':focus-visible': {
@@ -40,20 +40,26 @@ export const button = recipe({
     variant: {
       primary: {},
       secondary: {
-        background: theme.colors.background.depressed,
+        background: 'var(--cutrail-surface-panel)',
         borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
         borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
         borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
         borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
         color: theme.colors.secondary.base,
+        ':hover': {
+          background: 'var(--cutrail-surface-elevated)',
+        },
       },
       danger: {
-        background: theme.colors.background.surface,
+        background: 'var(--cutrail-surface-panel)',
         borderInlineStart: `1px solid ${theme.colors.error.emphasis}`,
         borderInlineEnd: `1px solid ${theme.colors.error.emphasis}`,
         borderBlockStart: `1px solid ${theme.colors.error.emphasis}`,
         borderBlockEnd: `1px solid ${theme.colors.error.emphasis}`,
         color: theme.colors.error.emphasis,
+        ':hover': {
+          background: 'var(--cutrail-surface-elevated)',
+        },
       },
     },
   },

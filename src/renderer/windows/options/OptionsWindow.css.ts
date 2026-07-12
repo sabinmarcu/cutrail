@@ -2,7 +2,7 @@ import { style } from '@vanilla-extract/css';
 import { theme } from '@sabinmarcu/theme';
 
 export const panel = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -22,7 +22,7 @@ export const heading = style({
 });
 
 export const pathValue = style({
-  background: '#000f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -44,7 +44,7 @@ export const helperText = style({
 });
 
 export const controlSelect = style({
-  background: '#010f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -61,7 +61,7 @@ export const colorControlRow = style({
 });
 
 export const colorInput = style({
-  background: '#010f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,

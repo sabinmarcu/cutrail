@@ -37,6 +37,7 @@ export const workspaceGrid = style({
   display: 'grid',
   gap: 0,
   blockSize: '100%',
+  gridRow: '2',
   gridTemplateColumns: 'minmax(0, 5fr) minmax(18rem, 2fr)',
   minBlockSize: 0,
   overflow: 'hidden',
@@ -73,7 +74,7 @@ export const sideColumn = style({
 });
 
 export const panel = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -98,7 +99,7 @@ export const controlsPanel = style({
 });
 
 export const editorPanel = style({
-  background: theme.colors.background.surface,
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: 'none',
   borderInlineEnd: 'none',
   borderBlockStart: 'none',
@@ -141,7 +142,7 @@ export const clipList = style({
 });
 
 export const clipItem = style({
-  background: '#000f0a',
+  background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,

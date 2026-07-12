@@ -8,7 +8,7 @@ const noDragAppRegion = { WebkitAppRegion: 'no-drag' } as any;
 export const root = recipe({
   base: {
     alignItems: 'center',
-    background: '#010c08',
+    background: 'var(--cutrail-surface-elevated)',
     borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
     color: theme.colors.primary.emphasis,
     display: 'grid',
@@ -18,14 +18,14 @@ export const root = recipe({
     minBlockSize: '2rem',
     paddingBlockStart: `${theme.grid.xxs}`,
     paddingInline: 0,
-    boxShadow: 'inset 0 -1px 0 rgba(80, 255, 160, 0.08)',
+    boxShadow: 'inset 0 -1px 0 var(--cutrail-glow-soft)',
     ...dragAppRegion,
   },
   variants: {
     variant: {
       bar: {},
       overlay: {
-        background: 'rgba(2, 8, 5, 0.92)',
+        background: 'var(--cutrail-overlay-medium)',
         borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
         insetInlineStart: 0,
         position: 'absolute',
@@ -97,7 +97,7 @@ export const dragRegion = style({
 
 export const closeButton = style({
   alignItems: 'center',
-  background: '#08130e',
+  background: 'var(--cutrail-surface-elevated)',
   borderInlineStart: `1px solid ${theme.colors.primary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
   borderBlockStart: `1px solid ${theme.colors.primary.base}`,
@@ -110,19 +110,19 @@ export const closeButton = style({
   justifyContent: 'center',
   padding: 0,
   inlineSize: '1.55rem',
-  boxShadow: '0 0 0 1px rgba(49, 255, 145, 0.06), 0 0 10px rgba(49, 255, 145, 0.10)',
+  boxShadow: '0 0 0 1px var(--cutrail-glow-soft), 0 0 10px var(--cutrail-glow-soft)',
   transition: 'border-color 140ms ease, color 140ms ease, box-shadow 140ms ease, background-color 140ms ease',
   ':hover': {
     borderColor: theme.colors.error.emphasis,
     background: '#1a0f11',
-    boxShadow: '0 0 0 1px rgba(49, 255, 145, 0.16), 0 0 14px rgba(49, 255, 145, 0.18)',
+    boxShadow: '0 0 0 1px var(--cutrail-glow-strong), 0 0 14px var(--cutrail-glow-strong)',
   },
 });
 
 export const windowButton = recipe({
   base: {
     alignItems: 'center',
-    background: '#08130e',
+    background: 'var(--cutrail-surface-elevated)',
     borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
     borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
     borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -135,11 +135,11 @@ export const windowButton = recipe({
     justifyContent: 'center',
     padding: 0,
     inlineSize: '1.55rem',
-    boxShadow: '0 0 0 1px rgba(49, 255, 145, 0.06), 0 0 10px rgba(49, 255, 145, 0.10)',
+    boxShadow: '0 0 0 1px var(--cutrail-glow-soft), 0 0 10px var(--cutrail-glow-soft)',
     transition: 'border-color 140ms ease, color 140ms ease, box-shadow 140ms ease, background-color 140ms ease',
     ':hover': {
-      background: '#0d1812',
-      boxShadow: '0 0 0 1px rgba(49, 255, 145, 0.16), 0 0 14px rgba(49, 255, 145, 0.18)',
+      background: 'var(--cutrail-surface-elevated)',
+      boxShadow: '0 0 0 1px var(--cutrail-glow-strong), 0 0 14px var(--cutrail-glow-strong)',
     },
   },
   variants: {

@@ -4,7 +4,7 @@ import { theme } from '@sabinmarcu/theme';
 const noDragAppRegion = { WebkitAppRegion: 'no-drag' } as any;
 
 export const root = style({
-  background: '#06100b',
+  background: 'var(--cutrail-surface-elevated)',
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
   borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
   display: 'flex',
@@ -18,7 +18,7 @@ export const root = style({
 });
 
 export const menuTrigger = style({
-  background: '#07110d',
+  background: 'var(--cutrail-surface-elevated)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlock: 'none',
@@ -41,7 +41,7 @@ export const menuTrigger = style({
 });
 
 export const menuPanel = style({
-  background: '#050e0a',
+  background: 'var(--cutrail-surface-elevated)',
   borderInlineStart: `1px solid ${theme.colors.primary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
   borderBlock: `1px solid ${theme.colors.primary.base}`,
@@ -64,7 +64,7 @@ export const menuGroup = style({
 
 export const menuItem = style({
   alignItems: 'center',
-  background: '#08120d',
+  background: 'var(--cutrail-surface-elevated)',
   display: 'flex',
   justifyContent: 'space-between',
   borderInlineStart: 0,
@@ -83,7 +83,7 @@ export const menuItem = style({
   textAlign: 'start',
   textTransform: 'uppercase',
   ':hover': {
-    background: '#0f1d16',
+    background: 'var(--cutrail-surface-elevated)',
     color: theme.colors.primary.base,
   },
   ':disabled': {
@@ -92,7 +92,7 @@ export const menuItem = style({
   },
   selectors: {
     '&:disabled:hover': {
-      background: '#08120d',
+      background: 'var(--cutrail-surface-elevated)',
       color: theme.colors.primary.muted,
     },
   },

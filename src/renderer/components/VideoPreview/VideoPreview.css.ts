@@ -7,7 +7,7 @@ export const root = style({
 });
 
 export const frame = style({
-  background: '#030b08',
+  background: 'var(--cutrail-surface-elevated)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,

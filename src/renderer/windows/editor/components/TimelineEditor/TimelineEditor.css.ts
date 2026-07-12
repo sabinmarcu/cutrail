@@ -28,7 +28,7 @@ export const playbackSection = style({
 
 export const overlayPlayButton = style({
   alignItems: 'center',
-  background: 'rgba(2, 8, 5, 0.82)',
+  background: 'var(--cutrail-overlay-soft)',
   borderInlineStart: `1px solid ${theme.colors.primary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
   borderBlockStart: `1px solid ${theme.colors.primary.base}`,
@@ -55,6 +55,7 @@ export const overlayPlayButtonVisible = style({
 });
 
 export const timelineSection = style({
+  background: 'var(--cutrail-surface-elevated)',
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
   display: 'grid',
   gap: theme.grid.xs,
@@ -66,7 +67,7 @@ export const timelineSection = style({
 
 export const videoFrame = style({
   aspectRatio: '16 / 9',
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: 'none',
   borderInlineEnd: 'none',
   borderBlockStart: 'none',
@@ -82,7 +83,7 @@ export const videoFrame = style({
   justifySelf: 'stretch',
   selectors: {
     '&::before': {
-      background: '#020805',
+      background: 'var(--cutrail-surface-dark)',
       content: '',
       inset: 0,
       pointerEvents: 'none',
@@ -90,7 +91,7 @@ export const videoFrame = style({
       zIndex: 0,
     },
     '&::after': {
-      backgroundImage: 'repeating-linear-gradient(0deg, rgba(53, 255, 149, 0.08) 0 1px, transparent 1px 4px)',
+      backgroundImage: 'repeating-linear-gradient(0deg, var(--cutrail-scanline-soft) 0 1px, transparent 1px 4px)',
       content: '',
       inset: 0,
       pointerEvents: 'none',
@@ -124,7 +125,7 @@ export const videoFitCover = style({
 
 export const videoFitToggleButton = style({
   alignItems: 'center',
-  background: 'rgba(2, 8, 5, 0.82)',
+  background: 'var(--cutrail-overlay-soft)',
   borderInlineStart: `1px solid ${theme.colors.primary.base}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.base}`,
   borderBlockStart: `1px solid ${theme.colors.primary.base}`,
@@ -146,7 +147,7 @@ export const videoFitToggleButton = style({
   zIndex: 9,
   selectors: {
     '&:hover': {
-      background: 'rgba(2, 8, 5, 0.95)',
+      background: 'var(--cutrail-overlay-strong)',
     },
     '&:focus-visible': {
       outline: `1px solid ${theme.colors.secondary.emphasis}`,
@@ -194,7 +195,7 @@ export const timecode = style({
 });
 
 export const timelineWrap = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -207,7 +208,7 @@ export const timelineWrap = style({
 });
 
 export const timeline = style({
-  background: '#020805',
+  background: 'var(--cutrail-surface-dark)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
   borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
   borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
@@ -218,7 +219,7 @@ export const timeline = style({
   position: 'relative',
   selectors: {
     '&::after': {
-      background: '#000f0a',
+      background: 'var(--cutrail-surface-panel)',
       borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
       content: '',
       blockSize: '20%',
@@ -228,7 +229,7 @@ export const timeline = style({
       zIndex: 2,
     },
     '&::before': {
-      backgroundImage: 'repeating-linear-gradient(0deg, rgba(53, 255, 149, 0.08) 0 1px, transparent 1px 4px)',
+      backgroundImage: 'repeating-linear-gradient(0deg, var(--cutrail-scanline-soft) 0 1px, transparent 1px 4px)',
       content: '',
       inset: 0,
       pointerEvents: 'none',
@@ -276,7 +277,7 @@ export const rangeBlock = recipe({
         opacity: 1,
         selectors: {
           '&::after': {
-            backgroundImage: 'repeating-linear-gradient(135deg, rgba(2, 8, 5, 0.66) 0 5px, rgba(53, 255, 149, 0.2) 5px 10px)',
+            backgroundImage: 'repeating-linear-gradient(135deg, var(--cutrail-overlay-lock-dark) 0 5px, var(--cutrail-scanline-strong) 5px 10px)',
             content: '',
             inset: 0,
             pointerEvents: 'none',
