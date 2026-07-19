@@ -29,7 +29,7 @@ const electronMajor = Number(electronRaw.replace(/^[^0-9]+/, '').split('.')[0]);
 const sharedElectronDepends = `'electron${electronMajor}' 'glibc' 'gtk3' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 'libdrm' 'alsa-lib'`;
 const protoMakeDepends = 'proto-bin';
 
-const packageBuildBlockPattern = /\t(?:proto install\n)?(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?\t(?:corepack )?yarn install --immutable\n\t(?:corepack )?(?:yarn build|yarn electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto run yarn -- build|proto run yarn -- electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto exec node yarn -- yarn build)|\tproto install\n(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?(?:\tproto run yarn -- install --immutable\n\tproto run yarn -- build|\tproto exec node yarn -- yarn install --immutable\n\tproto exec node yarn -- yarn build)/;
+const packageBuildBlockPattern = /\t(?:proto install\n)?(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?\t(?:corepack )?yarn install --immutable\n\t(?:corepack )?(?:yarn build|yarn electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto run yarn -- build|proto run yarn -- electron-builder --linux AppImage --publish never -c\.electronDist=\/usr\/lib\/electron\d+ -c\.electronVersion=[^\n]+|proto exec node yarn -- yarn build)(?:\n\t(?:corepack )?yarn build:node|\n\tproto run yarn -- build:node|\n\tproto exec node yarn -- yarn build:node)?|\tproto install\n(?:\tlocal proto_node_bin\n\tproto_node_bin="\$\(proto bin node\)"\n\texport PATH="\$\(dirname "\$\{proto_node_bin\}"\):\$\{PATH\}"\n)?(?:\tproto run yarn -- install --immutable\n\tproto run yarn -- build(?:\n\tproto run yarn -- build:node)?|\tproto exec node yarn -- yarn install --immutable\n\tproto exec node yarn -- yarn build(?:\n\tproto exec node yarn -- yarn build:node)?)/;
 const srcinfoDependsPattern = /\tdepends = .*\n(?:\tdepends = .*\n)*/;
 const srcinfoMakedependsPattern = /\tmakedepends = .*\n(?:\tmakedepends = .*\n)*/;
 const gitSourcePattern = /source=\('cutrail::git\+https:\/\/github\.com\/sabinmarcu\/cutrail\.git#branch=[^']+'\)/;
@@ -39,6 +39,7 @@ const normalizedBuildBlock = [
   '\tproto install',
   '\tproto exec node yarn -- yarn install --immutable',
   '\tproto exec node yarn -- yarn build',
+  '\tproto exec node yarn -- yarn build:node',
 ].join('\n');
 
 const normalizedCutrailDependsSrcinfo = [

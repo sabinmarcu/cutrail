@@ -5,6 +5,7 @@ pkgbase = cutrail-bin
 	url = https://github.com/sabinmarcu/cutrail
 	arch = x86_64
 	license = MIT
+	makedepends = squashfs-tools
 	depends = fuse2
 	depends = glibc
 	depends = gtk3

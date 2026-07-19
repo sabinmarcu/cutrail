@@ -1,38 +1,75 @@
 name: aur-packages
 
 on:
+  workflow_run:
+    workflows:
+      - release
+    types:
+      - completed
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: aur-packages-${{ github.ref_name }}
+  group: aur-packages-${{ github.event_name }}-${{ github.event.workflow_run.id || github.sha }}
   cancel-in-progress: false
 
 jobs:
   publish-release-packages:
-    if: false
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    env:
-      AUR_SSH_PRIVATE_KEY: ''
-      AUR_KNOWN_HOSTS: ''
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate release tag
+      - name: Check AUR credentials
+        id: auth
         shell: bash
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets['AUR_SSH_PRIVATE_KEY'] }}
         run: |
           set -euo pipefail
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9] ]]; then
-            echo "Expected workflow_run head branch to be a stable release tag, got: ${RELEASE_TAG}"
+          if [[ -z "$AUR_SSH_PRIVATE_KEY" ]]; then
+            echo "AUR credentials are not configured; skipping AUR publish steps."
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          echo "enabled=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout
+        if: steps.auth.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve stable release tag from workflow commit
+        if: steps.auth.outputs.enabled == 'true'
+        id: tag
+        shell: bash
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${HEAD_SHA}" ]]; then
+            echo "Missing workflow_run head SHA."
             exit 1
           fi
 
+          release_tag="$(git tag --points-at "${HEAD_SHA}" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1 || true)"
+          if [[ -z "${release_tag}" ]]; then
+            echo "No stable SemVer tag found for workflow_run SHA: ${HEAD_SHA}"
+            exit 1
+          fi
+
+          echo "release_tag=${release_tag}" >> "${GITHUB_OUTPUT}"
+
       - name: Validate release assets exist
+        if: steps.auth.outputs.enabled == 'true'
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.tag.outputs.release_tag }}
         run: |
           set -euo pipefail
           version="${RELEASE_TAG#v}"
@@ -44,7 +81,11 @@ jobs:
           fi
 
       - name: Prepare SSH credentials
+        if: steps.auth.outputs.enabled == 'true'
         shell: bash
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets['AUR_SSH_PRIVATE_KEY'] }}
+          AUR_KNOWN_HOSTS: ${{ secrets['AUR_KNOWN_HOSTS'] }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
@@ -57,7 +98,10 @@ jobs:
           fi
 
       - name: Publish release packages
+        if: steps.auth.outputs.enabled == 'true'
         shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.release_tag }}
         run: |
           set -euo pipefail
 
@@ -92,18 +136,31 @@ jobs:
           done
 
   publish-git-package:
-    if: false
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    env:
-      AUR_SSH_PRIVATE_KEY: ''
-      AUR_KNOWN_HOSTS: ''
     steps:
+      - name: Check AUR credentials
+        id: auth
+        shell: bash
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets['AUR_SSH_PRIVATE_KEY'] }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$AUR_SSH_PRIVATE_KEY" ]]; then
+            echo "AUR credentials are not configured; skipping AUR publish steps."
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          echo "enabled=true" >> "${GITHUB_OUTPUT}"
+
       - name: Checkout
+        if: steps.auth.outputs.enabled == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Compute rolling version
+        if: steps.auth.outputs.enabled == 'true'
         id: version
         shell: bash
         run: |
@@ -112,7 +169,11 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: Prepare SSH credentials
+        if: steps.auth.outputs.enabled == 'true'
         shell: bash
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets['AUR_SSH_PRIVATE_KEY'] }}
+          AUR_KNOWN_HOSTS: ${{ secrets['AUR_KNOWN_HOSTS'] }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
@@ -125,6 +186,7 @@ jobs:
           fi
 
       - name: Publish rolling package
+        if: steps.auth.outputs.enabled == 'true'
         shell: bash
         run: |
           set -euo pipefail

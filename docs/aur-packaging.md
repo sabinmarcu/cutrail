@@ -6,13 +6,13 @@ cutrail maintains three AUR package definitions:
 - `cutrail-bin` - prebuilt AppImage package that tracks tagged GitHub releases
 - `cutrail-git` - rolling package that tracks the `master` branch
 
-Automated AUR publishing is currently disabled while AUR registrations are closed. The workflow file has been parked at `.github/workflows/aur-packages.yml.disabled` and can be restored when publishing resumes.
+Automated AUR publishing is configured in `.github/workflows/aur-packages.yml`.
 
 Stable release integration policy:
 
 - Release Please is the stable release engine (`.github/workflows/release-please.yml`) and owns version/changelog/release-note generation.
 - `.github/workflows/release.yml` attaches packaged artifacts to the stable GitHub Release tag.
-- The disabled AUR workflow listens for successful completion of the `release` workflow and updates `cutrail`/`cutrail-bin` from that tag context.
+- The AUR workflow listens for successful completion of the `release` workflow and updates `cutrail`/`cutrail-bin` from that tag context.
 
 ## Package Notes
 
@@ -84,7 +84,7 @@ docker compose -f docker/aur/compose.yml run --rm cutrail-git
 
 ## Workflow Inputs
 
-When AUR publishing is re-enabled, the workflow expects these repository secrets:
+The workflow expects these repository secrets:
 
 - `AUR_SSH_PRIVATE_KEY` - SSH private key with AUR push access
 - `AUR_KNOWN_HOSTS` - optional pinned `aur.archlinux.org` host key block
