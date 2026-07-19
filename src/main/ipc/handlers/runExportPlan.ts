@@ -1,3 +1,5 @@
+import { mkdir } from 'node:fs/promises';
+import path from 'node:path';
 import { ipcMain } from 'electron';
 import type { RunExportPlanPayload } from '../../../shared/contracts.ts';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
@@ -62,6 +64,11 @@ const registerRunExportPlanHandler = () => {
             outputPath?: string;
           }
           : {};
+
+        if (typeof nextJob.outputPath === 'string' && nextJob.outputPath.length > 0) {
+          await mkdir(path.dirname(nextJob.outputPath), { recursive: true });
+        }
+
         const result = await runFfmpegJob({
           jobId: String(nextJob.id ?? ''),
           args: Array.isArray(nextJob.args) ? nextJob.args : [],
