@@ -24,6 +24,8 @@
   "chat.tools.terminal.autoApprove": {
     "yarn install": true,
     "proto": true,
-    "git commit": true
+    "git commit": true,
+    "gh": true,
+    "git fetch": true
   }
 }

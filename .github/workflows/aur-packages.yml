@@ -142,14 +142,15 @@ jobs:
           set -euo pipefail
 
           version="${RELEASE_TAG#v}"
+          repo_root="${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is required}"
           packages=(cutrail cutrail-bin)
 
           for package in "${packages[@]}"; do
             workdir="/tmp/${package}-aur"
             rm -rf "$workdir"
             git clone "ssh://aur@aur.archlinux.org/${package}.git" "$workdir"
-            cp -R "packaging/aur/${package}/PKGBUILD" "$workdir/PKGBUILD"
-            cp -R "packaging/aur/${package}/.SRCINFO" "$workdir/.SRCINFO"
+            cp -R "${repo_root}/packaging/aur/${package}/PKGBUILD" "$workdir/PKGBUILD"
+            cp -R "${repo_root}/packaging/aur/${package}/.SRCINFO" "$workdir/.SRCINFO"
             sed -i -E "s/^pkgver=.*/pkgver=${version}/" "$workdir/PKGBUILD"
             sed -i -E "s/^\tpkgver = .*/\tpkgver = ${version}/" "$workdir/.SRCINFO"
 
@@ -159,16 +160,18 @@ jobs:
               sed -i -E "s|^\tsource_x86_64 = .*|\tsource_x86_64 = cutrail-${version}.AppImage::https://github.com/sabinmarcu/cutrail/releases/download/v${version}/Cutrail-${version}.AppImage|" "$workdir/.SRCINFO"
             fi
 
-            cd "$workdir"
+            pushd "$workdir" >/dev/null
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add PKGBUILD .SRCINFO
             if git diff --cached --quiet; then
               echo "No changes to publish for ${package}."
+              popd >/dev/null
               continue
             fi
             git commit -m "Update ${package} for ${version}"
             git push origin HEAD:master
+            popd >/dev/null
           done
 
   publish-git-package:
