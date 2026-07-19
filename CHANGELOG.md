@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.1](https://github.com/sabinmarcu/cutrail/compare/v0.10.0...v0.10.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* **aur:** extract AppImage squashfs using embedded offset ([122c868](https://github.com/sabinmarcu/cutrail/commit/122c868d5b8aa5ca5c8d29da682459750e729a22))
+* **ci:** harden AUR SSH auth and access preflight ([fe021bc](https://github.com/sabinmarcu/cutrail/commit/fe021bc8e2cf969ab3b1f74a05d8fb038865b238))
+* **main:** ensure export output directory exists before export ([e1c01b8](https://github.com/sabinmarcu/cutrail/commit/e1c01b8e85ade83b62074c640f4436a892907f07))
+
 ## [0.10.0](https://github.com/sabinmarcu/cutrail/compare/v0.9.0...v0.10.0) (2026-07-12)
 
 
