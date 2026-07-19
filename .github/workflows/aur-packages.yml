@@ -88,14 +88,50 @@ jobs:
           AUR_KNOWN_HOSTS: ${{ secrets['AUR_KNOWN_HOSTS'] }}
         run: |
           set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          install -m 700 -d ~/.ssh
+
+          # Support both literal newlines and escaped "\n" forms copied into secrets.
+          printf '%s' "$AUR_SSH_PRIVATE_KEY" | perl -pe 's/\r$//; s/\\n/\n/g' > ~/.ssh/id_aur
+          chmod 600 ~/.ssh/id_aur
+
+          if ! ssh-keygen -yf ~/.ssh/id_aur >/dev/null 2>&1; then
+            echo "AUR_SSH_PRIVATE_KEY is not a usable unencrypted SSH private key."
+            echo "Regenerate an ed25519 key without passphrase, add the public key to the AUR account, and update the secret."
+            exit 1
+          fi
+
           if [[ -n "$AUR_KNOWN_HOSTS" ]]; then
             printf '%s\n' "$AUR_KNOWN_HOSTS" > ~/.ssh/known_hosts
           else
             ssh-keyscan aur.archlinux.org > ~/.ssh/known_hosts
           fi
+          chmod 600 ~/.ssh/known_hosts
+
+          cat > ~/.ssh/config <<'EOF'
+          Host aur.archlinux.org
+            HostName aur.archlinux.org
+            User aur
+            IdentityFile ~/.ssh/id_aur
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Verify AUR repository access
+        if: steps.auth.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          packages=(cutrail cutrail-bin)
+
+          for package in "${packages[@]}"; do
+            if ! git ls-remote "ssh://aur@aur.archlinux.org/${package}.git" >/dev/null 2>&1; then
+              echo "Unable to access ssh://aur@aur.archlinux.org/${package}.git with configured key."
+              echo "Ensure this key's public half is registered on the AUR account and that the account can maintain ${package}."
+              exit 1
+            fi
+          done
 
       - name: Publish release packages
         if: steps.auth.outputs.enabled == 'true'
@@ -176,13 +212,45 @@ jobs:
           AUR_KNOWN_HOSTS: ${{ secrets['AUR_KNOWN_HOSTS'] }}
         run: |
           set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          install -m 700 -d ~/.ssh
+
+          # Support both literal newlines and escaped "\n" forms copied into secrets.
+          printf '%s' "$AUR_SSH_PRIVATE_KEY" | perl -pe 's/\r$//; s/\\n/\n/g' > ~/.ssh/id_aur
+          chmod 600 ~/.ssh/id_aur
+
+          if ! ssh-keygen -yf ~/.ssh/id_aur >/dev/null 2>&1; then
+            echo "AUR_SSH_PRIVATE_KEY is not a usable unencrypted SSH private key."
+            echo "Regenerate an ed25519 key without passphrase, add the public key to the AUR account, and update the secret."
+            exit 1
+          fi
+
           if [[ -n "$AUR_KNOWN_HOSTS" ]]; then
             printf '%s\n' "$AUR_KNOWN_HOSTS" > ~/.ssh/known_hosts
           else
             ssh-keyscan aur.archlinux.org > ~/.ssh/known_hosts
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+          cat > ~/.ssh/config <<'EOF'
+          Host aur.archlinux.org
+            HostName aur.archlinux.org
+            User aur
+            IdentityFile ~/.ssh/id_aur
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Verify AUR repository access
+        if: steps.auth.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git ls-remote "ssh://aur@aur.archlinux.org/cutrail-git.git" >/dev/null 2>&1; then
+            echo "Unable to access ssh://aur@aur.archlinux.org/cutrail-git.git with configured key."
+            echo "Ensure this key's public half is registered on the AUR account and that the account can maintain cutrail-git."
+            exit 1
           fi
 
       - name: Publish rolling package
