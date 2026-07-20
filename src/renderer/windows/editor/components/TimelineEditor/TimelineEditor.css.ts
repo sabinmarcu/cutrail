@@ -182,10 +182,40 @@ export const emptyVideo = style({
 
 export const timelineControls = style({
   alignItems: 'center',
+  display: 'grid',
+  gap: theme.grid.xs,
+  gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+  '@media': {
+    'screen and (max-width: 860px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+});
+
+export const timelineLeadingControls = style({
+  alignItems: 'center',
   display: 'flex',
   flexWrap: 'wrap',
   gap: theme.grid.xs,
-  justifyContent: 'space-between',
+  justifyContent: 'flex-start',
+  minInlineSize: 0,
+});
+
+export const timelineCenterControls = style({
+  display: 'flex',
+  justifyContent: 'center',
+  minInlineSize: 0,
+});
+
+export const timelineTrailingControls = style({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  minInlineSize: 0,
+  '@media': {
+    'screen and (max-width: 860px)': {
+      justifyContent: 'flex-start',
+    },
+  },
 });
 
 export const timecode = style({

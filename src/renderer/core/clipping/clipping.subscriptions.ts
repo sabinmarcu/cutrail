@@ -24,9 +24,7 @@ const mergeRangesWithExistingClips = (
   existingClips: ExistingClip[],
 ): ClipRange[] => {
   const nextRanges = [...previousRanges];
-  const existingRangeKeys = new Set(
-    previousRanges.map((range) => buildRangeLookupKey(range)),
-  );
+  const existingRangeKeys = new Set(previousRanges.map((range) => buildRangeLookupKey(range)));
   const uniqueClipsByRangeKey = new Map(
     existingClips
       .filter((clip) => isTrustedExistingClip(clip))
@@ -61,11 +59,10 @@ export const useClippingSubscriptions = ({
   state: ClippingStateModel;
 }): void => {
   const {
-    audioTracks,
-    hideDefaultAudioTrackWhenMultiple,
     outputDirectory,
     setAudioTracks,
     setCurrentTime,
+    setDraftClipVariants,
     setDuration,
     setErrorMessage,
     setExistingClips,
@@ -79,9 +76,9 @@ export const useClippingSubscriptions = ({
     setRanges,
     setRunResult,
     setSelectedRangeId,
+    setSelectedVariantId,
     setSourcePath,
     sourcePath,
-    trimMode,
     videoRef,
   } = state;
 
@@ -103,23 +100,23 @@ export const useClippingSubscriptions = ({
       return undefined;
     }
 
-    return globalThis.cutrail.onExistingExportClipsUpdated((
-      payload: ExistingExportClipsSnapshot,
-    ) => {
-      if (
-        !payload
-        || payload.sourcePath !== sourcePath
-        || payload.outputDirectory !== outputDirectory
-      ) {
-        return;
-      }
+    return globalThis.cutrail.onExistingExportClipsUpdated(
+      (payload: ExistingExportClipsSnapshot) => {
+        if (
+          !payload
+          || payload.sourcePath !== sourcePath
+          || payload.outputDirectory !== outputDirectory
+        ) {
+          return;
+        }
 
-      setExistingClips(Array.isArray(payload.clips) ? payload.clips : []);
-      setRanges((previousRanges) => mergeRangesWithExistingClips(
-        previousRanges,
-        Array.isArray(payload.clips) ? payload.clips : [],
-      ));
-    });
+        setExistingClips(Array.isArray(payload.clips) ? payload.clips : []);
+        setRanges((previousRanges) => mergeRangesWithExistingClips(
+          previousRanges,
+          Array.isArray(payload.clips) ? payload.clips : [],
+        ));
+      },
+    );
   }, [outputDirectory, setExistingClips, setRanges, sourcePath]);
 
   useEffect(() => {
@@ -134,7 +131,9 @@ export const useClippingSubscriptions = ({
 
       setSourcePath(nextPath);
       setRanges([]);
+      setDraftClipVariants([]);
       setSelectedRangeId(null);
+      setSelectedVariantId(null);
       setCurrentTime(0);
       setPlaybackSeekRequest({
         revision: 0,
@@ -161,6 +160,7 @@ export const useClippingSubscriptions = ({
   }, [
     setAudioTracks,
     setCurrentTime,
+    setDraftClipVariants,
     setDuration,
     setErrorMessage,
     setExistingClips,
@@ -172,6 +172,7 @@ export const useClippingSubscriptions = ({
     setRanges,
     setRunResult,
     setSelectedRangeId,
+    setSelectedVariantId,
     setSourcePath,
     videoRef,
   ]);
@@ -213,26 +214,6 @@ export const useClippingSubscriptions = ({
   }, [setHideDefaultAudioTrackWhenMultiple]);
 
   useEffect(() => {
-    setMutedAudioTrackIndices((previous) => {
-      const hasFirstTrack = audioTracks.some((track) => track.trackIndex === 0);
-
-      if (!hasFirstTrack || !hideDefaultAudioTrackWhenMultiple || audioTracks.length <= 1) {
-        return previous.filter((trackIndex) => trackIndex !== 0);
-      }
-
-      if (previous.includes(0)) {
-        return previous;
-      }
-
-      return [...previous, 0].sort((left, right) => left - right);
-    });
-  }, [
-    audioTracks,
-    hideDefaultAudioTrackWhenMultiple,
-    setMutedAudioTrackIndices,
-  ]);
-
-  useEffect(() => {
     if (typeof globalThis.cutrail?.onHideDefaultAudioTrackWhenMultipleUpdated !== 'function') {
       return undefined;
     }
@@ -247,7 +228,6 @@ export const useClippingSubscriptions = ({
 
     if (sourcePath.length === 0) {
       setAudioTracks([]);
-      setMutedAudioTrackIndices([]);
 
       return undefined;
     }
@@ -257,35 +237,23 @@ export const useClippingSubscriptions = ({
     }
 
     setAudioTracks([]);
-    setMutedAudioTrackIndices([]);
 
-    globalThis.cutrail
-      .getSourceAudioTracks({ sourcePath })
-      .then((payload: SourceAudioTrackSnapshot) => {
+    globalThis.cutrail.getSourceAudioTracks({ sourcePath }).then(
+      (payload: SourceAudioTrackSnapshot) => {
         if (!mounted || payload.sourcePath !== sourcePath) {
           return;
         }
 
         const nextAudioTracks = Array.isArray(payload.tracks) ? payload.tracks : [];
-        const shouldMuteHiddenFirstTrack = (
-          hideDefaultAudioTrackWhenMultiple
-          && nextAudioTracks.length > 1
-          && nextAudioTracks.some((track) => track.trackIndex === 0)
-        );
 
         setAudioTracks(nextAudioTracks);
-        setMutedAudioTrackIndices(shouldMuteHiddenFirstTrack ? [0] : []);
-      });
+      },
+    );
 
     return () => {
       mounted = false;
     };
-  }, [
-    hideDefaultAudioTrackWhenMultiple,
-    setAudioTracks,
-    setMutedAudioTrackIndices,
-    sourcePath,
-  ]);
+  }, [setAudioTracks, sourcePath]);
 
   useEffect(() => {
     if (typeof globalThis.cutrail?.onOutputDirectoryUpdated !== 'function') {
@@ -311,5 +279,5 @@ export const useClippingSubscriptions = ({
     });
 
     return undefined;
-  }, [outputDirectory, sourcePath, trimMode]);
+  }, [outputDirectory, sourcePath]);
 };

@@ -101,6 +101,20 @@ export const waveformFallback = style({
   textTransform: 'uppercase',
 });
 
+export const waveformClipRange = style({
+  background: theme.colors.primary.base,
+  blockSize: '100%',
+  insetBlock: 0,
+  opacity: 0.22,
+  pointerEvents: 'none',
+  position: 'absolute',
+  zIndex: 1,
+});
+
+export const waveformClipRangeSelected = style({
+  opacity: 0.34,
+});
+
 export const waveformPlayhead = style({
   background: theme.colors.secondary.emphasis,
   insetBlock: 0,

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 export type ClipRangeLike = { start: number; end: number; duration?: number };
@@ -6,6 +7,7 @@ export type BuildClipOutputNameInput = {
   range: ClipRangeLike;
   extension?: string;
   trimMode?: 'fast' | 'accurate';
+  variantKey?: string;
 };
 
 type ParsedClipOutputName = {
@@ -17,12 +19,25 @@ type ParsedClipOutputName = {
 
 const pad = (value: string | number, size: number): string => String(value).padStart(size, '0');
 
-const CLIP_OUTPUT_PATTERN = /^(?<sourceName>.+?)__(?<trimMode>fast|accurate)__(?<start>\d{2}-\d{2}-\d{2})_(?<end>\d{2}-\d{2}-\d{2})\.(?<extension>[^.]+)$/;
+const CLIP_OUTPUT_PATTERN = /^(?<sourceName>.+?)__(?<trimMode>fast|accurate)__(?<start>\d{2}-\d{2}-\d{2})_(?<end>\d{2}-\d{2}-\d{2})(?:__(?<variantSegment>v-[a-z0-9]+))?\.(?<extension>[^.]+)$/;
 
 const sanitizeSegment = (value: string): string => value
   .replaceAll(/[^a-zA-Z0-9._-]/g, '_')
   .replaceAll(/_+/g, '_')
   .replaceAll(/^_+|_+$/g, '');
+
+const hashVariantKey = (variantKey: string): string => createHash('sha256')
+  .update(variantKey)
+  .digest('hex')
+  .slice(0, 8);
+
+const buildVariantFileSegment = (variantKey: string | undefined): string => {
+  if (typeof variantKey !== 'string' || variantKey.trim().length === 0) {
+    return '';
+  }
+
+  return `__v-${hashVariantKey(variantKey)}`;
+};
 
 export const normalizeClipSourceName = (sourcePath: string): string => sanitizeSegment(path.parse(sourcePath).name || 'clip');
 
@@ -58,6 +73,7 @@ export const buildClipOutputName = ({
   range,
   extension = 'mp4',
   trimMode = 'fast',
+  variantKey,
 }: BuildClipOutputNameInput): string => {
   if (typeof sourcePath !== 'string' || sourcePath.trim().length === 0) {
     throw new TypeError('sourcePath must be a non-empty string');
@@ -72,8 +88,9 @@ export const buildClipOutputName = ({
   const accuracySegment = sanitizeSegment(trimMode) || 'fast';
   const startSegment = formatClipTimestamp(range.start);
   const endSegment = formatClipTimestamp(range.end);
+  const variantSegment = buildVariantFileSegment(variantKey);
 
-  return `${safeBaseName}__${accuracySegment}__${startSegment}_${endSegment}.${safeExtension}`;
+  return `${safeBaseName}__${accuracySegment}__${startSegment}_${endSegment}${variantSegment}.${safeExtension}`;
 };
 
 export const parseClipOutputName = (fileName: string): ParsedClipOutputName | null => {

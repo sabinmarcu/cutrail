@@ -3,16 +3,17 @@ import {
   useAtom,
 } from 'jotai';
 import {
+  useCallback,
   useEffect,
   useMemo,
 } from 'react';
 import { normalizeVideoPath } from './clipping';
-import { mutedAudioTrackIndicesAtom } from './clipping.audioTracks.state';
+import { deriveClipEntries } from './clipping.variants';
 import { playbackSeekRequestAtom } from './clipping.playback.state';
 import type {
-  ClipEntry,
   ClipRange,
   ClippingStateModel,
+  DraftClipVariant,
   ExistingClip,
   ExportPlan,
   ExportRunResult,
@@ -23,10 +24,49 @@ import type {
 } from './clipping.types';
 
 const createSharedReference = <T>(current: T): SharedReference<T> => ({ current });
+const DEFAULT_TRIM_MODE: TrimMode = 'fast';
+
+const normalizeTrackIndices = (trackIndices: number[]): number[] => [...new Set(trackIndices
+  .filter((value) => Number.isInteger(value) && value >= 0)
+  .map(Number))].sort((left, right) => left - right);
+
+const buildDefaultMutedIndices = (
+  audioTracks: SourceAudioTrack[],
+  hideDefaultAudioTrackWhenMultiple: boolean,
+): number[] => {
+  const shouldMuteHiddenFirstTrack = (
+    hideDefaultAudioTrackWhenMultiple
+    && audioTracks.length > 1
+    && audioTracks.some((track) => track.trackIndex === 0)
+  );
+
+  return shouldMuteHiddenFirstTrack ? [0] : [];
+};
+
+const buildSelectedTrackIndices = ({
+  audioTracks,
+  hideDefaultAudioTrackWhenMultiple,
+  mutedAudioTrackIndices,
+}: {
+  audioTracks: SourceAudioTrack[];
+  hideDefaultAudioTrackWhenMultiple: boolean;
+  mutedAudioTrackIndices: number[];
+}): number[] => {
+  const hiddenTrackIndices = new Set<number>(
+    hideDefaultAudioTrackWhenMultiple && audioTracks.length > 1 ? [0] : [],
+  );
+  const mutedTrackIndexSet = new Set(normalizeTrackIndices(mutedAudioTrackIndices));
+
+  return normalizeTrackIndices(audioTracks
+    .map((track) => track.trackIndex)
+    .filter((trackIndex) => !hiddenTrackIndices.has(trackIndex))
+    .filter((trackIndex) => !mutedTrackIndexSet.has(trackIndex)));
+};
 
 const sourcePathAtom = atom<string>('');
 const outputDirectoryAtom = atom<string>('');
 const rangesAtom = atom<ClipRange[]>([]);
+const draftClipVariantsAtom = atom<DraftClipVariant[]>([]);
 const planAtom = atom<ExportPlan>({
   jobs: [],
   errors: [],
@@ -34,11 +74,11 @@ const planAtom = atom<ExportPlan>({
 const runResultAtom = atom<ExportRunResult>(null);
 const progressByIdAtom = atom<ProgressById>({});
 const errorMessageAtom = atom<string>('');
-const trimModeAtom = atom<TrimMode>('fast');
 const durationAtom = atom<number>(0);
 const currentTimeAtom = atom<number>(0);
 const isPlayingAtom = atom<boolean>(false);
 const selectedRangeIdAtom = atom<string | null>(null);
+const selectedVariantIdAtom = atom<string | null>(null);
 const existingClipsAtom = atom<ExistingClip[]>([]);
 const audioTracksAtom = atom<SourceAudioTrack[]>([]);
 const hideDefaultAudioTrackWhenMultipleAtom = atom<boolean>(false);
@@ -49,32 +89,28 @@ const timelineReferenceAtom = atom<SharedReference<HTMLDivElement | null>>(
   createSharedReference<HTMLDivElement | null>(null),
 );
 
-const buildRangeLookupKey = (range: { start: number; end: number }) => (
-  `${Math.floor(range.start)}:${Math.floor(range.end)}`
-);
-
 export const useClippingState = (
   { initialSourcePath = '' }: { initialSourcePath?: string } = {},
 ): ClippingStateModel => {
   const [sourcePath, setSourcePath] = useAtom(sourcePathAtom);
   const [outputDirectory, setOutputDirectory] = useAtom(outputDirectoryAtom);
   const [ranges, setRanges] = useAtom(rangesAtom);
+  const [draftClipVariants, setDraftClipVariants] = useAtom(draftClipVariantsAtom);
   const [plan, setPlan] = useAtom(planAtom);
   const [runResult, setRunResult] = useAtom(runResultAtom);
   const [progressById, setProgressById] = useAtom(progressByIdAtom);
   const [errorMessage, setErrorMessage] = useAtom(errorMessageAtom);
-  const [trimMode, setTrimMode] = useAtom(trimModeAtom);
   const [duration, setDuration] = useAtom(durationAtom);
   const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
   const [playbackSeekRequest, setPlaybackSeekRequest] = useAtom(playbackSeekRequestAtom);
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
   const [selectedRangeId, setSelectedRangeId] = useAtom(selectedRangeIdAtom);
+  const [selectedVariantId, setSelectedVariantId] = useAtom(selectedVariantIdAtom);
   const [existingClips, setExistingClips] = useAtom(existingClipsAtom);
   const [audioTracks, setAudioTracks] = useAtom(audioTracksAtom);
   const [hideDefaultAudioTrackWhenMultiple, setHideDefaultAudioTrackWhenMultiple] = useAtom(
     hideDefaultAudioTrackWhenMultipleAtom,
   );
-  const [mutedAudioTrackIndices, setMutedAudioTrackIndices] = useAtom(mutedAudioTrackIndicesAtom);
   const [videoReference] = useAtom(videoReferenceAtom);
   const [timelineReference] = useAtom(timelineReferenceAtom);
 
@@ -97,40 +133,51 @@ export const useClippingState = (
 
     return audioTracks.filter((track) => track.trackIndex !== 0);
   }, [audioTracks, hasMultipleAudioTracks, hideDefaultAudioTrackWhenMultiple]);
-  const selectedAudioTrackIndices = useMemo(() => visibleAudioTracks
-    .filter((track) => !mutedAudioTrackIndices.includes(track.trackIndex))
-    .map((track) => track.trackIndex), [mutedAudioTrackIndices, visibleAudioTracks]);
+
+  const activeDraftVariant = useMemo(() => {
+    const bySelectedId = draftClipVariants.find((variant) => variant.id === selectedVariantId);
+
+    if (bySelectedId) {
+      return bySelectedId;
+    }
+
+    if (selectedRangeId) {
+      const byRange = draftClipVariants.find((variant) => variant.rangeId === selectedRangeId);
+
+      if (byRange) {
+        return byRange;
+      }
+    }
+
+    return draftClipVariants[0] ?? null;
+  }, [draftClipVariants, selectedRangeId, selectedVariantId]);
+
+  const mutedAudioTrackIndices = useMemo(() => {
+    if (activeDraftVariant) {
+      return normalizeTrackIndices(activeDraftVariant.mutedAudioTrackIndices);
+    }
+
+    return buildDefaultMutedIndices(audioTracks, hideDefaultAudioTrackWhenMultiple);
+  }, [activeDraftVariant, audioTracks, hideDefaultAudioTrackWhenMultiple]);
+
+  const selectedAudioTrackIndices = useMemo(() => {
+    if (activeDraftVariant) {
+      return normalizeTrackIndices(activeDraftVariant.selectedAudioTrackIndices);
+    }
+
+    return buildSelectedTrackIndices({
+      audioTracks,
+      hideDefaultAudioTrackWhenMultiple,
+      mutedAudioTrackIndices,
+    });
+  }, [activeDraftVariant, audioTracks, hideDefaultAudioTrackWhenMultiple, mutedAudioTrackIndices]);
+
+  const trimMode = activeDraftVariant?.trimMode ?? DEFAULT_TRIM_MODE;
   const readyToStart = (
     sourcePath.length > 0
     && outputDirectory.length > 0
-    && ranges.length > 0
+    && draftClipVariants.length > 0
   );
-  const clipEntries = useMemo<ClipEntry[]>(() => [...ranges]
-    .sort(
-      (left, right) => (
-        left.start - right.start
-        || left.end - right.end
-        || left.id.localeCompare(right.id)
-      ),
-    )
-    .map((range) => {
-      const matchingExistingClips = existingClips.filter(
-        (clip) => {
-          const classification = clip.classificationKind;
-          const isTrusted = classification !== 'foreign' && classification !== 'invalid';
-
-          return isTrusted && buildRangeLookupKey(clip.range) === buildRangeLookupKey(range);
-        },
-      );
-
-      return {
-        range,
-        existingClips: matchingExistingClips,
-        currentModeClip:
-          matchingExistingClips.find((clip) => clip.trimMode === trimMode) ?? null,
-        isLocked: matchingExistingClips.length > 0,
-      };
-    }), [existingClips, ranges, trimMode]);
 
   const clipStatusMap = useMemo(() => {
     const results = runResult?.results ?? [];
@@ -143,20 +190,161 @@ export const useClippingState = (
         .filter((id): id is string => typeof id === 'string' && id.length > 0),
     );
 
-    return Object.fromEntries(ranges.map((range) => {
-      if (statusByJobId[range.id]) {
-        return [range.id, statusByJobId[range.id]];
+    return Object.fromEntries(draftClipVariants.map((variant) => {
+      if (statusByJobId[variant.id]) {
+        return [variant.id, statusByJobId[variant.id]];
       }
 
-      return [range.id, plannedIds.has(range.id) ? 'PLANNED' : 'DRAFT'];
+      return [variant.id, plannedIds.has(variant.id) ? 'PLANNED' : 'DRAFT'];
     }));
-  }, [plan.jobs, ranges, runResult]);
+  }, [draftClipVariants, plan.jobs, runResult]);
+
+  const planJobs = useMemo(
+    () => plan.jobs.reduce(
+      (nextMap, job) => nextMap.set(String(job.id), { outputPath: job.outputPath }),
+      new Map<string, { outputPath?: string }>(),
+    ),
+    [plan.jobs],
+  );
+
+  const derivedClipEntries = useMemo(() => deriveClipEntries({
+    clipStatusMap,
+    draftClipVariants,
+    existingClips,
+    planJobs,
+    progressById,
+    ranges,
+    selectedVariantId,
+  }), [
+    clipStatusMap,
+    draftClipVariants,
+    existingClips,
+    planJobs,
+    progressById,
+    ranges,
+    selectedVariantId,
+  ]);
+
+  useEffect(() => {
+    setDraftClipVariants((previous) => {
+      let changed = false;
+
+      const nextVariants = previous.map((variant) => {
+        if (!variant.isEditable) {
+          return variant;
+        }
+
+        const matchingEntry = derivedClipEntries
+          .flatMap((clipEntry) => clipEntry.variantEntries)
+          .find((entry) => entry.key === variant.id);
+
+        if (!matchingEntry?.clip || typeof matchingEntry.filePath !== 'string') {
+          return variant;
+        }
+
+        changed = true;
+
+        return {
+          ...variant,
+          isEditable: false,
+          sourceFilePath: matchingEntry.filePath,
+        };
+      });
+
+      return changed ? nextVariants : previous;
+    });
+  }, [derivedClipEntries, setDraftClipVariants]);
+
+  const selectedVariantEntry = useMemo(
+    () => derivedClipEntries
+      .flatMap((clipEntry) => clipEntry.variantEntries)
+      .find((variantEntry) => variantEntry.key === selectedVariantId)
+      ?? null,
+    [derivedClipEntries, selectedVariantId],
+  );
+  const selectedVariantIsEditable = selectedVariantEntry?.isEditable ?? false;
+
+  useEffect(() => {
+    if (activeDraftVariant === null) {
+      if (selectedVariantId !== null) {
+        setSelectedVariantId(null);
+      }
+
+      return;
+    }
+
+    if (selectedVariantId !== activeDraftVariant.id) {
+      setSelectedVariantId(activeDraftVariant.id);
+    }
+
+    if (selectedRangeId !== activeDraftVariant.rangeId) {
+      setSelectedRangeId(activeDraftVariant.rangeId);
+    }
+  }, [
+    activeDraftVariant,
+    selectedRangeId,
+    selectedVariantId,
+    setSelectedRangeId,
+    setSelectedVariantId,
+  ]);
+
+  const setTrimMode = useCallback<ClippingStateModel['setTrimMode']>((value) => {
+    if (!activeDraftVariant) {
+      return;
+    }
+
+    const nextTrimMode = typeof value === 'function'
+      ? value(activeDraftVariant.trimMode)
+      : value;
+
+    setDraftClipVariants((previous) => previous.map((variant) => (
+      variant.id === activeDraftVariant.id
+        ? {
+          ...variant,
+          trimMode: nextTrimMode,
+        }
+        : variant
+    )));
+  }, [activeDraftVariant, setDraftClipVariants]);
+
+  const setMutedAudioTrackIndices = useCallback<ClippingStateModel['setMutedAudioTrackIndices']>((value) => {
+    if (!activeDraftVariant) {
+      return;
+    }
+
+    const nextMutedTrackIndices = normalizeTrackIndices(
+      typeof value === 'function'
+        ? value(activeDraftVariant.mutedAudioTrackIndices)
+        : value,
+    );
+    const nextSelectedTrackIndices = buildSelectedTrackIndices({
+      audioTracks,
+      hideDefaultAudioTrackWhenMultiple,
+      mutedAudioTrackIndices: nextMutedTrackIndices,
+    });
+
+    setDraftClipVariants((previous) => previous.map((variant) => (
+      variant.id === activeDraftVariant.id
+        ? {
+          ...variant,
+          mutedAudioTrackIndices: nextMutedTrackIndices,
+          selectedAudioTrackIndices: nextSelectedTrackIndices,
+        }
+        : variant
+    )));
+  }, [
+    activeDraftVariant,
+    audioTracks,
+    hideDefaultAudioTrackWhenMultiple,
+    setDraftClipVariants,
+  ]);
 
   return {
     audioTracks,
     clipStatusMap,
-    clipEntries,
+    clipEntries: derivedClipEntries,
     currentTime,
+    draftClipVariants,
     duration,
     errorMessage,
     existingClips,
@@ -172,10 +360,13 @@ export const useClippingState = (
     readyToStart,
     runResult,
     selectedAudioTrackIndices,
+    selectedVariantIsEditable,
     selectedRangeId,
+    selectedVariantId,
     setAudioTracks,
     setCurrentTime,
     setDuration,
+    setDraftClipVariants,
     setErrorMessage,
     setExistingClips,
     setHideDefaultAudioTrackWhenMultiple,
@@ -188,6 +379,7 @@ export const useClippingState = (
     setRanges,
     setRunResult,
     setSelectedRangeId,
+    setSelectedVariantId,
     setSourcePath,
     setTrimMode,
     sourcePath,

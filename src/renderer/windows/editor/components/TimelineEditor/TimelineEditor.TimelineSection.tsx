@@ -6,12 +6,16 @@ import {
   useRef,
 } from 'react';
 import { Button } from '@renderer/components/Button';
+import { SegmentedSwitch } from '@renderer/components/SegmentedSwitch';
 import {
   clamp,
   useClippingActions,
   useClippingState,
 } from '@renderer/core/clipping';
-import type { ClipRange } from '@renderer/core/clipping/clipping.types';
+import type {
+  ClipRange,
+  TrimMode,
+} from '@renderer/core/clipping/clipping.types';
 import type { RangeDragMode } from './TimelineEditor';
 import { useVisualPlaybackTime } from './TimelineEditor.useVisualPlaybackTime';
 import { formatSeconds } from './TimelineEditor.utils';
@@ -20,8 +24,11 @@ import {
   playhead,
   rangeBlock,
   timeline,
+  timelineCenterControls,
   timelineControls,
+  timelineLeadingControls,
   timelineSection,
+  timelineTrailingControls,
   timelineWrap,
   timecode,
 } from './TimelineEditor.css';
@@ -49,8 +56,10 @@ export const TimelineEditorTimelineSection = ({
   } = state;
   const {
     addRangeAtPlayhead,
+    createNewVariantFromSelection,
     setPlaybackTime,
     setSelectedRangeId,
+    setTrimMode,
   } = useClippingActions(state);
   const isSeekingReference = useRef(false);
   const visualCurrentTime = useVisualPlaybackTime({
@@ -101,17 +110,51 @@ export const TimelineEditorTimelineSection = ({
   return (
     <section className={timelineSection}>
       <div className={timelineControls}>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={addRangeAtPlayhead}
-          disabled={!sourcePath || duration <= 0}
-        >
-          Add Range
-        </Button>
-        <span className={timecode}>
-          {formatSeconds(visualCurrentTime)} / {formatSeconds(duration)}
-        </span>
+        <div className={timelineLeadingControls}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={addRangeAtPlayhead}
+            disabled={!sourcePath || duration <= 0}
+          >
+            Add Range
+          </Button>
+          {state.selectedRangeId && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={createNewVariantFromSelection}
+              disabled={!state.selectedVariantId || !state.selectedVariantIsEditable}
+            >
+              Duplicate
+            </Button>
+          )}
+        </div>
+        <div className={timelineCenterControls}>
+          <SegmentedSwitch
+            ariaLabel="Trim mode"
+            disabled={!state.selectedVariantIsEditable}
+            value={state.trimMode}
+            onChange={(nextMode) => {
+              setTrimMode(nextMode as TrimMode);
+            }}
+            options={[
+              {
+                label: 'Quick',
+                value: 'fast',
+              },
+              {
+                label: 'Accurate',
+                value: 'accurate',
+              },
+            ]}
+          />
+        </div>
+        <div className={timelineTrailingControls}>
+          <span className={timecode}>
+            {formatSeconds(visualCurrentTime)} / {formatSeconds(duration)}
+          </span>
+        </div>
       </div>
 
       <div className={timelineWrap}>

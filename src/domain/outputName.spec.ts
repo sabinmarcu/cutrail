@@ -26,7 +26,8 @@ describe('buildClipOutputName', () => {
         end: 88,
       },
       trimMode: 'accurate',
-    })).toBe('input_sample__accurate__00-01-05_00-01-28.mp4');
+      variantKey: 'trim=accurate|selected=1,3|muted=2',
+    })).toBe('input_sample__accurate__00-01-05_00-01-28__v-dae1fa92.mp4');
   });
 
   it('supports custom output extension', () => {
@@ -43,7 +44,7 @@ describe('buildClipOutputName', () => {
 
 describe('parseClipOutputName', () => {
   it('parses deterministic clip output names', () => {
-    expect(parseClipOutputName('input_sample__accurate__00-01-05_00-01-28.mp4')).toEqual({
+    expect(parseClipOutputName('input_sample__accurate__00-01-05_00-01-28__v-dae1fa92.mp4')).toEqual({
       sourceName: 'input_sample',
       trimMode: 'accurate',
       range: {

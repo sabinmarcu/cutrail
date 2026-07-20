@@ -1,0 +1,292 @@
+import type {
+  ClipEntry,
+  ClipRange,
+  ClipVariantEntry,
+  DraftClipVariant,
+  ExistingClip,
+  ProgressById,
+} from './clipping.types';
+
+const buildRangeLookupKey = (range: { start: number; end: number }): string => (
+  `${Math.floor(range.start)}:${Math.floor(range.end)}`
+);
+
+export const normalizeVariantTrackIndices = (trackIndices: number[] | undefined): number[] => {
+  if (!Array.isArray(trackIndices)) {
+    return [];
+  }
+
+  const validIndices = trackIndices
+    .filter((value) => Number.isInteger(value) && value >= 0)
+    .map(Number);
+
+  return [...new Set(validIndices)].sort((left, right) => left - right);
+};
+
+export const buildVariantKey = ({
+  trimMode,
+  selectedAudioTrackIndices,
+  mutedAudioTrackIndices,
+}: {
+  trimMode: 'fast' | 'accurate';
+  selectedAudioTrackIndices: number[];
+  mutedAudioTrackIndices: number[];
+}): string => (
+  `trim=${trimMode}|selected=${selectedAudioTrackIndices.join(',')}|muted=${mutedAudioTrackIndices.join(',')}`
+);
+
+export const toVariantKeyFromClip = (clip: ExistingClip): string => {
+  if (typeof clip.identityKeys?.variantKey === 'string' && clip.identityKeys.variantKey.length > 0) {
+    return clip.identityKeys.variantKey;
+  }
+
+  return buildVariantKey({
+    trimMode: clip.trimMode,
+    selectedAudioTrackIndices: normalizeVariantTrackIndices(clip.selectedAudioTrackIndices),
+    mutedAudioTrackIndices: normalizeVariantTrackIndices(clip.mutedAudioTrackIndices),
+  });
+};
+
+const toVariantStatus = ({
+  clip,
+  hasPlannedOutput,
+  progressRatio,
+  rangeStatus,
+}: {
+  clip: ExistingClip | null;
+  hasPlannedOutput: boolean;
+  progressRatio: number | null;
+  rangeStatus: string;
+}): ClipVariantEntry['status'] => {
+  if (clip) {
+    const classification = clip.classificationKind;
+
+    if (classification === 'legacy') {
+      return 'legacy';
+    }
+
+    if (classification === 'foreign') {
+      return 'foreign';
+    }
+
+    if (classification === 'invalid') {
+      return 'invalid';
+    }
+
+    return 'exported';
+  }
+
+  if (progressRatio !== null) {
+    return 'exporting';
+  }
+
+  if (rangeStatus === 'FAILED') {
+    return 'failed';
+  }
+
+  if (hasPlannedOutput || rangeStatus === 'PLANNED' || rangeStatus === 'COMPLETED') {
+    return 'planned';
+  }
+
+  return 'draft';
+};
+
+export const deriveClipEntries = ({
+  clipStatusMap,
+  draftClipVariants,
+  existingClips,
+  planJobs,
+  progressById,
+  ranges,
+  selectedVariantId,
+}: {
+  clipStatusMap: Record<string, string>;
+  draftClipVariants: DraftClipVariant[];
+  existingClips: ExistingClip[];
+  planJobs: Map<string, { outputPath?: string }>;
+  progressById: ProgressById;
+  ranges: ClipRange[];
+  selectedVariantId: string | null;
+}): ClipEntry[] => [...ranges]
+  .sort((left, right) => (
+    left.start - right.start
+    || left.end - right.end
+    || left.id.localeCompare(right.id)
+  ))
+  .map((range) => {
+    const rangeDraftVariants = draftClipVariants.filter((variant) => variant.rangeId === range.id);
+    const plannedOutputPaths = new Set(
+      rangeDraftVariants
+        .map((variant) => planJobs.get(variant.id)?.outputPath)
+        .filter((outputPath): outputPath is string => typeof outputPath === 'string'),
+    );
+    const trustedExistingClips = existingClips.filter((clip) => {
+      const classification = clip.classificationKind;
+      const isTrusted = classification !== 'foreign' && classification !== 'invalid';
+
+      if (!isTrusted || buildRangeLookupKey(clip.range) !== buildRangeLookupKey(range)) {
+        return false;
+      }
+
+      if (classification === 'legacy' && plannedOutputPaths.has(clip.filePath)) {
+        return false;
+      }
+
+      return true;
+    });
+    const existingVariantEntriesByMergeKey = new Map<string, ClipVariantEntry[]>();
+
+    for (const clip of trustedExistingClips) {
+      const key = toVariantKeyFromClip(clip);
+      const nextEntry: ClipVariantEntry = {
+        clip,
+        filePath: clip.filePath,
+        isEditable: false,
+        key,
+        modifiedAtMs: typeof clip.modifiedAtMs === 'number' ? clip.modifiedAtMs : null,
+        mutedAudioTrackIndices: normalizeVariantTrackIndices(clip.mutedAudioTrackIndices),
+        progressText: '100%',
+        selectedAudioTrackIndices: normalizeVariantTrackIndices(clip.selectedAudioTrackIndices),
+        status: toVariantStatus({
+          clip,
+          hasPlannedOutput: false,
+          progressRatio: null,
+          rangeStatus: 'COMPLETED',
+        }),
+        trimMode: clip.trimMode,
+      };
+
+      const previousEntries = existingVariantEntriesByMergeKey.get(key) ?? [];
+
+      existingVariantEntriesByMergeKey.set(key, [...previousEntries, nextEntry]);
+    }
+
+    const takeExistingVariantEntry = ({
+      mergeKey,
+      plannedOutputPath,
+      sourceFilePath,
+    }: {
+      mergeKey: string;
+      plannedOutputPath: string | undefined;
+      sourceFilePath: string | null;
+    }): ClipVariantEntry | null => {
+      const matchingExistingEntries = existingVariantEntriesByMergeKey.get(mergeKey) ?? [];
+
+      if (matchingExistingEntries.length === 0) {
+        return null;
+      }
+
+      if (typeof plannedOutputPath === 'string' && plannedOutputPath.length > 0) {
+        const outputMatchIndex = matchingExistingEntries.findIndex(
+          (entry) => entry.filePath === plannedOutputPath,
+        );
+
+        if (outputMatchIndex !== -1) {
+          const [matchedEntry] = matchingExistingEntries.splice(outputMatchIndex, 1);
+
+          if (matchingExistingEntries.length === 0) {
+            existingVariantEntriesByMergeKey.delete(mergeKey);
+          } else {
+            existingVariantEntriesByMergeKey.set(mergeKey, matchingExistingEntries);
+          }
+
+          return matchedEntry;
+        }
+
+        return null;
+      }
+
+      if (typeof sourceFilePath === 'string' && sourceFilePath.length > 0) {
+        return null;
+      }
+
+      const matchedEntry = matchingExistingEntries.shift() ?? null;
+
+      if (matchingExistingEntries.length === 0) {
+        existingVariantEntriesByMergeKey.delete(mergeKey);
+      } else {
+        existingVariantEntriesByMergeKey.set(mergeKey, matchingExistingEntries);
+      }
+
+      return matchedEntry;
+    };
+
+    const variantEntries: ClipVariantEntry[] = [];
+
+    for (const draftVariant of rangeDraftVariants) {
+      const plannedOutputPath = planJobs.get(draftVariant.id)?.outputPath;
+      const mergeKey = buildVariantKey({
+        trimMode: draftVariant.trimMode,
+        selectedAudioTrackIndices: normalizeVariantTrackIndices(
+          draftVariant.selectedAudioTrackIndices,
+        ),
+        mutedAudioTrackIndices: normalizeVariantTrackIndices(draftVariant.mutedAudioTrackIndices),
+      });
+      const existingVariantEntry = takeExistingVariantEntry({
+        mergeKey,
+        plannedOutputPath,
+        sourceFilePath: draftVariant.sourceFilePath,
+      });
+
+      const rangeStatus = clipStatusMap[draftVariant.id] ?? 'DRAFT';
+      const progressRatio = progressById[draftVariant.id]?.ratio ?? null;
+      const hasPlannedOutput = typeof plannedOutputPath === 'string';
+      const mergedStatus = existingVariantEntry?.clip
+        ? toVariantStatus({
+          clip: existingVariantEntry.clip,
+          hasPlannedOutput: false,
+          progressRatio: null,
+          rangeStatus: 'COMPLETED',
+        })
+        : toVariantStatus({
+          clip: null,
+          hasPlannedOutput,
+          progressRatio,
+          rangeStatus,
+        });
+
+      variantEntries.push({
+        clip: existingVariantEntry?.clip ?? null,
+        filePath: existingVariantEntry?.filePath ?? null,
+        isEditable: draftVariant.isEditable,
+        key: draftVariant.id,
+        modifiedAtMs: existingVariantEntry?.modifiedAtMs ?? null,
+        mutedAudioTrackIndices: normalizeVariantTrackIndices(
+          draftVariant.mutedAudioTrackIndices,
+        ),
+        progressText: progressRatio === null ? 'pending' : `${Math.round(progressRatio * 100)}%`,
+        selectedAudioTrackIndices: normalizeVariantTrackIndices(
+          draftVariant.selectedAudioTrackIndices,
+        ),
+        status: mergedStatus,
+        trimMode: draftVariant.trimMode,
+      });
+    }
+
+    for (const unmatchedExistingEntries of existingVariantEntriesByMergeKey.values()) {
+      variantEntries.push(...unmatchedExistingEntries);
+    }
+
+    const sortedVariantEntries = variantEntries.sort((left, right) => (
+      left.trimMode.localeCompare(right.trimMode)
+      || left.key.localeCompare(right.key)
+    ));
+    const activeVariant = sortedVariantEntries.find((entry) => entry.key === selectedVariantId)
+      ?? sortedVariantEntries.find((entry) => (
+        rangeDraftVariants.some((variant) => variant.id === entry.key)
+      ))
+      ?? sortedVariantEntries[0];
+    const isRangeLocked = trustedExistingClips.length > 0;
+
+    return {
+      activeVariant,
+      range,
+      trustedExistingCount: trustedExistingClips.length,
+      variantEntries: sortedVariantEntries,
+      existingClips: trustedExistingClips,
+      currentModeClip: trustedExistingClips.find(
+        (clip) => clip.trimMode === activeVariant.trimMode,
+      ) ?? null,
+      isLocked: isRangeLocked,
+    } satisfies ClipEntry;
+  });

@@ -266,7 +266,9 @@ export type CutrailBridge = {
   deleteClipRangeOutputs: (payload: {
     sourcePath?: string;
     outputDirectory?: string;
+    filePath?: string;
     range?: { start?: number | string; end?: number | string };
+    variantKey?: string;
   }) => Promise<DeleteClipRangeOutputsResult>;
   onExistingExportClipsUpdated: (
     listener: (payload: ExistingExportClipsSnapshot) => void,

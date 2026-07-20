@@ -4,6 +4,7 @@ import { theme } from '@sabinmarcu/theme';
 export const preview = style({
   display: 'grid',
   gap: theme.grid.xxs,
+  marginBlockStart: theme.grid.s,
   marginInline: `-${theme.grid.xs}`,
 });
 

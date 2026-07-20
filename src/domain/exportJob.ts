@@ -16,6 +16,7 @@ export type BuildExportJobsInput = {
   ranges: ExportRangeInput[];
   extension?: string;
   trimMode?: 'fast' | 'accurate';
+  variantKey?: string;
   options?: { minimumDurationSeconds?: number; allowOverlaps?: boolean };
 };
 
@@ -25,6 +26,7 @@ export const buildExportJobs = ({
   ranges,
   extension = 'mp4',
   trimMode = 'fast',
+  variantKey,
   options = {},
 }: BuildExportJobsInput) => {
   if (typeof sourcePath !== 'string' || sourcePath.trim().length === 0) {
@@ -43,6 +45,7 @@ export const buildExportJobs = ({
       range,
       extension,
       trimMode,
+      variantKey,
     });
 
     return {
