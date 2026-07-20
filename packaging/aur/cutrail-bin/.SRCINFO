@@ -20,6 +20,7 @@ pkgbase = cutrail-bin
 	provides = cutrail
 	conflicts = cutrail
 	conflicts = cutrail-git
+	options = !strip
 	source_x86_64 = cutrail-0.1.0.AppImage::https://github.com/sabinmarcu/cutrail/releases/download/v0.1.0/Cutrail-0.1.0.AppImage
 	sha256sums_x86_64 = SKIP
 

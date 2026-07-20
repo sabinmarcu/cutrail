@@ -5,6 +5,7 @@ pkgdesc='Desktop video clipping utility for batch range exports'
 arch=('x86_64')
 url='https://github.com/sabinmarcu/cutrail'
 license=('MIT')
+options=('!strip')
 makedepends=('squashfs-tools')
 depends=('fuse2' 'glibc' 'gtk3' 'nss' 'libxss' 'libxtst' 'xdg-utils' 'at-spi2-core' 'libdrm' 'alsa-lib')
 optdepends=('ffmpeg: fallback ffmpeg/ffprobe binaries for diagnostics and probing')
@@ -29,7 +30,7 @@ package() {
   chmod +x "${appimage_path}"
 
   local appimage_offset
-  appimage_offset="$("${appimage_path}" --appimage-offset)"
+  appimage_offset="$(${appimage_path} --appimage-offset)"
 
   if [[ -z "${appimage_offset}" ]]; then
     echo "Unable to determine AppImage payload offset for extraction."
