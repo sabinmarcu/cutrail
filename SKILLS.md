@@ -155,12 +155,13 @@ Core commands:
 - `proto run yarn -- commitlint --help`
 - `proto run yarn -- dev`
 - `proto run yarn -- build`
+- `proto run yarn -- typecheck`
 - `proto run yarn -- package`
 - `proto run yarn -- dist`
 - `proto run yarn -- test`
 - `proto run yarn -- verify:ffmpeg`
-- `proto run yarn -- lint`
 - `proto run yarn -- lint:fix`
+- `proto run yarn -- lint`
 - `proto run yarn -- lint:staged`
 
 Packaging notes:
@@ -232,9 +233,9 @@ Lint enforcement guidance for agents:
 
 ### Commands
 
-- `yarn lint` (strict; max warnings 0)
-- `yarn lint:fix` (autofix)
-- Agent workflow rule: prefer `yarn lint:fix` before checks, then run `yarn lint` and `yarn typecheck`, and manually fix only non-autofixable issues.
+- `yarn lint:fix` (preferred default; autofix)
+- `yarn lint` (strict; run when explicit strict lint verification is needed)
+- Agent workflow rule: run `yarn lint:fix` first, then run `yarn typecheck`; run `yarn lint` when strict lint verification is needed, and manually fix only non-autofixable issues.
 - Agent temporary-output rule: write temporary command outputs/artifacts under `logs/`.
 - Redirection rule: for shell redirects (`>`, `2>`, `&>`), capture logs to `logs/*.log` and avoid `/tmp` paths.
 

@@ -8,21 +8,18 @@
 
 cutrail is a desktop utility focused on clipping segments from longer videos with a clean, maintainable architecture.
 
-The project is beyond the original early Phase 1 state: the core single-video clipping workflow is in place, accurate trim support exists, and release/updater groundwork has started, but the Phase 2 library/persistence work and the remaining Phase 3 preset/diagnostic work are still incomplete.
+The project has moved beyond the initial Phase 1 scaffold: the core single-video clipping workflow is in place, accurate trim support exists, and release/update groundwork has started, while library/persistence and broader preset/diagnostic work remain in progress.
 
 Product name: **cutrail**.
 
-Project planning documents:
-- [Vision and motivation](docs/vision-and-motivation.md)
-- [Technical background and implementation plan](docs/technical-background-and-plan.md)
-- [Distribution and publishing plan](docs/distribution-and-publishing.md)
-- [Build from source guide](BUILD.md)
+Project planning and reference docs live in the repository docs tree. Start with the roadmap, then follow the supporting architecture, distribution, and style guides as needed:
+
 - [Phased implementation plan](docs/phased-implementation-plan.md)
-- [Publishing access and manual steps](docs/publishing-access-and-manual-steps.md)
-- [Release and update research](docs/release-and-update-research.md)
-- [AUR packaging](docs/aur-packaging.md)
+- [Technical background and plan](docs/technical-background-and-plan.md)
+- [Distribution and publishing](docs/distribution-and-publishing.md)
+- [Build from source](BUILD.md)
 - [Styling guide](docs/styling-guide.md)
-- Detailed phase plans live under `docs/phases/`.
+- [Phase details](docs/phases/)
 
 ## Usage And How It Works
 
@@ -30,62 +27,25 @@ At this stage, usage is centered on a focused single-video clipping workflow whi
 
 How it currently functions:
 
-1. Tooling is version-pinned through `.prototools` (`node ~22`, `yarn ~4`) for reproducible environments.
-2. Toolchain execution policy is proto-first: use `proto` for Node/Yarn resolution and do not use `corepack`.
-3. Package management uses Yarn Berry with the `node-modules` linker for Electron compatibility.
-4. Electron main and preload source code lives under `src/main` and `src/preload`, with runtime entry resolved from compiled output at `dist/electron/main/main.js`.
-5. Renderer source is TypeScript-first (`.ts` / `.tsx`) with alias imports (`@renderer/*`, `@assets/*`).
-6. Electron `.mjs` modules are JavaScript with `// @ts-check` and explicit JSDoc types for exported APIs.
-7. Runtime stack uses:
-	- Electron main process entrypoint under `src/main`
-	- Preload bridge under `src/preload`
-	- React renderer under `src/renderer` with a splash entry window (`app`), an editor workflow window (`editor`), and separate utility windows (for example About/Options/Diagnostics/Licenses)
-	- Renderer imports use path aliases like `@renderer/*` and `@assets/*` instead of deep relative paths
-	- Renderer-managed window chrome with shared minimize, maximize, and close controls on non-splash windows
-	- editor clipping state/logic under `src/renderer/core/clipping` using Context API
-	- editor-only timeline UI modules under `src/renderer/windows/editor/components/TimelineEditor`
-	- grouped core feature files and barrel exports for renderer core modules
-8. Styling architecture:
-	- `vanilla-extract` for component-scoped styles
-	- `@sabinmarcu/theme` as the primary token source for colors and spacing
-	- shared renderer window patterns should be implemented as shared wrapper components with co-located styles
-	- reusable primitives (for example generic buttons) should live in shared renderer component modules
-9. Video processing runtime behavior:
-	- The app resolves ffmpeg from a bundled binary via `@ffmpeg-installer/ffmpeg` when available.
-	- If an explicit path is needed, set `CUTRAIL_FFMPEG_PATH`.
-	- If neither bundled nor override paths are available, the app falls back to system `ffmpeg` on PATH.
-	- ffmpeg attribution and licensing notes are documented in `THIRD_PARTY_NOTICES.md`.
-10. Code quality is enforced through ESLint flat config, TypeScript checks, and pre-commit checks:
-	- `yarn lint`
-	- `yarn lint:fix`
-	- `yarn lint:staged`
-	- `yarn typecheck:renderer`
-	- `yarn typecheck:electron-jsdoc`
-	- Workflow policy: run `yarn lint:fix` before strict checks, then run `yarn lint` and `yarn typecheck`; manually fix only issues that remain after autofix.
-11. Tests run with Vitest:
-	- `yarn test`
-12. Commit messages are enforced with Commitlint using the Conventional Commits spec.
-13. Husky runs:
-	- `pre-commit` -> `yarn lint:staged`
-	- `commit-msg` -> `yarn commitlint --edit`
-14. AI-assisted development is configured through:
-	- `README.md` (human-oriented project documentation)
-	- `.github/copilot-instructions.md`
-	- `.github/instructions/styling-guide.instructions.md`
-	- `.github/instructions/renderer-architecture.instructions.md`
-	- `.github/instructions/core-modules.instructions.md`
-	- `AGENTS.md`
-	- `SKILLS.md`
-	- `docs/styling-guide.md` (hard rules for renderer/component styling and structure)
-15. Desktop packaging declares OS file associations for supported video extensions (`.mp4`, `.mkv`, `.webm`, `.mov`, `.avi`) so files can be opened with Cutrail from the system file manager.
-16. Main-process startup integrates OS file-open entrypoints (`open-file`, startup args, and second-instance args) and opens supported files directly in editor windows.
+1. Tooling is pinned through `.prototools` so local Node and Yarn versions stay consistent across environments.
+2. Toolchain execution is proto-first: use `proto` for Node/Yarn resolution and avoid `corepack`.
+3. Package management uses Yarn 4 with the `node-modules` linker for Electron compatibility.
+4. Electron main and preload source code lives under `src/main` and `src/preload`, with runtime entry resolved from compiled output in `dist/electron/main`.
+5. Renderer source is TypeScript-first (`.ts` / `.tsx`) and uses alias imports such as `@renderer/*` and `@assets/*`.
+6. Electron `.mjs` modules stay JavaScript-based with `// @ts-check` and explicit JSDoc types for exported APIs.
+7. Runtime stack includes the Electron main process, the preload bridge, the React renderer, shared window chrome for non-splash windows, and editor-focused clipping logic under `src/renderer/core/clipping`.
+8. Styling uses `vanilla-extract` with `@sabinmarcu/theme` tokens, plus shared renderer components for reusable window patterns and controls.
+9. Video processing resolves ffmpeg from the bundled binary first, then from an explicit override, and finally from system `ffmpeg` on PATH.
+10. Code quality is enforced through ESLint, TypeScript checks, Vitest, and Husky/Commitlint hooks.
+11. Desktop packaging declares OS file associations for supported video extensions so files can be opened with Cutrail from the system file manager.
+12. Main-process startup integrates OS file-open entrypoints and opens supported files directly in editor windows.
 
 Current workflow boundaries:
 - Source video selection is triggered from File menu actions and splash-entry actions.
 - Each selected source video opens its own independent editor window.
 - Editor windows focus on timeline editing and export only.
 - Output directory management is configured in the Options utility window.
-- Shared button primitive lives under `src/renderer/components/button`.
+- Shared button primitive lives under `src/renderer/components/Button`.
 - AUR packaging skeleton for `cutrail-bin` now lives under `packaging/aur/cutrail-bin`.
 - AUR packaging skeletons for `cutrail`, `cutrail-bin`, and `cutrail-git` now live under `packaging/aur/`.
 
@@ -149,8 +109,9 @@ Node runtime note:
 ### Verify Source Build
 
 Current bootstrap verification commands:
-- `yarn lint`
 - `yarn lint:fix`
+- `yarn typecheck`
+- `yarn lint` (strict verification, when needed)
 - `yarn test`
 - `yarn verify:ffmpeg`
 - `yarn dev`
@@ -163,8 +124,7 @@ The application supports the following runtime environment variables:
 1. `CUTRAIL_FFMPEG_PATH`
 - Purpose: Overrides ffmpeg binary resolution with an explicit executable path.
 - Default: unset (bundled ffmpeg first, then system PATH fallback).
-- Example:
-	- `CUTRAIL_FFMPEG_PATH=/usr/bin/ffmpeg yarn dev`
+- Example: set it only when you need to point Cutrail at a specific ffmpeg binary.
 
 2. `CUTRAIL_OPEN_DEVTOOLS`
 - Purpose: Opens Electron DevTools automatically when windows are created.
@@ -176,9 +136,8 @@ The application supports the following runtime environment variables:
 3. `VITE_DEV_SERVER_URL`
 - Purpose: In development mode, points Electron windows to an explicit renderer dev-server URL.
 - Expected value: a valid absolute URL.
-- Default: unset (production load path is used, or scripts provide this in dev).
-- Example:
-	- `VITE_DEV_SERVER_URL=http://localhost:5173 yarn dev:electron`
+- Default: unset; the development scripts usually provide this automatically.
+- Example: override it only when you need to point Electron at a custom renderer server.
 
 ### Commit Message Convention
 
@@ -236,16 +195,18 @@ Current available commands:
 - `yarn package` to create an unpacked Electron app bundle via `electron-builder`.
 - `yarn dist` to create packaged distribution artifacts via `electron-builder`.
 - `yarn dist:appimage` to build a Linux AppImage locally.
-- `yarn lint` for strict static validation.
-- `yarn lint:fix` for autofixable issues.
+- `yarn lint:fix` as the default lint command (autofixes many issues).
+- `yarn typecheck` as the preferred default validation command for code changes.
+- `yarn lint` for strict lint verification when needed.
+- `yarn build` when you specifically need to validate bundling output.
 - `yarn test` to run unit tests with Vitest.
 
 ## Releases
 
 - Stable versioning and changelog generation are managed by `.github/workflows/release-please.yml`.
 - Release Please opens a release PR that updates `package.json` and `CHANGELOG.md`, then creates the stable tag and GitHub Release after merge.
-- `.github/workflows/release.yml` remains tag-driven and builds cross-platform artifacts for tags like `v0.1.0`.
-- The release workflow uploads artifacts to the existing GitHub Release for that tag (it does not recreate the release body).
+- `.github/workflows/release.yml` remains tag-driven and builds cross-platform artifacts for tags like `vX.Y.Z`.
+- The release workflow uploads artifacts to the matching GitHub Release for that tag.
 - Release assets include Linux AppImage/deb/rpm, macOS dmg, and Windows nsis `.exe` installer.
 - Release jobs also publish updater metadata artifacts (`latest.yml`, `latest-mac.yml`, `latest-linux.yml`) used by in-app update checks.
 - In-app self-update checks are enabled for packaged GitHub-release installs; on Linux, self-update applies only to AppImage installs.
@@ -258,7 +219,7 @@ AUR package definitions are kept in this repository and published by [`.github/w
 The workflow runs in two channels:
 
 - stable channel (`cutrail` and `cutrail-bin`) after successful completion of `.github/workflows/release.yml`
-- rolling channel (`cutrail-git`) on `master` pushes
+- rolling channel (`cutrail-git`) on `main` pushes
 
 Jobs run only when `AUR_SSH_PRIVATE_KEY` is configured in repository secrets.
 
@@ -266,7 +227,7 @@ The flow publishes these Arch packages:
 
 - `cutrail` for source-built release installs
 - `cutrail-bin` for prebuilt release installs
-- `cutrail-git` for the rolling `master` branch
+- `cutrail-git` for the rolling `main` branch
 
 `cutrail-bin` requires `fuse2` on Arch because it installs the upstream AppImage directly. Local test steps live in [docs/aur-packaging.md](docs/aur-packaging.md).
 

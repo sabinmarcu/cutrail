@@ -106,14 +106,15 @@ Maintenance rule:
 - When authoring user-facing documentation (for example `README.md`, `BUILD.md`, `CONTRIBUTING.md`), use direct script commands (`yarn ...`) instead of `proto run yarn -- ...`.
 - Type and validate runtime environment/config values with `zod` in main-process config modules.
 - Start local desktop runtime with `proto run yarn -- dev`.
-- Build renderer assets with `proto run yarn -- build`.
+- Run type checks with `proto run yarn -- typecheck`.
+- Build renderer assets with `proto run yarn -- build` only when bundling output needs validation.
 - Build unpacked app artifacts with `proto run yarn -- package`.
 - Build distributable artifacts with `proto run yarn -- dist`.
 - Stable GitHub Releases should be created by Release Please through `.github/workflows/release-please.yml`; `.github/workflows/release.yml` should package assets for the emitted `vX.Y.Z` tag and attach them to the existing release.
 - Run unit tests with `proto run yarn -- test`.
-- Run lint checks with `proto run yarn -- lint`.
-- Run autofix with `proto run yarn -- lint:fix`.
-- Agent lint workflow rule: run `proto run yarn -- lint:fix` first, then run `proto run yarn -- lint` and `proto run yarn -- typecheck`; only manually fix issues that remain after autofix.
+- Prefer `proto run yarn -- lint:fix` as the default lint command.
+- Run `proto run yarn -- lint` only for explicit strict lint verification.
+- Agent lint workflow rule: run `proto run yarn -- lint:fix` first, then run `proto run yarn -- typecheck`; run `proto run yarn -- lint` only when strict lint verification is needed, and manually fix only issues that remain after autofix.
 - Agent lint enforcement rule: do not relax lint rules or modify `eslint.config.mjs` to make violations pass by default.
 - Agent lint suppression rule: prefer code changes over lint suppressions; if a suppression is unavoidable, keep it line-scoped and document why.
 - Agent escalation rule: ask the user before proposing any lint configuration exception.

@@ -46,7 +46,8 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - Toolchain policy: always use `proto` for Node/Yarn tool resolution; never use `corepack`.
 - User-facing documentation command style policy: when writing docs intended for users (for example `README.md`, `BUILD.md`, `CONTRIBUTING.md`), use direct script commands like `yarn lint` instead of `proto run yarn -- lint`.
 - Lint policy: `eslint.config.mjs` must extend `@sabinmarcu/eslint-config` as the baseline shared flat config.
-- Lint workflow policy: run `proto run yarn -- lint:fix` before running strict checks (`proto run yarn -- lint`, `proto run yarn -- typecheck`), and only apply manual code fixes for issues that remain after autofix.
+- Lint workflow policy: prefer `proto run yarn -- lint:fix` as the default lint command; run `proto run yarn -- lint` only when strict lint verification is explicitly needed, and only apply manual code fixes for issues that remain after autofix.
+- Validation policy: when validating agent edits, prefer `proto run yarn -- typecheck` over `proto run yarn -- build` unless artifact production or bundling behavior is what you are verifying.
 - Lint enforcement policy: do not modify lint configuration (for example `eslint.config.mjs`) to silence violations during implementation work.
 - Lint exception policy: prefer fixing source code over suppressions; use inline `eslint-disable` comments only when there is no practical code-only alternative and keep each suppression line-scoped with a short reason.
 - Lint exception escalation policy: if resolving a lint rule would require configuration changes, stop and ask the user before proposing any lint-config exception.
@@ -63,7 +64,8 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - Run a script: `proto run yarn -- <script-name>`
 - Start local desktop dev runtime: `proto run yarn -- dev`
 - Run tests: `proto run yarn -- test`
-- Build renderer bundle: `proto run yarn -- build`
+- Type-check project sources: `proto run yarn -- typecheck`
+- Build renderer bundle (only when bundling output must be validated): `proto run yarn -- build`
 - Build unpacked desktop app bundle: `proto run yarn -- package`
 - Build packaged release artifacts: `proto run yarn -- dist`
 - Validate commit messages locally: `proto run yarn -- commitlint --edit <path-to-commit-message-file>`

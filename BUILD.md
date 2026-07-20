@@ -45,18 +45,18 @@ yarn dev
 
 ## Quality Checks
 
-Run autofix first, then strict checks:
+Run autofix first, then type checks. Use strict lint when needed:
 
 ```bash
 yarn lint:fix
-yarn lint
 yarn typecheck
+yarn lint
 yarn test
 ```
 
 ## Build Renderer And Desktop Bundles
 
-Build renderer assets:
+Build renderer assets only when you need to validate bundling output:
 
 ```bash
 yarn build
