@@ -236,5 +236,5 @@ The flow publishes these Arch packages:
 - License: `LICENSE`
 	- MIT License.
 - Third-party notices: `THIRD_PARTY_NOTICES.md`
-	- Includes FFmpeg attribution and bundled-binary licensing notes.
+	- Includes FFmpeg/FFprobe attribution and bundled-binary licensing notes.
 - Contribution guide: `CONTRIBUTING.md`

@@ -169,7 +169,7 @@ The simpler `update.electronjs.org` plus `update-electron-app` path is useful to
 
 - Tooling mismatch with Yarn/Electron packaging expectations.
   - Mitigation: keep `nodeLinker: node-modules` and validate packaging in CI immediately after Electron scaffold.
-- ffmpeg runtime availability differences across distributions.
+- ffmpeg/ffprobe runtime availability differences across distributions.
   - Mitigation: document dependency expectations and package variants clearly.
 - AUR metadata drift (`PKGBUILD` vs `.SRCINFO`).
   - Mitigation: enforce regeneration in release checklist.

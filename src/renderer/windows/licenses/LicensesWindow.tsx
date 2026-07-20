@@ -41,10 +41,11 @@ export const LicensesWindow = () => {
       subtitleText="Embedded license information for distributed installations."
     >
       <section className={panel}>
-        <h2 className={heading}>FFmpeg Licensing</h2>
+        <h2 className={heading}>FFmpeg And FFprobe Licensing</h2>
         <p className={meta}>
-          Cutrail uses FFmpeg. FFmpeg is licensed under LGPL-2.1-or-later,
-          and some distributed builds may include GPL components depending on enabled features.
+          Cutrail uses FFmpeg and FFprobe. Both are part of the FFmpeg project,
+          licensed under LGPL-2.1-or-later, and some distributed builds may include
+          GPL components depending on enabled features.
         </p>
       </section>
 

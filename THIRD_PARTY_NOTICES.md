@@ -28,17 +28,43 @@ Observed package metadata (installed dependency):
 - `@ffmpeg-installer/linux-x64` license: `GPLv3`
 - Homepage/source: https://www.johnvansickle.com/ffmpeg/
 
+## FFprobe
+
+- Project: FFprobe (part of FFmpeg)
+- Website: https://ffmpeg.org/
+- Legal page: https://ffmpeg.org/legal.html
+- Upstream license model: LGPL-2.1-or-later, with optional components that can make a build GPL-licensed.
+
+### How cutrail uses FFprobe
+
+cutrail executes the ffprobe CLI as an external process for source metadata reads and keyframe analysis.
+
+Runtime resolution order:
+1. Bundled ffprobe binary from `@ffprobe-installer/ffprobe`
+2. Bundled ffmpeg sibling binary directory (`ffprobe` beside resolved `ffmpeg`)
+3. System `ffprobe` from `PATH` (fallback)
+
+### Bundled binary source used by this repository
+
+The current bundled package chain is:
+- `@ffprobe-installer/ffprobe` (declares `LGPL-2.1`)
+- Platform package for Linux x64: `@ffprobe-installer/linux-x64`
+
+Observed package metadata (installed dependency):
+- `@ffprobe-installer/linux-x64` license: `GPL-3.0`
+- Homepage/source: https://www.johnvansickle.com/ffmpeg/
+
 ### Compliance notes
 
 - Non-commercial use does not remove license obligations.
-- If a distributed FFmpeg binary is GPL-licensed, distribution must comply with GPL terms for that binary distribution.
-- If a distributed FFmpeg binary is LGPL-licensed, follow FFmpeg LGPL guidance (including attribution and source-offer requirements where applicable).
+- If a distributed FFmpeg/FFprobe binary is GPL-licensed, distribution must comply with GPL terms for that binary distribution.
+- If a distributed FFmpeg/FFprobe binary is LGPL-licensed, follow FFmpeg LGPL guidance (including attribution and source-offer requirements where applicable).
 - This repository includes in-app attribution and this notice file to improve transparency, but maintainers are still responsible for final distribution compliance.
 
 ### Suggested release-time checks
 
-- Confirm license metadata for each platform-specific bundled ffmpeg package.
+- Confirm license metadata for each platform-specific bundled ffmpeg and ffprobe package.
 - Keep attribution text in-app and in-repo.
-- Keep source and build provenance links for the exact bundled ffmpeg artifacts.
+- Keep source and build provenance links for the exact bundled ffmpeg/ffprobe artifacts.
 
 This document is for engineering documentation and is not legal advice.
