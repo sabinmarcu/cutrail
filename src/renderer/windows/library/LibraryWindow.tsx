@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useWatcherSubscriptions } from '@renderer/core/watchers';
@@ -21,6 +22,11 @@ import {
 } from './LibraryWindow.seen';
 import { LibraryWindowDecoration } from './LibraryWindow.Decoration';
 import { LibraryWindowItem } from './LibraryWindow.Item';
+import {
+  getInitialVisibleVideoCount,
+  getVisibleBatchSize,
+  sliceGroupedVideos,
+} from './LibraryWindow.windowing';
 import type {
   LibraryFilterMode,
   LibraryGroupBy,
@@ -34,6 +40,7 @@ import {
   empty,
   group,
   groupTitle,
+  loadMoreSentinel,
   shell,
   videosGrid,
   videosList,
@@ -43,6 +50,7 @@ export const LibraryWindow = () => {
   const [preferences] = useState(() => readPreferences());
   const [newVideoPaths, setNewVideoPaths] = useState(new Set<string>());
   const [videos, setVideos] = useState<LibraryVideoEntry[]>([]);
+  const [visibleVideoCount, setVisibleVideoCount] = useState(24);
   const [searchQuery, setSearchQuery] = useState(preferences.searchQuery);
   const [viewMode, setViewMode] = useState<LibraryViewMode>(preferences.viewMode);
   const [filterMode, setFilterMode] = useState<LibraryFilterMode>(
@@ -53,6 +61,12 @@ export const LibraryWindow = () => {
   const [sortDirection, setSortDirection] = useState<LibrarySortDirection>(
     preferences.sortDirection,
   );
+  const bodyReference = useRef<HTMLElement | null>(null);
+  const sentinelReference = useRef<HTMLDivElement | null>(null);
+  const [viewportSize, setViewportSize] = useState({
+    height: 0,
+    width: 0,
+  });
 
   const refreshLibrary = useCallback(async () => {
     if (typeof globalThis.cutrail?.getVideoLibrary !== 'function') {
@@ -136,6 +150,111 @@ export const LibraryWindow = () => {
     return groupVideos(sorted, groupBy);
   }, [filterMode, groupBy, searchQuery, sortBy, sortDirection, videos]);
 
+  const totalVideoCount = useMemo(
+    () => groupedVideos.reduce((count, groupEntry) => count + groupEntry.videos.length, 0),
+    [groupedVideos],
+  );
+
+  const initialVisibleVideoCount = useMemo(
+    () => getInitialVisibleVideoCount(totalVideoCount, viewMode, viewportSize),
+    [totalVideoCount, viewMode, viewportSize],
+  );
+
+  const visibleVideoBatchSize = useMemo(
+    () => getVisibleBatchSize(viewMode, viewportSize),
+    [viewMode, viewportSize],
+  );
+
+  const visibleGroups = useMemo(
+    () => sliceGroupedVideos(groupedVideos, visibleVideoCount),
+    [groupedVideos, visibleVideoCount],
+  );
+
+  useEffect(() => {
+    setVisibleVideoCount(initialVisibleVideoCount);
+  }, [
+    filterMode,
+    groupBy,
+    initialVisibleVideoCount,
+    searchQuery,
+    sortBy,
+    sortDirection,
+    totalVideoCount,
+    viewMode,
+  ]);
+
+  useEffect(() => {
+    const element = bodyReference.current;
+
+    if (!element) {
+      return undefined;
+    }
+
+    const updateViewportSize = () => {
+      setViewportSize({
+        height: element.clientHeight,
+        width: element.clientWidth,
+      });
+    };
+
+    updateViewportSize();
+
+    if (typeof globalThis.ResizeObserver !== 'function') {
+      const onResize = () => {
+        updateViewportSize();
+      };
+
+      globalThis.addEventListener('resize', onResize);
+
+      return () => {
+        globalThis.removeEventListener('resize', onResize);
+      };
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateViewportSize();
+    });
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!visibleGroups.hasMore) {
+      return undefined;
+    }
+
+    const sentinel = sentinelReference.current;
+    const root = bodyReference.current;
+
+    if (!sentinel || !root) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) {
+        return;
+      }
+
+      setVisibleVideoCount((currentCount) => Math.min(
+        totalVideoCount,
+        currentCount + visibleVideoBatchSize,
+      ));
+    }, {
+      root,
+      threshold: 0.1,
+    });
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [totalVideoCount, visibleGroups.hasMore, visibleVideoBatchSize]);
+
   return (
     <div className={shell}>
       <LibraryWindowDecoration
@@ -152,9 +271,9 @@ export const LibraryWindow = () => {
         sortDirection={sortDirection}
         viewMode={viewMode}
       />
-      <main className={body}>
+      <main ref={bodyReference} className={body}>
         {groupedVideos.length === 0 ? <p className={empty}>No videos matched your query.</p> : null}
-        {groupedVideos.map((groupEntry) => (
+        {visibleGroups.groups.map((groupEntry) => (
           <section key={groupEntry.key} className={group}>
             <h2 className={groupTitle}>{groupEntry.label}</h2>
             <div className={viewMode === 'grid' ? videosGrid : videosList}>
@@ -169,6 +288,7 @@ export const LibraryWindow = () => {
             </div>
           </section>
         ))}
+        {visibleGroups.hasMore ? <div ref={sentinelReference} className={loadMoreSentinel} aria-hidden="true" /> : null}
       </main>
     </div>
   );

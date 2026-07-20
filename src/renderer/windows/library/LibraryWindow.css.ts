@@ -108,6 +108,11 @@ export const body = style({
   padding: theme.grid.m,
 });
 
+export const loadMoreSentinel = style({
+  blockSize: '1px',
+  inlineSize: '100%',
+});
+
 export const pathBar = style({
   background: 'var(--cutrail-surface-panel)',
   borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
