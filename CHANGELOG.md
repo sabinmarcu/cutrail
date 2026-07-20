@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.2](https://github.com/sabinmarcu/cutrail/compare/v0.12.1...v0.12.2) (2026-07-20)
+
+
+### Bug Fixes
+
+* **build:** avoid macOS release icon collision ([3d67bb3](https://github.com/sabinmarcu/cutrail/commit/3d67bb3db1db39b75ef66ac3a17011c6201558ba))
+* **export:** preserve original editor range in clip name and metadata ([0ca2810](https://github.com/sabinmarcu/cutrail/commit/0ca28108013e1409685d27282eebf5a20886d6ce))
+
 ## [0.12.1](https://github.com/sabinmarcu/cutrail/compare/v0.12.0...v0.12.1) (2026-07-20)
 
 
