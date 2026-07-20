@@ -86,10 +86,8 @@ export const footer = style({
 });
 
 export const logo = style({
-  borderRadius: '14px',
   blockSize: '8.5rem',
   inlineSize: '8.5rem',
-  filter: 'drop-shadow(0 0 12px var(--cutrail-drop-shadow))',
 });
 
 export const title = style({

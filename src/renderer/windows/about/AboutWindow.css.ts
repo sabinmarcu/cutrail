@@ -37,10 +37,8 @@ export const hero = style({
 });
 
 export const icon = style({
-  borderRadius: '14px',
   blockSize: '8rem',
   inlineSize: '8rem',
-  filter: 'drop-shadow(0 0 12px var(--cutrail-drop-shadow))',
 });
 
 export const title = style({

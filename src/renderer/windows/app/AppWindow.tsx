@@ -3,9 +3,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
+import { CutrailLogo } from '@renderer/components/CutrailLogo';
 import { AppWindowTypewriterHint } from './AppWindow.TypewriterHint';
 import {
   actionsRow,
@@ -179,7 +179,7 @@ export const AppWindow = () => {
     >
       <section className={shell}>
           <section className={`${content} ${noDrag} ${isDragActive ? dragActive : ''}`}>
-          <img className={logo} src={logoPath} alt="Cutrail" />
+          <CutrailLogo className={logo} role="img" aria-label="Cutrail" />
           <h1 className={title}>Cutrail</h1>
           <AppWindowTypewriterHint />
           <Button

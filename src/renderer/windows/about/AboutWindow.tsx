@@ -2,8 +2,8 @@ import {
   useEffect,
   useState,
 } from 'react';
-import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
+import { CutrailLogo } from '@renderer/components/CutrailLogo';
 import { WindowDecoration } from '@renderer/components/WindowDecoration';
 import {
   infoGrid,
@@ -72,7 +72,7 @@ export const AboutWindow = () => {
         <WindowDecoration subtitleText="About the application" titleText="About Cutrail" />
         <section className={panel}>
           <section className={hero}>
-            <img className={icon} src={logoPath} alt="Cutrail" />
+            <CutrailLogo className={icon} role="img" aria-label="Cutrail" />
             <h1 className={title}>Cutrail</h1>
             <p className={subtitle}>
               An open-source desktop utility for clipping segments from longer videos.
