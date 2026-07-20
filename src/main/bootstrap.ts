@@ -132,6 +132,7 @@ const syncAppMenu = async (): Promise<void> => {
     openLibraryWindow: windows.openLibraryWindow,
     openLicensesWindow: windows.openLicensesWindow,
     openOptionsWindow: windows.openOptionsWindow,
+    openStartPage: windows.openStartPage,
     selectSourceVideo: () => selectValidSourceVideo(null),
     updateCheckLabel: updater.isEnabled
       ? 'Check for Updates...'

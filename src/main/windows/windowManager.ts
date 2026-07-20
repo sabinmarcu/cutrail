@@ -19,6 +19,7 @@ type WindowManagerApi = {
   createMainWindow: () => void;
   getUpdateDialogState: (senderWindow: BrowserWindow | null) => unknown;
   getWindowCount: () => number;
+  openStartPage: () => boolean;
   openAboutWindow: () => Promise<boolean>;
   openDiagnosticsWindow: () => boolean;
   openEditorWindow: (sourcePath?: string) => boolean;
@@ -382,10 +383,24 @@ const createWindowManager = ({
     }
   };
 
+  /** @returns {boolean} */
+  const openStartPage = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.focus();
+
+      return true;
+    }
+
+    createMainWindow();
+
+    return true;
+  };
+
   return {
     createMainWindow,
     getUpdateDialogState: updateDialogController.getUpdateDialogState,
     getWindowCount,
+    openStartPage,
     openAboutWindow,
     openDiagnosticsWindow,
     openEditorWindow,

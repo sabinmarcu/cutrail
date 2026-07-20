@@ -21,6 +21,7 @@ type AppMenuDependencies = {
   openLibraryWindow: () => boolean;
   openLicensesWindow: () => boolean;
   openOptionsWindow: () => boolean;
+  openStartPage: () => boolean;
   selectSourceVideo: () => Promise<string | null>;
 };
 
@@ -65,6 +66,12 @@ const buildMenuState = (deps: AppMenuDependencies): MenuState => {
         if (sourcePath) {
           deps.openEditorWindow(sourcePath);
         }
+      },
+    },
+    'file.open-start-page': {
+      enabled: true,
+      run: async () => {
+        deps.openStartPage();
       },
     },
     'file.open-library': {
@@ -251,6 +258,7 @@ const buildMenuState = (deps: AppMenuDependencies): MenuState => {
         id: 'file',
         label: 'File',
         items: [
+          actionItem('file.open-start-page', 'Start Page', 'file.open-start-page'),
           ...(isMac
             ? []
             : [
