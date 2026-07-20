@@ -26,8 +26,44 @@ export type ClipRange = {
 export type ExistingClip = SharedExistingExportClip;
 export type SourceAudioTrack = SharedSourceAudioTrack;
 
+export type DraftClipVariant = {
+  id: string;
+  isEditable: boolean;
+  sourceFilePath: string | null;
+  rangeId: string;
+  trimMode: TrimMode;
+  selectedAudioTrackIndices: number[];
+  mutedAudioTrackIndices: number[];
+};
+
+export type ClipVariantStatus =
+  | 'draft'
+  | 'planned'
+  | 'exporting'
+  | 'exported'
+  | 'failed'
+  | 'legacy'
+  | 'foreign'
+  | 'invalid';
+
+export type ClipVariantEntry = {
+  clip: ExistingClip | null;
+  filePath: string | null;
+  isEditable: boolean;
+  key: string;
+  modifiedAtMs: number | null;
+  mutedAudioTrackIndices: number[];
+  progressText: string;
+  selectedAudioTrackIndices: number[];
+  status: ClipVariantStatus;
+  trimMode: TrimMode;
+};
+
 export type ClipEntry = {
+  activeVariant: ClipVariantEntry;
   range: ClipRange;
+  trustedExistingCount: number;
+  variantEntries: ClipVariantEntry[];
   existingClips: ExistingClip[];
   currentModeClip: ExistingClip | null;
   isLocked: boolean;
@@ -85,6 +121,7 @@ export type ClippingStateModel = {
   clipStatusMap: Record<string, string>;
   clipEntries: ClipEntry[];
   currentTime: number;
+  draftClipVariants: DraftClipVariant[];
   duration: number;
   errorMessage: string;
   existingClips: ExistingClip[];
@@ -100,10 +137,13 @@ export type ClippingStateModel = {
   readyToStart: boolean;
   runResult: ExportRunResult;
   selectedAudioTrackIndices: number[];
+  selectedVariantIsEditable: boolean;
   selectedRangeId: string | null;
+  selectedVariantId: string | null;
   setAudioTracks: StateSetter<SourceAudioTrack[]>;
   setCurrentTime: StateSetter<number>;
   setDuration: StateSetter<number>;
+  setDraftClipVariants: StateSetter<DraftClipVariant[]>;
   setErrorMessage: StateSetter<string>;
   setExistingClips: StateSetter<ExistingClip[]>;
   setHideDefaultAudioTrackWhenMultiple: StateSetter<boolean>;
@@ -116,6 +156,7 @@ export type ClippingStateModel = {
   setRanges: StateSetter<ClipRange[]>;
   setRunResult: StateSetter<ExportRunResult>;
   setSelectedRangeId: StateSetter<string | null>;
+  setSelectedVariantId: StateSetter<string | null>;
   setSourcePath: StateSetter<string>;
   setTrimMode: StateSetter<TrimMode>;
   sourcePath: string;
@@ -128,12 +169,23 @@ export type ClippingStateModel = {
 
 export type ClippingActions = {
   addRangeAtPlayhead: () => void;
+  createNewVariantFromSelection: () => void;
+  createVariantDuplicate: (rangeId: string, variant: ClipVariantEntry) => void;
   pausePlayback: () => void;
   removeClip: (range: ClipRange | null | undefined) => Promise<void>;
-  removeRange: (id: string) => void;
+  removeRange: (id: string, options?: { forceLocked?: boolean }) => void;
+  removeVariant: (range: ClipRange, variant: ClipVariantEntry) => Promise<void>;
   resetPlan: () => void;
   setPlaybackTime: (time: number) => void;
   setSelectedRangeId: (rangeId: string | null) => void;
+  setSelectedVariant: (rangeId: string, variantKey: string) => void;
   setTrimMode: (nextTrimMode: TrimMode) => void;
+  setVariantTrimMode: (rangeId: string, variantKey: string, nextTrimMode: TrimMode) => void;
   startExport: () => Promise<void>;
+  toggleAudioTrackMuted: (trackIndex: number) => void;
+  toggleVariantAudioTrackMuted: (
+    rangeId: string,
+    variantKey: string,
+    trackIndex: number,
+  ) => void;
 };

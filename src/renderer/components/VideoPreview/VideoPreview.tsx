@@ -1,4 +1,5 @@
 import {
+  type DragEvent,
   useEffect,
   useMemo,
   useRef,
@@ -11,17 +12,27 @@ import {
 import { Button } from '@renderer/components/Button';
 import { normalizeVideoPath } from '@renderer/core/clipping';
 import {
+  controlBar,
   controls,
   frame,
+  progressFill,
+  progressText,
+  progressTextFill,
+  progressTextFillInner,
+  progressTextInner,
+  scrubber,
+  playButton,
   root,
   seek,
-  time,
   video,
 } from './VideoPreview.css';
 
 type VideoPreviewProps = {
   cacheKey?: number;
+  frameClassName?: string;
+  frameDraggable?: boolean;
   filePath: string;
+  onFrameDragStart?: (event: DragEvent<HTMLDivElement>) => void;
   title: string;
 };
 
@@ -39,7 +50,10 @@ const formatSeconds = (value: number): string => `${Math.max(0, value).toFixed(1
 
 export const VideoPreview = ({
   cacheKey,
+  frameClassName,
+  frameDraggable = false,
   filePath,
+  onFrameDragStart,
   title,
 }: VideoPreviewProps) => {
   const playbackUrl = useMemo(
@@ -50,6 +64,10 @@ export const VideoPreview = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const safeDuration = Math.max(0, duration);
+  const safeCurrentTime = Math.max(0, Math.min(currentTime, safeDuration));
+  const progressPercent = safeDuration > 0 ? (safeCurrentTime / safeDuration) * 100 : 0;
+  const timeLabel = `${formatSeconds(safeCurrentTime)} / ${formatSeconds(safeDuration)}`;
 
   useEffect(() => {
     setCurrentTime(0);
@@ -66,7 +84,11 @@ export const VideoPreview = ({
 
   return (
     <section className={root}>
-      <div className={frame}>
+      <div
+        className={frameClassName ? `${frame} ${frameClassName}` : frame}
+        draggable={frameDraggable}
+        onDragStart={onFrameDragStart}
+      >
         <video
           ref={videoReference}
           className={video}
@@ -92,6 +114,7 @@ export const VideoPreview = ({
         <Button
           type="button"
           variant="secondary"
+          className={playButton}
           onClick={() => {
             const media = videoReference.current;
 
@@ -111,28 +134,46 @@ export const VideoPreview = ({
             ? <Pause size={14} strokeWidth={2.25} />
             : <Play size={14} strokeWidth={2.25} />}
         </Button>
-        <input
-          aria-label={`Seek clip preview ${title}`}
-          className={seek}
-          max={Math.max(0, duration)}
-          min={0}
-          step={0.1}
-          type="range"
-          value={Math.max(0, Math.min(currentTime, duration))}
-          onChange={(event) => {
-            const media = videoReference.current;
-            const nextTime = Number(event.currentTarget.value);
+        <div className={controlBar}>
+          <div className={scrubber}>
+            <div
+              aria-hidden="true"
+              className={progressFill}
+              style={{ inlineSize: `${progressPercent}%` }}
+            />
+            <div aria-hidden="true" className={progressText}>
+              <span className={progressTextInner}>{timeLabel}</span>
+            </div>
+            <div
+              aria-hidden="true"
+              className={progressTextFill}
+              style={{ clipPath: `inset(0 ${100 - progressPercent}% 0 0)` }}
+            >
+              <span className={progressTextFillInner}>{timeLabel}</span>
+            </div>
+            <input
+              aria-label={`Seek clip preview ${title}`}
+              className={seek}
+              max={safeDuration}
+              min={0}
+              step={0.1}
+              type="range"
+              value={safeCurrentTime}
+              onChange={(event) => {
+                const media = videoReference.current;
+                const nextTime = Number(event.currentTarget.value);
 
-            if (!media) {
-              return;
-            }
+                if (!media) {
+                  return;
+                }
 
-            media.currentTime = nextTime;
-            setCurrentTime(nextTime);
-          }}
-        />
+                media.currentTime = nextTime;
+                setCurrentTime(nextTime);
+              }}
+            />
+          </div>
+        </div>
       </div>
-      <p className={time}>{formatSeconds(currentTime)} / {formatSeconds(duration)}</p>
     </section>
   );
 };

@@ -30,11 +30,13 @@ const registerDeleteClipRangeOutputsHandler = () => {
   ipcMain.handle('cutrail:delete-clip-range-outputs', async (event, payload) => {
     assertTrustedSender(event);
     const nextPayload = typeof payload === 'object' && payload !== null ? payload : {};
+    const targetFilePath = typeof nextPayload.filePath === 'string' ? nextPayload.filePath : '';
     const sourcePath = typeof nextPayload.sourcePath === 'string' ? nextPayload.sourcePath : '';
     const outputDirectory = typeof nextPayload.outputDirectory === 'string' ? nextPayload.outputDirectory : '';
     const range: { start?: number | string; end?: number | string } = typeof nextPayload.range === 'object' && nextPayload.range !== null
       ? nextPayload.range as { start?: number | string; end?: number | string }
       : {};
+    const variantKey = typeof nextPayload.variantKey === 'string' ? nextPayload.variantKey : '';
     const start = typeof range.start === 'number' ? range.start : Number(range.start);
     const end = typeof range.end === 'number' ? range.end : Number(range.end);
 
@@ -70,6 +72,11 @@ const registerDeleteClipRangeOutputsHandler = () => {
         .filter((entry) => entry.isFile())
         .map(async (entry) => {
           const filePath = path.join(outputDirectory, entry.name);
+
+          if (targetFilePath.length > 0 && filePath !== targetFilePath) {
+            return null;
+          }
+
           const metadataReadback = await readClipMetadata(filePath).catch(() => null);
 
           if (metadataReadback?.metadata) {
@@ -82,6 +89,7 @@ const registerDeleteClipRangeOutputsHandler = () => {
 
             if (
               metadata.sourceFingerprint === sourceFingerprint
+                && (variantKey.length === 0 || metadata.variantKey === variantKey)
               && metadataRangeKey === targetRangeMsKey
             ) {
               return filePath;
@@ -93,6 +101,7 @@ const registerDeleteClipRangeOutputsHandler = () => {
           if (
             !parsed
             || parsed.sourceName !== sourceName
+              || variantKey.length > 0
             || buildRangeLookupKey(parsed.range) !== targetRangeKey
           ) {
             return null;

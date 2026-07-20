@@ -1,3 +1,5 @@
+import { stat } from 'node:fs/promises';
+import path from 'node:path';
 import { ipcMain } from 'electron';
 import type { ZodError } from 'zod';
 import type { CreateExportPlanPayload } from '../../../shared/contracts.ts';
@@ -18,12 +20,42 @@ const toUniqueNonNegativeIntegers = (value: unknown): number[] | undefined => {
 
 const formatValidationError = (error: ZodError): string => {
   const issues = error.issues.map((issue) => {
-    const path = issue.path.length > 0 ? issue.path.join('.') : 'payload';
+    const issuePath = issue.path.length > 0 ? issue.path.join('.') : 'payload';
 
-    return `${path}: ${issue.message}`;
+    return `${issuePath}: ${issue.message}`;
   });
 
   return issues.join('; ');
+};
+
+const appendOutputSuffix = (outputPath: string, suffix: string): string => {
+  const parsedPath = path.parse(outputPath);
+
+  return path.join(parsedPath.dir, `${parsedPath.name}__${suffix}${parsedPath.ext}`);
+};
+
+const fileExists = async (filePath: string): Promise<boolean> => {
+  const fileStats = await stat(filePath).catch(() => null);
+
+  return fileStats?.isFile() === true;
+};
+
+const resolveOutputPathAgainstExistingFiles = async (outputPath: string): Promise<string> => {
+  if (!(await fileExists(outputPath))) {
+    return outputPath;
+  }
+
+  let suffixIndex = 2;
+
+  while (true) {
+    const candidatePath = appendOutputSuffix(outputPath, `variant-${suffixIndex}`);
+
+    if (!(await fileExists(candidatePath))) {
+      return candidatePath;
+    }
+
+    suffixIndex += 1;
+  }
 };
 
 /** @returns {void} */
@@ -89,8 +121,10 @@ const registerCreateExportPlanHandler = () => {
       ranges,
       extension,
       trimMode,
+      variantKey,
     });
-    const jobs = exportPlan.jobs.map((job) => {
+    const jobs = await Promise.all(exportPlan.jobs.map(async (job) => {
+      const resolvedOutputPath = await resolveOutputPathAgainstExistingFiles(job.outputPath);
       const metadata = exportClipMetadataSchema.parse((() => {
         const rangeMs = normalizeRangeMilliseconds(job.range);
         const rangeKey = createRangeKey(rangeMs);
@@ -103,7 +137,7 @@ const registerCreateExportPlanHandler = () => {
             sourceFingerprint,
             rangeKey,
             variantKey,
-            outputPath: job.outputPath,
+            outputPath: resolvedOutputPath,
           }),
           planId,
           sourceFingerprint,
@@ -118,19 +152,20 @@ const registerCreateExportPlanHandler = () => {
 
       return {
         ...job,
+        outputPath: resolvedOutputPath,
         selectedAudioTrackIndices,
         mutedAudioTrackIndices,
         metadata,
         args: buildFastTrimCommand({
           inputPath: job.inputPath,
-          outputPath: job.outputPath,
+          outputPath: resolvedOutputPath,
           range: job.range,
           trimMode,
           audioStreamIndices,
           metadata,
         }),
       };
-    });
+    }));
 
     return {
       jobs,

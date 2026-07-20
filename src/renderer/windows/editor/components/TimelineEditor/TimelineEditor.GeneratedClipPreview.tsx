@@ -96,9 +96,14 @@ export const TimelineEditorGeneratedClipPreview = ({
 
   return (
     <section className={preview}>
-      <div className={frame} draggable onDragStart={startDragFromPreview}>
-        <VideoPreview filePath={filePath} title={title} cacheKey={modifiedAtMs} />
-      </div>
+      <VideoPreview
+        filePath={filePath}
+        title={title}
+        cacheKey={modifiedAtMs}
+        frameClassName={frame}
+        frameDraggable
+        onFrameDragStart={startDragFromPreview}
+      />
 
       <div className={actionsRow}>
         <Button

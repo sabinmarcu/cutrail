@@ -10,7 +10,6 @@ import {
   useClippingState,
 } from '@renderer/core/clipping';
 import {
-  audioTrackMutedAtomFamily,
   audioTrackWaveformAtomFamily,
   useAudioTrackStore,
   useAudioTrackWaveformsMap,
@@ -24,6 +23,8 @@ import {
   audioTracksHeader,
   audioTracksHeading,
   audioTracksHint,
+  waveformClipRange,
+  waveformClipRangeSelected,
   audioTracksSection,
   muteButton,
   mutedWaveform,
@@ -70,15 +71,22 @@ const loadTrackWaveformWithRetry = async (
 export const TimelineEditorAudioTracks = () => {
   const state = useClippingState();
   const {
+    clipEntries,
     currentTime,
     duration,
     hasMultipleAudioTracks,
     isPlaying,
+    mutedAudioTrackIndices,
+    selectedVariantIsEditable,
+    selectedRangeId,
     sourcePath,
     videoRef,
     visibleAudioTracks,
   } = state;
-  const { setPlaybackTime } = useClippingActions(state);
+  const {
+    setPlaybackTime,
+    toggleAudioTrackMuted,
+  } = useClippingActions(state);
   const [waveformsByTrackIndex] = useAudioTrackWaveformsMap();
   const store = useAudioTrackStore();
   const setWaveformMap = useSetAudioTrackWaveformsMap();
@@ -174,7 +182,7 @@ export const TimelineEditorAudioTracks = () => {
 
       <div className={audioTrackList}>
         {visibleAudioTracks.map((track) => {
-          const isMuted = store.get(audioTrackMutedAtomFamily(track.trackIndex));
+          const isMuted = mutedAudioTrackIndices.includes(track.trackIndex);
           const waveformDataUrl = waveformsByTrackIndex[track.trackIndex];
 
           return (
@@ -186,8 +194,9 @@ export const TimelineEditorAudioTracks = () => {
                   variant={isMuted ? 'danger' : 'secondary'}
                   className={muteButton}
                   aria-pressed={isMuted}
+                  disabled={!selectedVariantIsEditable}
                   onClick={() => {
-                    store.set(audioTrackMutedAtomFamily(track.trackIndex), (previous) => !previous);
+                    toggleAudioTrackMuted(track.trackIndex);
                   }}
                 >
                   {isMuted ? 'Muted' : 'Active'}
@@ -230,6 +239,29 @@ export const TimelineEditorAudioTracks = () => {
                   : (waveformDataUrl === null
                     ? <div className={waveformFallback}>Waveform unavailable</div>
                     : <div className={waveformFallback}>Loading waveform...</div>)}
+
+                {clipEntries.map((clipEntry) => {
+                  const left = duration > 0 ? (clipEntry.range.start / duration) * 100 : 0;
+                  const width = duration > 0
+                    ? ((clipEntry.range.end - clipEntry.range.start) / duration) * 100
+                    : 0;
+
+                  return (
+                    <span
+                      key={`${track.trackIndex}:${clipEntry.range.id}`}
+                      aria-hidden="true"
+                      className={
+                        selectedRangeId === clipEntry.range.id
+                          ? `${waveformClipRange} ${waveformClipRangeSelected}`
+                          : waveformClipRange
+                      }
+                      style={{
+                        insetInlineStart: `${left}%`,
+                        inlineSize: `${Math.max(width, 0.5)}%`,
+                      }}
+                    />
+                  );
+                })}
 
                 <span className={waveformPlayhead} style={{ insetInlineStart: `${playheadPercent}%` }} />
               </div>

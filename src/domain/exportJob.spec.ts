@@ -23,12 +23,13 @@ describe('buildExportJobs', () => {
           end: 9,
         },
       ],
+      variantKey: 'trim=fast|selected=2,3|muted=1',
     });
 
     expect(result.errors).toEqual([]);
     expect(result.jobs.map((job: { id: string }) => job.id)).toEqual(['early', 'later']);
-    expect(result.jobs[0].outputPath).toBe('/clips/source__fast__00-00-05_00-00-09.mp4');
-    expect(result.jobs[1].outputPath).toBe('/clips/source__fast__00-00-20_00-00-22.mp4');
+    expect(result.jobs[0].outputPath).toBe('/clips/source__fast__00-00-05_00-00-09__v-4ab1a777.mp4');
+    expect(result.jobs[1].outputPath).toBe('/clips/source__fast__00-00-20_00-00-22__v-4ab1a777.mp4');
   });
 
   it('returns validation errors for invalid ranges', () => {
