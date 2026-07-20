@@ -1,5 +1,9 @@
 import type { WindowMenuModel } from './windowMenu.ts';
 import type { ThemePrimaryColorValue } from './themePrimaryColor.ts';
+import type {
+
+  ExportClipMetadata,
+} from './exportMetadata.ts';
 
 export type BridgeTrimMode = 'fast' | 'accurate';
 
@@ -91,6 +95,7 @@ export type ExistingExportClip = {
     duration: number;
   };
   extension: string;
+  metadata?: ExportClipMetadata | null;
 };
 
 export type ExistingExportClipsSnapshot = {
@@ -147,6 +152,7 @@ export type ExportPlanJob = {
     duration: number;
   };
   args: string[];
+  metadata: ExportClipMetadata;
   selectedAudioTrackIndices?: number[];
   mutedAudioTrackIndices?: number[];
 };
@@ -290,3 +296,8 @@ export type CutrailBridge = {
   onExportProgress: (listener: (payload: ExportProgressPayload) => void) => () => void;
   onUpdateDialogState: (listener: (payload: UpdateDialogState) => void) => () => void;
 };
+
+export {
+  type EnrichedExportClipsSnapshot,
+  type ExportClipMetadata,
+} from './exportMetadata.ts';
