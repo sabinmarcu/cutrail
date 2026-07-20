@@ -4,6 +4,14 @@ import { ipcMain } from 'electron';
 import type { WebContents } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
 import { readSourceVideos } from '../../videoLibrary.ts';
+import {
+  clearWatcherState,
+} from '../../watchers/watcherRegistry.ts';
+import {
+  emitSourceDirectorySnapshotUpdate,
+  emitSourceDirectoryWatcherDegraded,
+  emitSourceDirectoryWatcherStopped,
+} from '../../watchers/sourceDirectoryWatcher.ts';
 
 type GetVideoLibraryDeps = {
   getPersistedOutputDirectory: () => Promise<string | null>;
@@ -49,6 +57,33 @@ const clearDirectoryWatchers = (webContentsId: number): void => {
   }
 
   watcherStateByWebContentsId.delete(webContentsId);
+  clearWatcherState(webContentsId);
+};
+
+const emitSourceSnapshotForLibrary = async ({
+  sender,
+  sourceDirectory,
+  outputDirectory,
+}: {
+  sender: WebContents;
+  sourceDirectory: string;
+  outputDirectory: string | null;
+}): Promise<void> => {
+  const videos = await readSourceVideos(sourceDirectory, outputDirectory);
+
+  emitSourceDirectorySnapshotUpdate({
+    sender,
+    sourceDirectory,
+    videos: videos.map((video) => ({
+      filePath: video.filePath,
+      fileName: video.fileName,
+      extension: video.extension,
+      modifiedAtMs: video.modifiedAtMs,
+      clipCount: video.clipCount,
+      hasMetadataClips: video.clipCount > 0,
+      hasLegacyClips: false,
+    })),
+  });
 };
 
 const ensureDirectoryWatchers = (
@@ -73,6 +108,16 @@ const ensureDirectoryWatchers = (
         state.sourceTimer = setTimeout(() => {
           if (!sender.isDestroyed()) {
             sender.send('cutrail:source-directory-updated', sourceDirectory);
+            emitSourceSnapshotForLibrary({
+              sender,
+              sourceDirectory,
+              outputDirectory: state.outputDirectory,
+            }).catch(() => {
+              emitSourceDirectoryWatcherDegraded({
+                sender,
+                reason: 'source-directory-snapshot-refresh-failed',
+              });
+            });
           }
         }, 100);
       });
@@ -110,6 +155,10 @@ const registerGetVideoLibraryHandler = ({
     assertTrustedSender(event);
     if (!watcherStateByWebContentsId.has(event.sender.id)) {
       event.sender.once('destroyed', () => {
+        emitSourceDirectoryWatcherStopped({
+          sender: event.sender,
+          reason: 'webcontents-destroyed',
+        });
         clearDirectoryWatchers(event.sender.id);
       });
     }
@@ -130,12 +179,31 @@ const registerGetVideoLibraryHandler = ({
     try {
       const videos = await readSourceVideos(sourceDirectory, outputDirectory);
 
+      emitSourceDirectorySnapshotUpdate({
+        sender: event.sender,
+        sourceDirectory,
+        videos: videos.map((video) => ({
+          filePath: video.filePath,
+          fileName: video.fileName,
+          extension: video.extension,
+          modifiedAtMs: video.modifiedAtMs,
+          clipCount: video.clipCount,
+          hasMetadataClips: video.clipCount > 0,
+          hasLegacyClips: false,
+        })),
+      });
+
       return {
         sourceDirectory,
         outputDirectory: outputDirectory ?? '',
         videos,
       };
     } catch {
+      emitSourceDirectoryWatcherDegraded({
+        sender: event.sender,
+        reason: 'initial-source-directory-snapshot-failed',
+      });
+
       return {
         sourceDirectory,
         outputDirectory: outputDirectory ?? '',

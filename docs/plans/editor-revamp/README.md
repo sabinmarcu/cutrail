@@ -16,6 +16,18 @@ The phases are ordered so we reduce risk first, then implement backend metadata 
 - [phase-3-editor-ui-and-state-revamp.md](phase-3-editor-ui-and-state-revamp.md)
 - [phase-4-migration-validation-and-rollout.md](phase-4-migration-validation-and-rollout.md)
 
+## Implementation Snapshot (2026-07-20)
+
+Status across this plan is mixed:
+
+- Phases 0 and 1 are effectively complete.
+- Phase 2 is substantially complete, including canonical watcher channels, payload schemas, and snapshot-revision handling.
+- Phase 3 is complete for implemented scope, including timeline coverage chips, renderer watcher-core extraction, variant-aware lock semantics, and source-rename remap behavior in editor state/title updates.
+- Initial Phase 3 UI-shape requirements have intentional product-direction deviations accepted (flattened variant cards over expandable range rows, and no legacy filter-toggle set).
+- Phase 4 is partial; diagnostics, validation-matrix evidence, and rollout documentation hardening are still pending.
+
+Use each phase file's "Implementation Status" section for a detailed done/partial/pending checklist.
+
 ## Non-Goals
 
 - No output-directory sidecar files as primary storage.

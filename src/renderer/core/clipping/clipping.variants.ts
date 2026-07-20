@@ -142,6 +142,7 @@ export const deriveClipEntries = ({
         clip,
         filePath: clip.filePath,
         isEditable: false,
+        isLocked: true,
         key,
         modifiedAtMs: typeof clip.modifiedAtMs === 'number' ? clip.modifiedAtMs : null,
         mutedAudioTrackIndices: normalizeVariantTrackIndices(clip.mutedAudioTrackIndices),
@@ -249,6 +250,7 @@ export const deriveClipEntries = ({
         clip: existingVariantEntry?.clip ?? null,
         filePath: existingVariantEntry?.filePath ?? null,
         isEditable: draftVariant.isEditable,
+        isLocked: existingVariantEntry !== null,
         key: draftVariant.id,
         modifiedAtMs: existingVariantEntry?.modifiedAtMs ?? null,
         mutedAudioTrackIndices: normalizeVariantTrackIndices(
@@ -276,10 +278,24 @@ export const deriveClipEntries = ({
         rangeDraftVariants.some((variant) => variant.id === entry.key)
       ))
       ?? sortedVariantEntries[0];
-    const isRangeLocked = trustedExistingClips.length > 0;
+    const isRangeLocked = sortedVariantEntries.some((entry) => (
+      entry.status === 'exported' || entry.status === 'legacy' || entry.isLocked
+    ));
+    const exportedVariantCount = sortedVariantEntries.filter((entry) => (
+      entry.status === 'exported' || entry.status === 'legacy'
+    )).length;
+    const exportingVariantCount = sortedVariantEntries.filter((entry) => (
+      entry.status === 'exporting'
+    )).length;
+    const draftVariantCount = sortedVariantEntries.filter((entry) => (
+      entry.status === 'draft' || entry.status === 'planned' || entry.status === 'failed'
+    )).length;
 
     return {
       activeVariant,
+      exportedVariantCount,
+      exportingVariantCount,
+      draftVariantCount,
       range,
       trustedExistingCount: trustedExistingClips.length,
       variantEntries: sortedVariantEntries,

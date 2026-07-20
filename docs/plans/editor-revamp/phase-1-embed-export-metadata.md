@@ -75,3 +75,19 @@ Split rule for this phase:
 - Existing export flow still succeeds for current users.
 - No sync or UI dependence on metadata yet.
 - Runtime metadata validation is enforced with Zod at export command boundaries.
+
+## Implementation Status (2026-07-20)
+
+Overall: DONE
+
+Completed:
+
+1. Export metadata is embedded for generated clips via ffmpeg metadata flags.
+2. Discovery tags and full JSON payload tag are emitted.
+3. Metadata writing path is wired for both fast and accurate trim command generation.
+4. Metadata payloads are validated with Zod before command emission.
+5. Metadata argument helper has focused test coverage, including oversized-payload guardrails.
+
+Notes:
+
+- This phase is complete and stable in current implementation.

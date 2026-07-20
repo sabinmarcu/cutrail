@@ -4,6 +4,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useWatcherSubscriptions } from '@renderer/core/watchers';
 import '@renderer/windows/globalReset.css';
 import {
   applySearchAndFilter,
@@ -64,6 +65,15 @@ export const LibraryWindow = () => {
     setNewVideoPaths(resolveNewVideoPaths(nextVideos));
     setVideos(nextVideos);
   }, []);
+
+  useWatcherSubscriptions({
+    onSourceSnapshot: () => {
+      refreshLibrary();
+    },
+    onOutputSnapshot: () => {
+      refreshLibrary();
+    },
+  });
 
   useEffect(() => {
     refreshLibrary();
