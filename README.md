@@ -1,6 +1,8 @@
 # cutrail
 
-Repository: `cutrail`
+[![ci](https://github.com/sabinmarcu/cutrail/actions/workflows/ci.yml/badge.svg)](https://github.com/sabinmarcu/cutrail/actions/workflows/ci.yml)
+[![github releases](https://github.com/sabinmarcu/cutrail/actions/workflows/release.yml/badge.svg)](https://github.com/sabinmarcu/cutrail/actions/workflows/release.yml)
+[![aur releases](https://github.com/sabinmarcu/cutrail/actions/workflows/aur-packages.yml/badge.svg)](https://github.com/sabinmarcu/cutrail/actions/workflows/aur-packages.yml)
 
 ## Purpose
 
