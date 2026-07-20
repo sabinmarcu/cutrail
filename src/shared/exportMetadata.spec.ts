@@ -6,6 +6,7 @@ import {
 
 import {
   createExportPlanPayloadSchema,
+  existingExportClipsSnapshotSchema,
   exportClipMetadataSchema,
 } from './exportMetadata.ts';
 
@@ -81,5 +82,40 @@ describe('exportMetadata schemas', () => {
     }
 
     expect(result.error.issues[0]?.path.join('.')).toBe('ranges.0.start');
+  });
+
+  it('accepts fractional modifiedAtMs in existing export clip snapshots', () => {
+    const result = existingExportClipsSnapshotSchema.safeParse({
+      sourcePath: '/videos/source.mp4',
+      outputDirectory: '/clips',
+      clips: [
+        {
+          fileName: 'source__fast__00-00-01_00-00-02.mp4',
+          filePath: '/clips/source__fast__00-00-01_00-00-02.mp4',
+          modifiedAtMs: 1234.567,
+          sourceName: 'source',
+          trimMode: 'fast',
+          range: {
+            start: 1,
+            end: 2,
+            duration: 1,
+          },
+          extension: 'mp4',
+          metadataPresence: 'legacy',
+          classificationKind: 'legacy',
+          identityKeys: {
+            clipId: null,
+            planId: null,
+            sourceFingerprint: null,
+            variantKey: null,
+            rangeKey: '1000:2000:1000',
+          },
+          selectedAudioTrackIndices: [],
+          mutedAudioTrackIndices: [],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
   });
 });
