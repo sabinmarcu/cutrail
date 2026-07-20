@@ -1,4 +1,6 @@
 import path from 'node:path';
+import type { ExportClipMetadata } from '../../shared/exportMetadata.ts';
+import { buildExportMetadataArguments } from './exportMetadataArgs.ts';
 
 export type TrimRange = { start: number; duration: number };
 export type BuildFastTrimCommandInput = {
@@ -7,6 +9,7 @@ export type BuildFastTrimCommandInput = {
   range: TrimRange;
   trimMode?: 'fast' | 'accurate';
   audioStreamIndices?: number[];
+  metadata?: ExportClipMetadata;
 };
 
 const assertValidAudioStreamIndices = (audioStreamIndices: number[]): void => {
@@ -74,6 +77,7 @@ export const buildFastTrimCommand = ({
   range,
   trimMode = 'accurate',
   audioStreamIndices,
+  metadata,
 }: BuildFastTrimCommandInput): string[] => {
   if (typeof inputPath !== 'string' || inputPath.trim().length === 0) {
     throw new TypeError('inputPath must be a non-empty string');
@@ -95,6 +99,7 @@ export const buildFastTrimCommand = ({
   const audioSelection = buildAudioArguments(audioStreamIndices);
   const audioArguments = audioSelection.args;
   const { hasAudioOutput } = audioSelection;
+  const metadataArguments = metadata ? buildExportMetadataArguments(metadata) : [];
 
   // Use accurate trim for MP4 outputs to avoid keyframe-boundary artifacts at clip start.
   // This re-encodes both video and audio for clean first frames/samples.
@@ -131,8 +136,9 @@ export const buildFastTrimCommand = ({
           '192k',
         ]
         : ['-an']),
+      ...metadataArguments,
       '-movflags',
-      '+faststart',
+      '+faststart+use_metadata_tags',
       '-y',
       outputPath,
     ];
@@ -158,8 +164,9 @@ export const buildFastTrimCommand = ({
       '-c:v',
       'copy',
       ...(hasAudioOutput ? ['-c:a', 'aac', '-b:a', '192k'] : ['-an']),
+      ...metadataArguments,
       '-movflags',
-      '+faststart',
+      '+faststart+use_metadata_tags',
       '-y',
       outputPath,
     ];
@@ -188,6 +195,7 @@ export const buildFastTrimCommand = ({
         ? ['-c', 'copy']
         : ['-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-c:s', 'copy'])
       : ['-c:v', 'copy', '-c:s', 'copy', '-an']),
+    ...metadataArguments,
     '-y',
     outputPath,
   ];

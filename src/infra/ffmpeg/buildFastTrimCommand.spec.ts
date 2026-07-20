@@ -4,9 +4,28 @@ import {
   it,
 } from 'vitest';
 
+import type { ExportClipMetadata } from '../../shared/exportMetadata.ts';
 import { buildFastTrimCommand } from './buildFastTrimCommand.ts';
 
 describe('buildFastTrimCommand', () => {
+  const sampleMetadata: ExportClipMetadata = {
+    schemaVersion: 1,
+    appName: 'cutrail',
+    clipId: 'clip_abc123',
+    planId: 'plan_abc123',
+    sourceFingerprint: 'source_fp_123',
+    rangeMs: {
+      startMs: 5000,
+      endMs: 7000,
+      durationMs: 2000,
+    },
+    trimMode: 'fast' as const,
+    selectedAudioTrackIndices: [0],
+    mutedAudioTrackIndices: [],
+    variantKey: 'trim=fast|selected=0|muted=',
+    createdAtMs: 1_700_000_000_000,
+  };
+
   it('builds ffmpeg args for accurate mp4 mode', () => {
     expect(buildFastTrimCommand({
       inputPath: '/videos/input.mp4',
@@ -45,7 +64,7 @@ describe('buildFastTrimCommand', () => {
       '-b:a',
       '192k',
       '-movflags',
-      '+faststart',
+      '+faststart+use_metadata_tags',
       '-y',
       '/clips/output.mp4',
     ]);
@@ -84,7 +103,7 @@ describe('buildFastTrimCommand', () => {
       '-b:a',
       '192k',
       '-movflags',
-      '+faststart',
+      '+faststart+use_metadata_tags',
       '-y',
       '/clips/output.mp4',
     ]);
@@ -126,7 +145,7 @@ describe('buildFastTrimCommand', () => {
       '-b:a',
       '192k',
       '-movflags',
-      '+faststart',
+      '+faststart+use_metadata_tags',
       '-y',
       '/clips/output.mp4',
     ]);
@@ -218,7 +237,7 @@ describe('buildFastTrimCommand', () => {
       'copy',
       '-an',
       '-movflags',
-      '+faststart',
+      '+faststart+use_metadata_tags',
       '-y',
       '/clips/output.mp4',
     ]);
@@ -258,5 +277,41 @@ describe('buildFastTrimCommand', () => {
       '-y',
       '/clips/output.mkv',
     ]);
+  });
+
+  it('embeds metadata tags when metadata is provided', () => {
+    const command = buildFastTrimCommand({
+      inputPath: '/videos/input.mp4',
+      outputPath: '/clips/output.mp4',
+      trimMode: 'fast',
+      range: {
+        start: 5,
+        duration: 2,
+      },
+      metadata: sampleMetadata,
+    });
+
+    expect(command).toContain('-metadata');
+    expect(command).toContain('cutrail_app=cutrail');
+    expect(command).toContain('cutrail_schema=1');
+    expect(command).toContain('cutrail_clip_id=clip_abc123');
+    expect(command).toContain('cutrail_source_fp=source_fp_123');
+    expect(command.some((value) => value.startsWith('cutrail_export_json={'))).toBe(true);
+  });
+
+  it('rejects malformed metadata before building command args', () => {
+    expect(() => buildFastTrimCommand({
+      inputPath: '/videos/input.mp4',
+      outputPath: '/clips/output.mp4',
+      trimMode: 'fast',
+      range: {
+        start: 5,
+        duration: 2,
+      },
+      metadata: {
+        ...sampleMetadata,
+        schemaVersion: 999,
+      } as unknown as typeof sampleMetadata,
+    })).toThrow();
   });
 });
