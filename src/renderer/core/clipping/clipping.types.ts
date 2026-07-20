@@ -129,6 +129,7 @@ export type ClippingStateModel = {
   duration: number;
   errorMessage: string;
   existingClips: ExistingClip[];
+  defaultTrimMode: TrimMode;
   hasMultipleAudioTracks: boolean;
   hideDefaultAudioTrackWhenMultiple: boolean;
   isPlaying: boolean;
@@ -150,6 +151,7 @@ export type ClippingStateModel = {
   setDraftClipVariants: StateSetter<DraftClipVariant[]>;
   setErrorMessage: StateSetter<string>;
   setExistingClips: StateSetter<ExistingClip[]>;
+  setDefaultTrimMode: StateSetter<TrimMode>;
   setHideDefaultAudioTrackWhenMultiple: StateSetter<boolean>;
   setIsPlaying: StateSetter<boolean>;
   setMutedAudioTrackIndices: StateSetter<number[]>;

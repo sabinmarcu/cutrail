@@ -75,6 +75,7 @@ export const cutrailBridge: CutrailBridge = {
   getFfmpegDiagnostics: () => ipcRenderer.invoke('cutrail:get-ffmpeg-diagnostics'),
   getThirdPartyNotices: () => ipcRenderer.invoke('cutrail:get-third-party-notices'),
   getUpdateDialogState: () => ipcRenderer.invoke('cutrail:get-update-dialog-state'),
+  getDefaultTrimMode: () => ipcRenderer.invoke('cutrail:get-default-trim-mode'),
   getHideDefaultAudioTrackWhenMultiple: () => ipcRenderer.invoke('cutrail:get-hide-default-audio-track-when-multiple'),
   getThemePrimaryColor: () => ipcRenderer.invoke('cutrail:get-theme-primary-color'),
   getPathForFile: (file: Parameters<CutrailBridge['getPathForFile']>[0]) => {
@@ -100,6 +101,7 @@ export const cutrailBridge: CutrailBridge = {
   selectSourceVideo: () => ipcRenderer.invoke('cutrail:select-source-video'),
   selectSourceDirectory: () => ipcRenderer.invoke('cutrail:select-source-directory'),
   selectOutputDirectory: () => ipcRenderer.invoke('cutrail:select-output-directory'),
+  setDefaultTrimMode: (trimMode: Parameters<CutrailBridge['setDefaultTrimMode']>[0]) => ipcRenderer.invoke('cutrail:set-default-trim-mode', trimMode),
   setHideDefaultAudioTrackWhenMultiple: (value: Parameters<CutrailBridge['setHideDefaultAudioTrackWhenMultiple']>[0]) => ipcRenderer.invoke('cutrail:set-hide-default-audio-track-when-multiple', value),
   setThemePrimaryColor: (color: Parameters<CutrailBridge['setThemePrimaryColor']>[0]) => ipcRenderer.invoke('cutrail:set-theme-primary-color', color),
   resolveMediaUrl,
@@ -121,6 +123,7 @@ export const cutrailBridge: CutrailBridge = {
   }),
   submitUpdateDialogAction: (action: Parameters<CutrailBridge['submitUpdateDialogAction']>[0]) => ipcRenderer.invoke('cutrail:submit-update-dialog-action', action),
   onSourceVideoSelected: (listener: Parameters<CutrailBridge['onSourceVideoSelected']>[0]) => subscribeToChannel<string>('cutrail:source-video-selected', listener),
+  onDefaultTrimModeUpdated: (listener: Parameters<CutrailBridge['onDefaultTrimModeUpdated']>[0]) => subscribeToChannel('cutrail:default-trim-mode-updated', listener),
   onHideDefaultAudioTrackWhenMultipleUpdated: (listener: Parameters<CutrailBridge['onHideDefaultAudioTrackWhenMultipleUpdated']>[0]) => subscribeToChannel<boolean>('cutrail:hide-default-audio-track-when-multiple-updated', listener),
   onThemePrimaryColorUpdated: (listener: Parameters<CutrailBridge['onThemePrimaryColorUpdated']>[0]) => subscribeToChannel('cutrail:theme-primary-color-updated', listener),
   onStartupWindowModeUpdated: (listener: Parameters<CutrailBridge['onStartupWindowModeUpdated']>[0]) => subscribeToChannel<StartupWindowMode>('cutrail:startup-window-mode-updated', listener),

@@ -70,6 +70,7 @@ export const useClippingSubscriptions = ({
     setDuration,
     setErrorMessage,
     setExistingClips,
+    setDefaultTrimMode,
     setHideDefaultAudioTrackWhenMultiple,
     setIsPlaying,
     setMutedAudioTrackIndices,
@@ -346,6 +347,34 @@ export const useClippingSubscriptions = ({
       mounted = false;
     };
   }, [setHideDefaultAudioTrackWhenMultiple]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (typeof globalThis.cutrail?.getDefaultTrimMode !== 'function') {
+      return undefined;
+    }
+
+    globalThis.cutrail.getDefaultTrimMode().then((value) => {
+      if (mounted) {
+        setDefaultTrimMode(value === 'accurate' ? 'accurate' : 'fast');
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [setDefaultTrimMode]);
+
+  useEffect(() => {
+    if (typeof globalThis.cutrail?.onDefaultTrimModeUpdated !== 'function') {
+      return undefined;
+    }
+
+    return globalThis.cutrail.onDefaultTrimModeUpdated((value) => {
+      setDefaultTrimMode(value === 'accurate' ? 'accurate' : 'fast');
+    });
+  }, [setDefaultTrimMode]);
 
   useEffect(() => {
     if (typeof globalThis.cutrail?.onHideDefaultAudioTrackWhenMultipleUpdated !== 'function') {

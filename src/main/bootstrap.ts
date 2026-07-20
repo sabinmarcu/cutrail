@@ -26,17 +26,19 @@ import {
 } from './linuxStandaloneInstall.ts';
 import {
   ensurePersistedDirectories,
+  getPersistedDefaultTrimMode,
   getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
   getPersistedStartupWindowMode,
   getPersistedThemePrimaryColor,
   getPersistedWindowDecorationMenuEnabled,
+  setPersistedDefaultTrimMode,
   setPersistedHideDefaultAudioTrackWhenMultiple,
+  setPersistedOutputDirectory,
   setPersistedThemePrimaryColor,
   setPersistedWindowDecorationMenuEnabled,
   setPersistedSourceDirectory,
-  setPersistedOutputDirectory,
   setPersistedStartupWindowMode,
 } from './settings.ts';
 import { createAppUpdater } from './updater.ts';
@@ -146,6 +148,7 @@ const startApp = async (): Promise<void> => {
       getPersistedOutputDirectory,
       getPersistedSourceDirectory,
       getPersistedHideDefaultAudioTrackWhenMultiple,
+      getPersistedDefaultTrimMode,
       getPersistedThemePrimaryColor,
       getPersistedStartupWindowMode,
       getWindowDecorationMenuPreference: resolveWindowDecorationMenuPreference,
@@ -162,6 +165,7 @@ const startApp = async (): Promise<void> => {
       submitUpdateDialogAction: windows.submitUpdateDialogAction,
       setPersistedOutputDirectory,
       setPersistedHideDefaultAudioTrackWhenMultiple,
+      setPersistedDefaultTrimMode,
       setPersistedThemePrimaryColor,
       setPersistedSourceDirectory,
       setPersistedStartupWindowMode,

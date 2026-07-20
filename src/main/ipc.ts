@@ -15,6 +15,7 @@ type RegisterIpcDeps = {
   getPersistedOutputDirectory: () => Promise<string | null>;
   getPersistedSourceDirectory: () => Promise<string | null>;
   getPersistedHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
+  getPersistedDefaultTrimMode: () => Promise<'fast' | 'accurate'>;
   getPersistedThemePrimaryColor: () => Promise<ThemePrimaryColorValue>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
   getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
@@ -38,6 +39,7 @@ type RegisterIpcDeps = {
   setPersistedOutputDirectory: (outputDirectory: string) => Promise<void>;
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
   setPersistedHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<void>;
+  setPersistedDefaultTrimMode: (value: 'fast' | 'accurate') => Promise<void>;
   setPersistedThemePrimaryColor: (value: ThemePrimaryColorValue) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
   setWindowDecorationMenuPreference: (
@@ -50,6 +52,7 @@ const registerIpcHandlers = ({
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
   getPersistedHideDefaultAudioTrackWhenMultiple,
+  getPersistedDefaultTrimMode,
   getPersistedThemePrimaryColor,
   getPersistedStartupWindowMode,
   getWindowDecorationMenuPreference,
@@ -67,6 +70,7 @@ const registerIpcHandlers = ({
   setPersistedOutputDirectory,
   setPersistedSourceDirectory,
   setPersistedHideDefaultAudioTrackWhenMultiple,
+  setPersistedDefaultTrimMode,
   setPersistedThemePrimaryColor,
   setPersistedStartupWindowMode,
   setWindowDecorationMenuPreference,
@@ -76,6 +80,7 @@ const registerIpcHandlers = ({
     getPersistedOutputDirectory,
     getPersistedSourceDirectory,
     getPersistedHideDefaultAudioTrackWhenMultiple,
+    getPersistedDefaultTrimMode,
     getPersistedThemePrimaryColor,
     getPersistedStartupWindowMode,
     getWindowDecorationMenuPreference,
@@ -94,6 +99,7 @@ const registerIpcHandlers = ({
     setPersistedOutputDirectory,
     setPersistedSourceDirectory,
     setPersistedHideDefaultAudioTrackWhenMultiple,
+    setPersistedDefaultTrimMode,
     setPersistedThemePrimaryColor,
     setPersistedStartupWindowMode,
     setWindowDecorationMenuPreference,

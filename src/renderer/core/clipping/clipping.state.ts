@@ -81,6 +81,7 @@ const selectedRangeIdAtom = atom<string | null>(null);
 const selectedVariantIdAtom = atom<string | null>(null);
 const existingClipsAtom = atom<ExistingClip[]>([]);
 const audioTracksAtom = atom<SourceAudioTrack[]>([]);
+const defaultTrimModeAtom = atom<TrimMode>(DEFAULT_TRIM_MODE);
 const hideDefaultAudioTrackWhenMultipleAtom = atom<boolean>(false);
 const videoReferenceAtom = atom<SharedReference<HTMLVideoElement | null>>(
   createSharedReference<HTMLVideoElement | null>(null),
@@ -108,6 +109,7 @@ export const useClippingState = (
   const [selectedVariantId, setSelectedVariantId] = useAtom(selectedVariantIdAtom);
   const [existingClips, setExistingClips] = useAtom(existingClipsAtom);
   const [audioTracks, setAudioTracks] = useAtom(audioTracksAtom);
+  const [defaultTrimMode, setDefaultTrimMode] = useAtom(defaultTrimModeAtom);
   const [hideDefaultAudioTrackWhenMultiple, setHideDefaultAudioTrackWhenMultiple] = useAtom(
     hideDefaultAudioTrackWhenMultipleAtom,
   );
@@ -172,7 +174,7 @@ export const useClippingState = (
     });
   }, [activeDraftVariant, audioTracks, hideDefaultAudioTrackWhenMultiple, mutedAudioTrackIndices]);
 
-  const trimMode = activeDraftVariant?.trimMode ?? DEFAULT_TRIM_MODE;
+  const trimMode = activeDraftVariant?.trimMode ?? defaultTrimMode;
   const readyToStart = (
     sourcePath.length > 0
     && outputDirectory.length > 0
@@ -209,6 +211,7 @@ export const useClippingState = (
 
   const derivedClipEntries = useMemo(() => deriveClipEntries({
     clipStatusMap,
+    defaultTrimMode,
     draftClipVariants,
     existingClips,
     planJobs,
@@ -217,6 +220,7 @@ export const useClippingState = (
     selectedVariantId,
   }), [
     clipStatusMap,
+    defaultTrimMode,
     draftClipVariants,
     existingClips,
     planJobs,
@@ -346,6 +350,7 @@ export const useClippingState = (
     currentTime,
     draftClipVariants,
     duration,
+    defaultTrimMode,
     errorMessage,
     existingClips,
     hasMultipleAudioTracks,
@@ -369,6 +374,7 @@ export const useClippingState = (
     setDraftClipVariants,
     setErrorMessage,
     setExistingClips,
+    setDefaultTrimMode,
     setHideDefaultAudioTrackWhenMultiple,
     setIsPlaying,
     setMutedAudioTrackIndices,

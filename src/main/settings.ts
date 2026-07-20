@@ -13,10 +13,12 @@ const SOURCE_DIRECTORY_KEY = 'sourceDirectory';
 const OUTPUT_DIRECTORY_KEY = 'outputDirectory';
 const STARTUP_WINDOW_MODE_KEY = 'startupWindowMode';
 const HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY = 'hideDefaultAudioTrackWhenMultiple';
+const DEFAULT_TRIM_MODE_KEY = 'defaultTrimMode';
 const WINDOW_DECORATION_MENU_ENABLED_KEY = 'windowDecorationMenuEnabled';
 const THEME_PRIMARY_COLOR_KEY = 'themePrimaryColor';
 
 type StartupWindowMode = 'splash' | 'library';
+type DefaultTrimMode = 'fast' | 'accurate';
 
 const getSettingsFilePath = (): string => path.join(app.getPath('userData'), SETTINGS_FILE_NAME);
 
@@ -44,6 +46,14 @@ const readStringSetting = (settings: Record<string, unknown>, key: string): stri
 
 const parseStartupWindowMode = (value: unknown): StartupWindowMode | null => {
   if (value === 'splash' || value === 'library') {
+    return value;
+  }
+
+  return null;
+};
+
+const parseDefaultTrimMode = (value: unknown): DefaultTrimMode | null => {
+  if (value === 'fast' || value === 'accurate') {
     return value;
   }
 
@@ -110,6 +120,12 @@ const getPersistedHideDefaultAudioTrackWhenMultiple = async (): Promise<boolean>
   return readBooleanSetting(settings, HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY) ?? false;
 };
 
+const getPersistedDefaultTrimMode = async (): Promise<DefaultTrimMode> => {
+  const settings = await readSettings();
+
+  return parseDefaultTrimMode(settings[DEFAULT_TRIM_MODE_KEY]) ?? 'fast';
+};
+
 const getPersistedWindowDecorationMenuEnabled = async (): Promise<boolean> => {
   const settings = await readSettings();
 
@@ -151,6 +167,13 @@ const setPersistedStartupWindowMode = async (
 const setPersistedHideDefaultAudioTrackWhenMultiple = async (value: boolean): Promise<void> => {
   const settings = await readSettings();
   settings[HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY] = value;
+
+  await writeSettings(settings);
+};
+
+const setPersistedDefaultTrimMode = async (value: DefaultTrimMode): Promise<void> => {
+  const settings = await readSettings();
+  settings[DEFAULT_TRIM_MODE_KEY] = parseDefaultTrimMode(value) ?? 'fast';
 
   await writeSettings(settings);
 };
@@ -202,6 +225,11 @@ const ensurePersistedDirectories = async (
     hasChanges = true;
   }
 
+  if (!parseDefaultTrimMode(settings[DEFAULT_TRIM_MODE_KEY])) {
+    settings[DEFAULT_TRIM_MODE_KEY] = 'fast';
+    hasChanges = true;
+  }
+
   if (readBooleanSetting(settings, WINDOW_DECORATION_MENU_ENABLED_KEY) === null) {
     settings[WINDOW_DECORATION_MENU_ENABLED_KEY] = defaultWindowDecorationMenuEnabled;
     hasChanges = true;
@@ -218,6 +246,7 @@ const ensurePersistedDirectories = async (
 };
 
 export {
+  getPersistedDefaultTrimMode,
   ensurePersistedDirectories,
   getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedWindowDecorationMenuEnabled,
@@ -225,6 +254,7 @@ export {
   getPersistedSourceDirectory,
   getPersistedOutputDirectory,
   getPersistedStartupWindowMode,
+  setPersistedDefaultTrimMode,
   setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedThemePrimaryColor,
   setPersistedWindowDecorationMenuEnabled,

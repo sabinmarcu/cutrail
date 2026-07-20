@@ -5,6 +5,7 @@ import { registerCreateExportPlanHandler } from './handlers/createExportPlan.ts'
 import { registerDeleteClipRangeOutputsHandler } from './handlers/deleteClipRangeOutputs.ts';
 import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.ts';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.ts';
+import { registerGetDefaultTrimModeHandler } from './handlers/getDefaultTrimMode.ts';
 import { registerGetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/getHideDefaultAudioTrackWhenMultiple.ts';
 import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory.ts';
 import { registerGetThemePrimaryColorHandler } from './handlers/getThemePrimaryColor.ts';
@@ -31,6 +32,7 @@ import { registerSelectOutputDirectoryHandler } from './handlers/selectOutputDir
 import { registerSelectSourceDirectoryHandler } from './handlers/selectSourceDirectory.ts';
 import { registerSelectSourceVideoHandler } from './handlers/selectSourceVideo.ts';
 import { registerSetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/setHideDefaultAudioTrackWhenMultiple.ts';
+import { registerSetDefaultTrimModeHandler } from './handlers/setDefaultTrimMode.ts';
 import { registerSetThemePrimaryColorHandler } from './handlers/setThemePrimaryColor.ts';
 import { registerSetStartupWindowModeHandler } from './handlers/setStartupWindowMode.ts';
 import { registerSetWindowDecorationMenuPreferenceHandler } from './handlers/setWindowDecorationMenuPreference.ts';
@@ -50,6 +52,7 @@ type HandlerDependencies = {
   getPersistedOutputDirectory: () => Promise<string | null>;
   getPersistedSourceDirectory: () => Promise<string | null>;
   getPersistedHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
+  getPersistedDefaultTrimMode: () => Promise<'fast' | 'accurate'>;
   getPersistedThemePrimaryColor: () => Promise<ThemePrimaryColorValue>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
   getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
@@ -76,6 +79,7 @@ type HandlerDependencies = {
   setPersistedOutputDirectory: (outputDirectory: string) => Promise<void>;
   setPersistedSourceDirectory: (sourceDirectory: string) => Promise<void>;
   setPersistedHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<void>;
+  setPersistedDefaultTrimMode: (value: 'fast' | 'accurate') => Promise<void>;
   setPersistedThemePrimaryColor: (value: ThemePrimaryColorValue) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
   setWindowDecorationMenuPreference: (
@@ -96,6 +100,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerSelectOutputDirectoryHandler(deps);
   registerGetSourceDirectoryHandler(deps);
   registerGetStartupWindowModeHandler(deps);
+  registerGetDefaultTrimModeHandler(deps);
   registerGetHideDefaultAudioTrackWhenMultipleHandler(deps);
   registerGetThemePrimaryColorHandler(deps);
   registerGetOutputDirectoryHandler(deps);
@@ -121,6 +126,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerClipFileActionsHandler();
   registerSubmitUpdateDialogActionHandler(deps);
   registerSetHideDefaultAudioTrackWhenMultipleHandler(deps);
+  registerSetDefaultTrimModeHandler(deps);
   registerSetThemePrimaryColorHandler(deps);
   registerSetStartupWindowModeHandler(deps);
   registerSetWindowDecorationMenuPreferenceHandler(deps);

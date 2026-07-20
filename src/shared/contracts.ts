@@ -265,6 +265,7 @@ export type CutrailBridge = {
   getFfmpegDiagnostics: () => Promise<FfmpegAvailabilityResult>;
   getThirdPartyNotices: () => Promise<string>;
   getUpdateDialogState: () => Promise<UpdateDialogState | null>;
+  getDefaultTrimMode: () => Promise<BridgeTrimMode>;
   getHideDefaultAudioTrackWhenMultiple: () => Promise<boolean>;
   getThemePrimaryColor: () => Promise<ThemePrimaryColorValue>;
   getPathForFile: (file: File | null | undefined) => string | null;
@@ -286,6 +287,7 @@ export type CutrailBridge = {
   selectSourceDirectory: () => Promise<string | null>;
   selectOutputDirectory: () => Promise<string | null>;
   setHideDefaultAudioTrackWhenMultiple: (value: boolean) => Promise<boolean>;
+  setDefaultTrimMode: (trimMode: BridgeTrimMode) => Promise<BridgeTrimMode>;
   setThemePrimaryColor: (color: ThemePrimaryColorValue) => Promise<ThemePrimaryColorValue>;
   resolveMediaUrl: (inputPath: string) => string;
   checkFfmpeg: () => Promise<FfmpegAvailabilityResult>;
@@ -298,6 +300,7 @@ export type CutrailBridge = {
   submitUpdateDialogAction: (action: string) => Promise<boolean>;
   onSourceVideoSelected: (listener: (payload: string) => void) => () => void;
   onHideDefaultAudioTrackWhenMultipleUpdated: (listener: (payload: boolean) => void) => () => void;
+  onDefaultTrimModeUpdated: (listener: (payload: BridgeTrimMode) => void) => () => void;
   onThemePrimaryColorUpdated: (listener: (payload: ThemePrimaryColorValue) => void) => () => void;
   onStartupWindowModeUpdated: (listener: (payload: StartupWindowMode) => void) => () => void;
   onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;

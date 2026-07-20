@@ -193,7 +193,7 @@ export const useClippingActions = (state: ClippingStateModel): ClippingActions =
       rangeId: nextRange.id,
       mutedAudioTrackIndices: [...state.mutedAudioTrackIndices],
       selectedAudioTrackIndices: [...state.selectedAudioTrackIndices],
-      trimMode: state.trimMode,
+      trimMode: state.defaultTrimMode,
     };
 
     state.setDraftClipVariants((previous) => [...previous, nextDraftVariant]);
@@ -221,6 +221,7 @@ export const useClippingActions = (state: ClippingStateModel): ClippingActions =
       id: createDraftVariantId(selectedVariant.rangeId),
       isEditable: true,
       sourceFilePath: selectedVariant.sourceFilePath,
+      trimMode: state.defaultTrimMode,
     };
 
     state.setDraftClipVariants((previous) => [...previous, nextVariant]);
@@ -236,7 +237,7 @@ export const useClippingActions = (state: ClippingStateModel): ClippingActions =
       rangeId,
       mutedAudioTrackIndices: [...variant.mutedAudioTrackIndices],
       selectedAudioTrackIndices: [...variant.selectedAudioTrackIndices],
-      trimMode: variant.trimMode,
+      trimMode: state.defaultTrimMode,
     };
 
     state.setDraftClipVariants((previous) => [...previous, nextVariant]);

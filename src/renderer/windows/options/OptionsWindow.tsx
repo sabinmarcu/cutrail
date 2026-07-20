@@ -34,6 +34,7 @@ const defaultWindowDecorationMenuPreference: WindowDecorationMenuPreferenceState
 
 export const OptionsWindow = () => {
   const [startupWindowMode, setStartupWindowMode] = useState<'splash' | 'library'>('splash');
+  const [defaultTrimMode, setDefaultTrimMode] = useState<'fast' | 'accurate'>('fast');
   const [themePrimaryColor, setThemePrimaryColor] = useState<ThemePrimaryColorValue>(
     defaultThemePrimaryColor,
   );
@@ -66,6 +67,14 @@ export const OptionsWindow = () => {
       globalThis.cutrail.getStartupWindowMode().then((mode) => {
         if (mounted) {
           setStartupWindowMode(mode === 'library' ? 'library' : 'splash');
+        }
+      });
+    }
+
+    if (typeof globalThis.cutrail?.getDefaultTrimMode === 'function') {
+      globalThis.cutrail.getDefaultTrimMode().then((mode) => {
+        if (mounted) {
+          setDefaultTrimMode(mode === 'accurate' ? 'accurate' : 'fast');
         }
       });
     }
@@ -112,6 +121,12 @@ export const OptionsWindow = () => {
       })
       : () => {};
 
+    const unsubscribeDefaultTrimMode = typeof globalThis.cutrail?.onDefaultTrimModeUpdated === 'function'
+      ? globalThis.cutrail.onDefaultTrimModeUpdated((mode) => {
+        setDefaultTrimMode(mode === 'accurate' ? 'accurate' : 'fast');
+      })
+      : () => {};
+
     const unsubscribeThemePrimaryColor = typeof globalThis.cutrail?.onThemePrimaryColorUpdated === 'function'
       ? globalThis.cutrail.onThemePrimaryColorUpdated((color) => {
         if (isThemePrimaryColorValue(color)) {
@@ -137,6 +152,7 @@ export const OptionsWindow = () => {
       unsubscribeSource();
       unsubscribeOutput();
       unsubscribeStartupMode();
+      unsubscribeDefaultTrimMode();
       unsubscribeThemePrimaryColor();
       unsubscribeHideDefaultAudioTrack();
       unsubscribeWindowDecorationMenuPreference();
@@ -164,6 +180,24 @@ export const OptionsWindow = () => {
         </select>
         <p className={helperText}>
           This controls what opens first when Cutrail starts or reopens with no windows.
+        </p>
+      </section>
+      <section className={panel}>
+        <h2 className={heading}>Default Trim Accuracy</h2>
+        <select
+          className={controlSelect}
+          value={defaultTrimMode}
+          onChange={(event) => {
+            const nextMode = event.currentTarget.value === 'accurate' ? 'accurate' : 'fast';
+            setDefaultTrimMode(nextMode);
+            globalThis.cutrail?.setDefaultTrimMode?.(nextMode);
+          }}
+        >
+          <option value="fast">Quick</option>
+          <option value="accurate">Accurate</option>
+        </select>
+        <p className={helperText}>
+          Sets the default trim mode used for newly created clip variants in the editor.
         </p>
       </section>
       <section className={panel}>
