@@ -91,6 +91,20 @@ const toVariantStatus = ({
   return 'draft';
 };
 
+const buildFallbackActiveVariant = (range: ClipRange): ClipVariantEntry => ({
+  clip: null,
+  filePath: null,
+  isEditable: true,
+  isLocked: false,
+  key: `${range.id}::fallback`,
+  modifiedAtMs: null,
+  mutedAudioTrackIndices: [],
+  progressText: 'pending',
+  selectedAudioTrackIndices: [],
+  status: 'draft',
+  trimMode: 'fast',
+});
+
 export const deriveClipEntries = ({
   clipStatusMap,
   draftClipVariants,
@@ -277,7 +291,8 @@ export const deriveClipEntries = ({
       ?? sortedVariantEntries.find((entry) => (
         rangeDraftVariants.some((variant) => variant.id === entry.key)
       ))
-      ?? sortedVariantEntries[0];
+      ?? sortedVariantEntries[0]
+      ?? buildFallbackActiveVariant(range);
     const isRangeLocked = sortedVariantEntries.some((entry) => (
       entry.status === 'exported' || entry.status === 'legacy' || entry.isLocked
     ));
@@ -301,7 +316,7 @@ export const deriveClipEntries = ({
       variantEntries: sortedVariantEntries,
       existingClips: trustedExistingClips,
       currentModeClip: trustedExistingClips.find(
-        (clip) => clip.trimMode === activeVariant.trimMode,
+        (clip) => clip.trimMode === activeVariant?.trimMode,
       ) ?? null,
       isLocked: isRangeLocked,
     } satisfies ClipEntry;
