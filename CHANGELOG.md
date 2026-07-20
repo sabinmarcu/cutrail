@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.12.0](https://github.com/sabinmarcu/cutrail/compare/v0.11.0...v0.12.0) (2026-07-20)
+
+
+### Features
+
+* **app:** add rotating typewriter hints on splash ([055b8fe](https://github.com/sabinmarcu/cutrail/commit/055b8fedd956547133f7ca20d50c482d66d5afb1))
+* **menu:** add Start Page file action ([661e7ee](https://github.com/sabinmarcu/cutrail/commit/661e7ee23eabfdc0644c1b5420a5fe80ebe216d0))
+* **options:** add default trim mode and apply to new variants ([afe64c2](https://github.com/sabinmarcu/cutrail/commit/afe64c2f7f9998ee5303378177987f11d8df7e8d))
+* **options:** refine binary diagnostics and controls ([d1c29ab](https://github.com/sabinmarcu/cutrail/commit/d1c29abf2a16ffe2f533955b4022abf8c0841f74))
+* **packaging:** add OS file associations for supported videos ([302d9e6](https://github.com/sabinmarcu/cutrail/commit/302d9e62e0774374a4c560686afadba7f3c7d115))
+
+
+### Bug Fixes
+
+* **aur:** keep cutrail-bin AppImage intact ([dbfa99c](https://github.com/sabinmarcu/cutrail/commit/dbfa99ca38d261d030f7045661dedd7755028770))
+* **clipping:** stabilize variant lifecycle and cleanup debug instrumentation ([c74b475](https://github.com/sabinmarcu/cutrail/commit/c74b475f7931b9d8e8188fdf38ab54b1ea132487))
+* **export:** default quick trims for new plans ([174514f](https://github.com/sabinmarcu/cutrail/commit/174514fddb5827bd0360c1eeed22a8715043c2ca))
+* **export:** stabilize quick trim compatibility ([65ef8ae](https://github.com/sabinmarcu/cutrail/commit/65ef8ae165bcb2833c5423fceec9f40c0d7f056b))
+* **library:** restore select filters ([f7816db](https://github.com/sabinmarcu/cutrail/commit/f7816db4c6930e1c059b02af78ff8e0e120a612a))
+* **lint:** resolve autofix leftovers ([fa381a1](https://github.com/sabinmarcu/cutrail/commit/fa381a1cd292fda3c0df6117d720400905f0f74e))
+* **renderer:** render splash and about logos via currentColor svg ([428ca97](https://github.com/sabinmarcu/cutrail/commit/428ca9767b24b1f2b6c15b80b1b6c9f324608798))
+* tighten library list windowing ([e27288d](https://github.com/sabinmarcu/cutrail/commit/e27288da19b251363bdea8cf9cbba251e055455a))
+* **window:** add escape fullscreen exit ([4341128](https://github.com/sabinmarcu/cutrail/commit/4341128499300e848cd19a23dddb8020f657f2d5))
+
 ## [0.11.0](https://github.com/sabinmarcu/cutrail/compare/v0.10.1...v0.11.0) (2026-07-20)
 
 
