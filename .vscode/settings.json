@@ -26,6 +26,8 @@
     "proto": true,
     "git commit": true,
     "gh": true,
-    "git fetch": true
+    "git fetch": true,
+    "ffprobe": true,
+    "awk": true
   }
 }

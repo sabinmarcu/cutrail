@@ -75,6 +75,7 @@ const registerCreateExportPlanHandler = () => {
       normalizeTrackIndices,
     } = await import('../../../domain/exportMetadata.normalize.ts');
     const { buildFastTrimCommand } = await import('../../../infra/ffmpeg/buildFastTrimCommand.ts');
+    const { resolveFastTrimRange } = await import('../../../infra/ffmpeg/resolveFastTrimRange.ts');
     const {
       createExportPlanPayloadSchema,
       exportClipMetadataSchema,
@@ -125,8 +126,20 @@ const registerCreateExportPlanHandler = () => {
     });
     const jobs = await Promise.all(exportPlan.jobs.map(async (job) => {
       const resolvedOutputPath = await resolveOutputPathAgainstExistingFiles(job.outputPath);
+      const resolvedTrimRange = trimMode === 'fast'
+        ? await resolveFastTrimRange({
+          inputPath: job.inputPath,
+          range: job.range,
+        })
+        : job.range;
+      const resolvedRange = {
+        ...job.range,
+        start: resolvedTrimRange.start,
+        duration: resolvedTrimRange.duration,
+        end: resolvedTrimRange.start + resolvedTrimRange.duration,
+      };
       const metadata = exportClipMetadataSchema.parse((() => {
-        const rangeMs = normalizeRangeMilliseconds(job.range);
+        const rangeMs = normalizeRangeMilliseconds(resolvedRange);
         const rangeKey = createRangeKey(rangeMs);
 
         return {
@@ -153,13 +166,14 @@ const registerCreateExportPlanHandler = () => {
       return {
         ...job,
         outputPath: resolvedOutputPath,
+        range: resolvedRange,
         selectedAudioTrackIndices,
         mutedAudioTrackIndices,
         metadata,
         args: buildFastTrimCommand({
           inputPath: job.inputPath,
           outputPath: resolvedOutputPath,
-          range: job.range,
+          range: resolvedRange,
           trimMode,
           audioStreamIndices,
           metadata,

@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "@sabinmarcu/theme": "^1.2.0",
     "@vanilla-extract/css": "^1.21.1",
     "@vanilla-extract/dynamic": "^2.1.5",
@@ -128,7 +129,8 @@
       }
     ],
     "asarUnpack": [
-      "node_modules/@ffmpeg-installer/**/*"
+      "node_modules/@ffmpeg-installer/**/*",
+      "node_modules/@ffprobe-installer/**/*"
     ],
     "files": [
       "dist/renderer/**/*",

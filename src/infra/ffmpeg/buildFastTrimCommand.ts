@@ -71,6 +71,8 @@ const toFfmpegSeconds = (seconds: number): string => {
   return seconds.toFixed(3);
 };
 
+const streamCopyTrimStabilityArguments = ['-muxdelay', '0', '-muxpreload', '0'];
+
 export const buildFastTrimCommand = ({
   inputPath,
   outputPath,
@@ -152,12 +154,13 @@ export const buildFastTrimCommand = ({
       '-progress',
       'pipe:2',
       '-nostats',
-      '-ss',
-      toFfmpegSeconds(range.start),
       '-i',
       inputPath,
+      '-ss',
+      toFfmpegSeconds(range.start),
       '-t',
       toFfmpegSeconds(range.duration),
+      ...streamCopyTrimStabilityArguments,
       '-map',
       '0:v:0?',
       ...audioArguments,
@@ -179,12 +182,13 @@ export const buildFastTrimCommand = ({
     '-progress',
     'pipe:2',
     '-nostats',
-    '-ss',
-    toFfmpegSeconds(range.start),
     '-i',
     inputPath,
+    '-ss',
+    toFfmpegSeconds(range.start),
     '-t',
     toFfmpegSeconds(range.duration),
+    ...streamCopyTrimStabilityArguments,
     '-map',
     '0:v:0?',
     ...audioArguments,
