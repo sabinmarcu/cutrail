@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1](https://github.com/sabinmarcu/cutrail/compare/v0.12.0...v0.12.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* **build:** expand fileAssociations ext array into per-extension entries ([2f9ea58](https://github.com/sabinmarcu/cutrail/commit/2f9ea587c51d3b13f5726fc9d6c02d7b3bb940a7))
+* **test:** update export job timestamp expectation ([8495683](https://github.com/sabinmarcu/cutrail/commit/84956839c4e92a61f5cbeac8892ae0eb4e64e349))
+
 ## [0.12.0](https://github.com/sabinmarcu/cutrail/compare/v0.11.0...v0.12.0) (2026-07-20)
 
 
