@@ -118,36 +118,31 @@
         "name": "Cutrail Video",
         "description": "Video file supported by Cutrail",
         "ext": "mp4",
-        "role": "Editor",
-        "icon": "src/assets/icons/icon.png"
+        "role": "Editor"
       },
       {
         "name": "Cutrail Video",
         "description": "Video file supported by Cutrail",
         "ext": "mkv",
-        "role": "Editor",
-        "icon": "src/assets/icons/icon.png"
+        "role": "Editor"
       },
       {
         "name": "Cutrail Video",
         "description": "Video file supported by Cutrail",
         "ext": "webm",
-        "role": "Editor",
-        "icon": "src/assets/icons/icon.png"
+        "role": "Editor"
       },
       {
         "name": "Cutrail Video",
         "description": "Video file supported by Cutrail",
         "ext": "mov",
-        "role": "Editor",
-        "icon": "src/assets/icons/icon.png"
+        "role": "Editor"
       },
       {
         "name": "Cutrail Video",
         "description": "Video file supported by Cutrail",
         "ext": "avi",
-        "role": "Editor",
-        "icon": "src/assets/icons/icon.png"
+        "role": "Editor"
       }
     ],
     "asarUnpack": [
