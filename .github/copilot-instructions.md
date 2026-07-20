@@ -48,20 +48,8 @@ This repository is initialized for AI-assisted development with GitHub Copilot.
 - Lint policy: `eslint.config.mjs` must extend `@sabinmarcu/eslint-config` as the baseline shared flat config.
 - Lint workflow policy: prefer `proto run yarn -- lint:fix` as the default lint command; run `proto run yarn -- lint` only when strict lint verification is explicitly needed, and only apply manual code fixes for issues that remain after autofix.
 - Validation policy: when validating agent edits, prefer `proto run yarn -- typecheck` over `proto run yarn -- build` unless artifact production or bundling behavior is what you are verifying.
-- Lint enforcement policy: do not modify lint configuration (for example `eslint.config.mjs`) to silence violations during implementation work.
-- Lint exception policy: prefer fixing source code over suppressions; use inline `eslint-disable` comments only when there is no practical code-only alternative and keep each suppression line-scoped with a short reason.
-- Lint exception escalation policy: if resolving a lint rule would require configuration changes, stop and ask the user before proposing any lint-config exception.
-- Temporary-file policy: use `logs/` for local temporary outputs and artifacts instead of writing temporary files elsewhere in the repository.
-- Command redirection policy: when capturing command output with shell redirection (`>`, `2>`, `&>`), write to files under `logs/` (for example `logs/lint.log`) and do not use `/tmp`.
-- Runtime config policy: type and validate environment/config values with `zod` in main-process config modules, even when implementation is JavaScript (`.mjs`), to keep runtime behavior explicit and future TypeScript migration-ready.
-- Asset policy: treat `src/assets/logo-white-bg.svg` as the source of truth for app icons; when it changes, regenerate `src/assets/icons/icon.png`, `src/assets/icons/icon.ico`, and `src/assets/icons/icon.icns` in the same change.
-- Release policy: stable releases are managed by Release Please via `.github/workflows/release-please.yml` (version bump + changelog + release notes), while `.github/workflows/release.yml` remains tag-driven for packaging and artifact attachment.
-- Skill usage announcement policy: when using a custom/local skill workflow, explicitly announce the skill name to the user before executing it.
-
-## Commands
-
-- Install dependencies: `proto run yarn -- install`
-- Run a script: `proto run yarn -- <script-name>`
+ Pre-commit hook runs `proto run yarn -- lint:staged`, `proto run yarn -- lint`, `proto run yarn -- typecheck`, and `proto run yarn -- test` through Husky.
+ Pre-push hook runs the AUR toolchain sync guard through Husky before allowing a push.
 - Start local desktop dev runtime: `proto run yarn -- dev`
 - Run tests: `proto run yarn -- test`
 - Type-check project sources: `proto run yarn -- typecheck`

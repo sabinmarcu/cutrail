@@ -119,7 +119,8 @@ Maintenance rule:
 - Agent lint suppression rule: prefer code changes over lint suppressions; if a suppression is unavoidable, keep it line-scoped and document why.
 - Agent escalation rule: ask the user before proposing any lint configuration exception.
 - Staged files are linted with fix via `proto run yarn -- lint:staged`.
-- Pre-commit hook runs `proto run yarn -- lint:staged` through Husky.
+- Pre-commit hook runs `proto run yarn -- lint:staged`, `proto run yarn -- lint`, `proto run yarn -- typecheck`, and `proto run yarn -- test` through Husky.
+- Pre-push hook runs the AUR toolchain sync guard through Husky before allowing a push.
 - Commit messages are validated with Commitlint against Conventional Commits.
 - Commit-msg hook runs `proto run yarn -- commitlint --edit "$1"` through Husky.
 

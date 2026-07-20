@@ -1,2 +1,4 @@
 #!/usr/bin/env sh
 yarn lint:staged
+yarn run typecheck
+yarn run test
