@@ -123,49 +123,28 @@ export const LibraryWindowDecoration = ({
         </label>
         <label className={control}>
           <span className={controlLabel}>Sort Dir</span>
-          <SegmentedSwitch
-            ariaLabel="Library sort direction"
-            className={viewSwitch}
-            optionClassName={viewSwitchOption}
+          <select
+            className={controlSelect}
             value={sortDirection}
-            onChange={(nextValue) => {
-              setSortDirection(nextValue as LibrarySortDirection);
+            onChange={(event) => {
+              setSortDirection(event.currentTarget.value as LibrarySortDirection);
             }}
-            options={[
-              {
-                label: 'Ascending',
-                value: 'asc',
-              },
-              {
-                label: 'Descending',
-                value: 'desc',
-              },
-            ]}
-          />
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
         </label>
         <label className={control}>
           <span className={controlLabel}>Filter</span>
-          <SegmentedSwitch
-            ariaLabel="Library filter mode"
-            className={viewSwitch}
-            optionClassName={viewSwitchOption}
+          <select
+            className={controlSelect}
             value={filterMode}
-            onChange={(nextValue) => setFilterMode(nextValue as LibraryFilterMode)}
-            options={[
-              {
-                label: 'All Videos',
-                value: 'all',
-              },
-              {
-                label: 'With Clips',
-                value: 'with-clips',
-              },
-              {
-                label: 'Without Clips',
-                value: 'without-clips',
-              },
-            ]}
-          />
+            onChange={(event) => setFilterMode(event.currentTarget.value as LibraryFilterMode)}
+          >
+            <option value="all">All Videos</option>
+            <option value="with-clips">With Clips</option>
+            <option value="without-clips">Without Clips</option>
+          </select>
         </label>
       </div>
     </div>
