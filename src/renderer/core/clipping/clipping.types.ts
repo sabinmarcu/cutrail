@@ -46,11 +46,11 @@ export type ClipVariantStatus =
   | 'foreign'
   | 'invalid';
 
-export type ClipVariantEntry = {
+export type ClipVariantState = 'draft' | 'exporting' | 'exported';
+
+type ClipVariantEntryBase = {
   clip: ExistingClip | null;
   filePath: string | null;
-  isEditable: boolean;
-  isLocked: boolean;
   key: string;
   modifiedAtMs: number | null;
   mutedAudioTrackIndices: number[];
@@ -58,7 +58,22 @@ export type ClipVariantEntry = {
   selectedAudioTrackIndices: number[];
   status: ClipVariantStatus;
   trimMode: TrimMode;
+  isLocked: boolean;
 };
+
+export type ClipVariantEntry =
+  | (ClipVariantEntryBase & {
+    state: 'draft';
+    isEditable: true;
+  })
+  | (ClipVariantEntryBase & {
+    state: 'exporting';
+    isEditable: false;
+  })
+  | (ClipVariantEntryBase & {
+    state: 'exported';
+    isEditable: false;
+  });
 
 export type ClipEntry = {
   activeVariant: ClipVariantEntry;

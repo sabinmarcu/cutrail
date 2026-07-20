@@ -194,7 +194,7 @@ const createWindowManager = ({
   /**
    * @param {{
    *   cacheKey: () => BrowserWindow | null,
-   *   mode: 'licenses' | 'options' | 'diagnostics',
+    *   mode: 'licenses' | 'options' | 'diagnostics' | 'library',
    *   title: string,
    *   size: { width: number, height: number, minWidth: number, minHeight: number }
    * }} options

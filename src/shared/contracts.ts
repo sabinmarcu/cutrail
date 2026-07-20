@@ -5,11 +5,6 @@ import type {
   ClipIdentityKeys,
   ExportClipMetadata,
 } from './exportMetadata.ts';
-import type {
-  OutputDirectorySnapshotPayload,
-  SourceDirectorySnapshotPayload,
-  WatcherHealthPayload,
-} from './watcherEvents.ts';
 
 export type BridgeTrimMode = 'fast' | 'accurate';
 
@@ -305,13 +300,6 @@ export type CutrailBridge = {
   onStartupWindowModeUpdated: (listener: (payload: StartupWindowMode) => void) => () => void;
   onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;
-  onSourceDirectorySnapshotUpdated: (
-    listener: (payload: SourceDirectorySnapshotPayload) => void,
-  ) => () => void;
-  onOutputDirectorySnapshotUpdated: (
-    listener: (payload: OutputDirectorySnapshotPayload) => void,
-  ) => () => void;
-  onWatcherHealthUpdated: (listener: (payload: WatcherHealthPayload) => void) => () => void;
   onWindowDecorationMenuPreferenceUpdated: (
     listener: (payload: WindowDecorationMenuPreferenceState) => void,
   ) => () => void;
@@ -324,8 +312,3 @@ export {
   type EnrichedExportClipsSnapshot,
   type ExportClipMetadata,
 } from './exportMetadata.ts';
-export type {
-  OutputDirectorySnapshotPayload,
-  SourceDirectorySnapshotPayload,
-  WatcherHealthPayload,
-} from './watcherEvents.ts';

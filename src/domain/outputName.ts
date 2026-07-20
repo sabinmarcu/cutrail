@@ -19,7 +19,7 @@ type ParsedClipOutputName = {
 
 const pad = (value: string | number, size: number): string => String(value).padStart(size, '0');
 
-const CLIP_OUTPUT_PATTERN = /^(?<sourceName>.+?)__(?<trimMode>fast|accurate)__(?<start>\d{2}-\d{2}-\d{2})_(?<end>\d{2}-\d{2}-\d{2})(?:__(?<variantSegment>v-[a-z0-9]+))?\.(?<extension>[^.]+)$/;
+const CLIP_OUTPUT_PATTERN = /^(?<sourceName>.+?)__(?<trimMode>fast|accurate)__(?<start>\d{2}-\d{2}-\d{2}(?:-\d{3})?)_(?<end>\d{2}-\d{2}-\d{2}(?:-\d{3})?)(?:__(?<variantSegment>v-[a-z0-9]+))?\.(?<extension>[^.]+)$/;
 
 const sanitizeSegment = (value: string): string => value
   .replaceAll(/[^a-zA-Z0-9._-]/g, '_')
@@ -46,26 +46,30 @@ export const formatClipTimestamp = (seconds: number): string => {
     throw new TypeError('seconds must be a non-negative finite number');
   }
 
-  const wholeSeconds = Math.floor(seconds);
+  const totalMilliseconds = Math.round(seconds * 1000);
+  const wholeSeconds = Math.floor(totalMilliseconds / 1000);
+  const milliseconds = totalMilliseconds % 1000;
   const hours = Math.floor(wholeSeconds / 3600);
   const minutes = Math.floor((wholeSeconds % 3600) / 60);
   const remainingSeconds = wholeSeconds % 60;
 
-  return `${pad(hours, 2)}-${pad(minutes, 2)}-${pad(remainingSeconds, 2)}`;
+  return `${pad(hours, 2)}-${pad(minutes, 2)}-${pad(remainingSeconds, 2)}-${pad(milliseconds, 3)}`;
 };
 
 export const parseClipTimestamp = (value: string): number | null => {
-  if (typeof value !== 'string' || !/^\d{2}-\d{2}-\d{2}$/.test(value)) {
+  if (typeof value !== 'string' || !/^\d{2}-\d{2}-\d{2}(?:-\d{3})?$/.test(value)) {
     return null;
   }
 
-  const [hours, minutes, seconds] = value.split('-').map(Number);
+  const segments = value.split('-').map(Number);
+  const [hours, minutes, seconds] = segments;
+  const milliseconds = segments[3] ?? 0;
 
-  if ([hours, minutes, seconds].some((segment) => !Number.isInteger(segment))) {
+  if ([hours, minutes, seconds, milliseconds].some((segment) => !Number.isInteger(segment))) {
     return null;
   }
 
-  return (hours * 3600) + (minutes * 60) + seconds;
+  return (hours * 3600) + (minutes * 60) + seconds + (milliseconds / 1000);
 };
 
 export const buildClipOutputName = ({

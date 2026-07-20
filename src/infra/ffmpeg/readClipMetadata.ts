@@ -71,6 +71,27 @@ const resolveFfprobeCandidates = async (): Promise<string[]> => {
   return candidates;
 };
 
+const resolveTagValue = (
+  tags: Record<string, unknown>,
+  canonicalKey: string,
+): string | null => {
+  const normalizedTargetKey = canonicalKey.toLowerCase();
+
+  for (const [key, value] of Object.entries(tags)) {
+    if (typeof value !== 'string') {
+      continue;
+    }
+
+    const normalizedKey = key.toLowerCase();
+
+    if (normalizedKey === normalizedTargetKey || normalizedKey.endsWith(`.${normalizedTargetKey}`)) {
+      return value;
+    }
+  }
+
+  return null;
+};
+
 const parseProbeOutput = (stdout: string): ReadClipMetadataResult => {
   let parsed: unknown;
 
@@ -88,8 +109,8 @@ const parseProbeOutput = (stdout: string): ReadClipMetadataResult => {
     ? parsed as { format?: { tags?: Record<string, unknown> } }
     : {};
   const tags = root.format?.tags ?? {};
-  const discoveryApp = typeof tags.cutrail_app === 'string' ? tags.cutrail_app : null;
-  const discoveryJson = typeof tags.cutrail_export_json === 'string' ? tags.cutrail_export_json : null;
+  const discoveryApp = resolveTagValue(tags, 'cutrail_app');
+  const discoveryJson = resolveTagValue(tags, 'cutrail_export_json');
   const hasDiscoveryTags = discoveryApp === EXPORT_METADATA_APP_NAME || discoveryJson !== null;
 
   if (!hasDiscoveryTags || discoveryJson === null) {
@@ -144,8 +165,9 @@ export const readClipMetadata = async (filePath: string): Promise<ReadClipMetada
   for (const command of candidates) {
     try {
       const result = await probeWithCommand(command, commandArguments);
+      const parsed = parseProbeOutput(result.stdout);
 
-      return parseProbeOutput(result.stdout);
+      return parsed;
     } catch {
       // Try next candidate.
     }

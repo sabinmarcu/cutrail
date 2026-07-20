@@ -155,4 +155,94 @@ describe('readClipMetadata', () => {
     expect(result.metadata).toBeNull();
     expect(result.metadataError).toBeNull();
   });
+
+  it('reads discovery metadata when ffprobe exposes uppercase tag keys', async () => {
+    vi.resetModules();
+    const child = createFakeProcess();
+    vi.doMock('node:child_process', () => ({
+      spawn: vi.fn(() => {
+        setTimeout(() => {
+          child.stdout.emit('data', Buffer.from(JSON.stringify({
+            format: {
+              tags: {
+                CUTRAIL_APP: 'cutrail',
+                CUTRAIL_EXPORT_JSON: JSON.stringify({
+                  schemaVersion: 1,
+                  appName: 'cutrail',
+                  clipId: 'clip_upper',
+                  planId: 'plan_upper',
+                  sourceFingerprint: 'fp_upper',
+                  rangeMs: {
+                    startMs: 1000,
+                    endMs: 2000,
+                    durationMs: 1000,
+                  },
+                  trimMode: 'fast',
+                  selectedAudioTrackIndices: [0],
+                  mutedAudioTrackIndices: [],
+                  variantKey: 'trim=fast|selected=0|muted=',
+                  createdAtMs: 1_700_000_000_000,
+                }),
+              },
+            },
+          })));
+          child.emit('close', 0);
+        }, 0);
+
+        return child;
+      }),
+    }));
+
+    const { readClipMetadata } = await import('./readClipMetadata.ts');
+    const result = await readClipMetadata('/clips/clip-upper.mp4');
+
+    expect(result.hasDiscoveryTags).toBe(true);
+    expect(result.metadata?.clipId).toBe('clip_upper');
+    expect(result.metadataError).toBeNull();
+  });
+
+  it('reads discovery metadata when ffprobe exposes namespaced tag keys', async () => {
+    vi.resetModules();
+    const child = createFakeProcess();
+    vi.doMock('node:child_process', () => ({
+      spawn: vi.fn(() => {
+        setTimeout(() => {
+          child.stdout.emit('data', Buffer.from(JSON.stringify({
+            format: {
+              tags: {
+                'com.apple.quicktime.cutrail_app': 'cutrail',
+                'com.apple.quicktime.cutrail_export_json': JSON.stringify({
+                  schemaVersion: 1,
+                  appName: 'cutrail',
+                  clipId: 'clip_ns',
+                  planId: 'plan_ns',
+                  sourceFingerprint: 'fp_ns',
+                  rangeMs: {
+                    startMs: 1000,
+                    endMs: 2000,
+                    durationMs: 1000,
+                  },
+                  trimMode: 'fast',
+                  selectedAudioTrackIndices: [0],
+                  mutedAudioTrackIndices: [],
+                  variantKey: 'trim=fast|selected=0|muted=',
+                  createdAtMs: 1_700_000_000_000,
+                }),
+              },
+            },
+          })));
+          child.emit('close', 0);
+        }, 0);
+
+        return child;
+      }),
+    }));
+
+    const { readClipMetadata } = await import('./readClipMetadata.ts');
+    const result = await readClipMetadata('/clips/clip-ns.mp4');
+
+    expect(result.hasDiscoveryTags).toBe(true);
+    expect(result.metadata?.clipId).toBe('clip_ns');
+    expect(result.metadataError).toBeNull();
+  });
 });

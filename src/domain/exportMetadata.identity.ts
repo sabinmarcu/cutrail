@@ -2,9 +2,11 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type {
   ExportTrimMode,
-  ExportRangeMilliseconds,
 } from '../shared/exportMetadata.ts';
-import { normalizeTrackIndices } from './exportMetadata.normalize.ts';
+import {
+  createRangeKey,
+  normalizeTrackIndices,
+} from './exportMetadata.normalize.ts';
 
 type VariantIdentityInput = {
   trimMode: ExportTrimMode;
@@ -34,10 +36,6 @@ export const createSourceFingerprint = (sourcePath: string): string => {
 
   return hashText(path.resolve(sourcePath));
 };
-
-export const createRangeKey = (rangeMs: ExportRangeMilliseconds): string => (
-  `${rangeMs.startMs}:${rangeMs.endMs}:${rangeMs.durationMs}`
-);
 
 export const createVariantKey = ({
   trimMode,

@@ -5,10 +5,10 @@ import {
 } from 'vitest';
 
 import {
-  createRangeKey,
   createSourceFingerprint,
   createVariantKey,
 } from './exportMetadata.identity.ts';
+import { createRangeKey } from './exportMetadata.normalize.ts';
 
 describe('export metadata identity', () => {
   it('produces stable source fingerprint for the same source path', () => {

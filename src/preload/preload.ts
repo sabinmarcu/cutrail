@@ -8,12 +8,9 @@ import {
 import type {
   CutrailBridge,
   ExistingExportClipsSnapshot,
-  OutputDirectorySnapshotPayload,
   ExportProgressPayload,
-  SourceDirectorySnapshotPayload,
   StartupWindowMode,
   UpdateDialogState,
-  WatcherHealthPayload,
 } from '../shared/contracts.ts';
 
 const resolveMediaUrl = (inputPath: string): string => {
@@ -129,24 +126,6 @@ export const cutrailBridge: CutrailBridge = {
   onStartupWindowModeUpdated: (listener: Parameters<CutrailBridge['onStartupWindowModeUpdated']>[0]) => subscribeToChannel<StartupWindowMode>('cutrail:startup-window-mode-updated', listener),
   onSourceDirectoryUpdated: (listener: Parameters<CutrailBridge['onSourceDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:source-directory-updated', listener),
   onOutputDirectoryUpdated: (listener: Parameters<CutrailBridge['onOutputDirectoryUpdated']>[0]) => subscribeToChannel<string>('cutrail:output-directory-updated', listener),
-  onSourceDirectorySnapshotUpdated: (
-    listener: Parameters<CutrailBridge['onSourceDirectorySnapshotUpdated']>[0],
-  ) => subscribeToChannel<SourceDirectorySnapshotPayload>(
-    'cutrail:source-directory-snapshot-updated',
-    listener,
-  ),
-  onOutputDirectorySnapshotUpdated: (
-    listener: Parameters<CutrailBridge['onOutputDirectorySnapshotUpdated']>[0],
-  ) => subscribeToChannel<OutputDirectorySnapshotPayload>(
-    'cutrail:output-directory-snapshot-updated',
-    listener,
-  ),
-  onWatcherHealthUpdated: (
-    listener: Parameters<CutrailBridge['onWatcherHealthUpdated']>[0],
-  ) => subscribeToChannel<WatcherHealthPayload>(
-    'cutrail:watcher-health-updated',
-    listener,
-  ),
   onWindowDecorationMenuPreferenceUpdated: (
     listener: Parameters<CutrailBridge['onWindowDecorationMenuPreferenceUpdated']>[0],
   ) => subscribeToChannel(

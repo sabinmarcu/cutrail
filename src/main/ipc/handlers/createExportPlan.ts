@@ -66,11 +66,11 @@ const registerCreateExportPlanHandler = () => {
     const {
       createClipId,
       createPlanId,
-      createRangeKey,
       createSourceFingerprint,
       createVariantKey,
     } = await import('../../../domain/exportMetadata.identity.ts');
     const {
+      createRangeKey,
       normalizeRangeMilliseconds,
       normalizeTrackIndices,
     } = await import('../../../domain/exportMetadata.normalize.ts');

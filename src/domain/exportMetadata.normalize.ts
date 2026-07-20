@@ -29,6 +29,10 @@ export const normalizeRangeMilliseconds = (range: RangeSecondsLike): RangeMillis
   };
 };
 
+export const createRangeKey = (rangeMs: RangeMilliseconds): string => (
+  `${rangeMs.startMs}:${rangeMs.endMs}:${rangeMs.durationMs}`
+);
+
 export const normalizeTrackIndices = (trackIndices: readonly number[] | undefined): number[] => {
   if (!Array.isArray(trackIndices)) {
     return [];

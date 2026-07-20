@@ -4,10 +4,10 @@ import {
 } from 'node:fs/promises';
 import path from 'node:path';
 import {
-  createRangeKey,
   createSourceFingerprint,
 } from '../../../domain/exportMetadata.identity.ts';
 import {
+  createRangeKey,
   normalizeRangeMilliseconds,
 } from '../../../domain/exportMetadata.normalize.ts';
 import {

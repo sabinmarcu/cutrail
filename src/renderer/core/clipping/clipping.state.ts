@@ -234,7 +234,7 @@ export const useClippingState = (
       let changed = false;
 
       const nextVariants = previous.map((variant) => {
-        if (!variant.isEditable) {
+        if (variant.isEditable !== true) {
           return variant;
         }
 

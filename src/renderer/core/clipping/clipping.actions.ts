@@ -441,7 +441,10 @@ export const useClippingActions = (state: ClippingStateModel): ClippingActions =
       }
 
       const rangesById = new Map(state.ranges.map((range) => [range.id, range]));
-      const planParts = await Promise.all(state.draftClipVariants.map(async (variant) => {
+      const exportableDraftVariants = state.draftClipVariants.filter((variant) => (
+        variant.isEditable === true
+      ));
+      const planParts = await Promise.all(exportableDraftVariants.map(async (variant) => {
         const range = rangesById.get(variant.rangeId);
 
         if (!range) {

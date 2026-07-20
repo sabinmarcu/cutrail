@@ -6,9 +6,13 @@ import type {
   ExistingClip,
   ProgressById,
 } from './clipping.types';
+import {
+  createRangeKey,
+  normalizeRangeMilliseconds,
+} from '../../../domain/exportMetadata.normalize';
 
-const buildRangeLookupKey = (range: { start: number; end: number }): string => (
-  `${Math.floor(range.start)}:${Math.floor(range.end)}`
+const buildRangeLookupKey = (range: { start: number; end: number }): string => createRangeKey(
+  normalizeRangeMilliseconds(range),
 );
 
 export const normalizeVariantTrackIndices = (trackIndices: number[] | undefined): number[] => {
@@ -91,19 +95,64 @@ const toVariantStatus = ({
   return 'draft';
 };
 
+const toVariantState = ({
+  status,
+}: {
+  status: ClipVariantEntry['status'];
+}): ClipVariantEntry['state'] => {
+  if (status === 'exporting') {
+    return 'exporting';
+  }
+
+  if (status === 'exported' || status === 'legacy' || status === 'foreign' || status === 'invalid') {
+    return 'exported';
+  }
+
+  return 'draft';
+};
+
+const withDerivedVariantLifecycle = (
+  variantEntry: Omit<ClipVariantEntry, 'state' | 'isEditable'>,
+): ClipVariantEntry => {
+  const state = toVariantState({ status: variantEntry.status });
+
+  if (state === 'draft') {
+    return {
+      ...variantEntry,
+      state,
+      isEditable: true,
+    };
+  }
+
+  if (state === 'exporting') {
+    return {
+      ...variantEntry,
+      state,
+      isEditable: false,
+    };
+  }
+
+  return {
+    ...variantEntry,
+    state,
+    isEditable: false,
+  };
+};
+
 const buildFallbackActiveVariant = (
   range: ClipRange,
   defaultTrimMode: 'fast' | 'accurate',
 ): ClipVariantEntry => ({
   clip: null,
   filePath: null,
-  isEditable: true,
   isLocked: false,
   key: `${range.id}::fallback`,
   modifiedAtMs: null,
   mutedAudioTrackIndices: [],
   progressText: 'pending',
   selectedAudioTrackIndices: [],
+  state: 'draft',
+  isEditable: true,
   status: 'draft',
   trimMode: defaultTrimMode,
 });
@@ -157,10 +206,9 @@ export const deriveClipEntries = ({
 
     for (const clip of trustedExistingClips) {
       const key = toVariantKeyFromClip(clip);
-      const nextEntry: ClipVariantEntry = {
+      const nextEntry = withDerivedVariantLifecycle({
         clip,
         filePath: clip.filePath,
-        isEditable: false,
         isLocked: true,
         key,
         modifiedAtMs: typeof clip.modifiedAtMs === 'number' ? clip.modifiedAtMs : null,
@@ -174,7 +222,7 @@ export const deriveClipEntries = ({
           rangeStatus: 'COMPLETED',
         }),
         trimMode: clip.trimMode,
-      };
+      });
 
       const previousEntries = existingVariantEntriesByMergeKey.get(key) ?? [];
 
@@ -184,11 +232,9 @@ export const deriveClipEntries = ({
     const takeExistingVariantEntry = ({
       mergeKey,
       plannedOutputPath,
-      sourceFilePath,
     }: {
       mergeKey: string;
       plannedOutputPath: string | undefined;
-      sourceFilePath: string | null;
     }): ClipVariantEntry | null => {
       const matchingExistingEntries = existingVariantEntriesByMergeKey.get(mergeKey) ?? [];
 
@@ -216,10 +262,6 @@ export const deriveClipEntries = ({
         return null;
       }
 
-      if (typeof sourceFilePath === 'string' && sourceFilePath.length > 0) {
-        return null;
-      }
-
       const matchedEntry = matchingExistingEntries.shift() ?? null;
 
       if (matchingExistingEntries.length === 0) {
@@ -242,11 +284,38 @@ export const deriveClipEntries = ({
         ),
         mutedAudioTrackIndices: normalizeVariantTrackIndices(draftVariant.mutedAudioTrackIndices),
       });
-      const existingVariantEntry = takeExistingVariantEntry({
+      let existingVariantEntry = takeExistingVariantEntry({
         mergeKey,
         plannedOutputPath,
-        sourceFilePath: draftVariant.sourceFilePath,
       });
+
+      if (!existingVariantEntry && draftVariant.sourceFilePath === null) {
+        const remainingExistingEntries = Array.from(existingVariantEntriesByMergeKey.entries())
+          .flatMap(([existingKey, entries]) => entries.map((entry) => ({
+            existingKey,
+            entry,
+          })));
+
+        // If there is exactly one draft variant and one existing clip for this range,
+        // pair them even when variant metadata is missing (legacy fallback path).
+        if (rangeDraftVariants.length === 1 && remainingExistingEntries.length === 1) {
+          const [fallbackCandidate] = remainingExistingEntries;
+          const fallbackEntries = existingVariantEntriesByMergeKey.get(fallbackCandidate.existingKey) ?? [];
+          const fallbackIndex = fallbackEntries.findIndex((entry) => entry === fallbackCandidate.entry);
+
+          if (fallbackIndex !== -1) {
+            const [matchedFallback] = fallbackEntries.splice(fallbackIndex, 1);
+
+            if (fallbackEntries.length === 0) {
+              existingVariantEntriesByMergeKey.delete(fallbackCandidate.existingKey);
+            } else {
+              existingVariantEntriesByMergeKey.set(fallbackCandidate.existingKey, fallbackEntries);
+            }
+
+            existingVariantEntry = matchedFallback;
+          }
+        }
+      }
 
       const rangeStatus = clipStatusMap[draftVariant.id] ?? 'DRAFT';
       const progressRatio = progressById[draftVariant.id]?.ratio ?? null;
@@ -265,10 +334,9 @@ export const deriveClipEntries = ({
           rangeStatus,
         });
 
-      variantEntries.push({
+      variantEntries.push(withDerivedVariantLifecycle({
         clip: existingVariantEntry?.clip ?? null,
         filePath: existingVariantEntry?.filePath ?? null,
-        isEditable: draftVariant.isEditable,
         isLocked: existingVariantEntry !== null,
         key: draftVariant.id,
         modifiedAtMs: existingVariantEntry?.modifiedAtMs ?? null,
@@ -281,7 +349,7 @@ export const deriveClipEntries = ({
         ),
         status: mergedStatus,
         trimMode: draftVariant.trimMode,
-      });
+      }));
     }
 
     for (const unmatchedExistingEntries of existingVariantEntriesByMergeKey.values()) {
@@ -289,7 +357,8 @@ export const deriveClipEntries = ({
     }
 
     const sortedVariantEntries = variantEntries.sort((left, right) => (
-      left.trimMode.localeCompare(right.trimMode)
+      (left.state === 'draft' ? 0 : 1) - (right.state === 'draft' ? 0 : 1)
+      || left.trimMode.localeCompare(right.trimMode)
       || left.key.localeCompare(right.key)
     ));
     const activeVariant = sortedVariantEntries.find((entry) => entry.key === selectedVariantId)
