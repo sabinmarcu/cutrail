@@ -1,7 +1,8 @@
 import type { WindowMenuModel } from './windowMenu.ts';
 import type { ThemePrimaryColorValue } from './themePrimaryColor.ts';
 import type {
-
+  ClipClassificationKind,
+  ClipIdentityKeys,
   ExportClipMetadata,
 } from './exportMetadata.ts';
 
@@ -96,6 +97,11 @@ export type ExistingExportClip = {
   };
   extension: string;
   metadata?: ExportClipMetadata | null;
+  metadataPresence?: ClipClassificationKind;
+  classificationKind?: ClipClassificationKind;
+  identityKeys?: ClipIdentityKeys;
+  selectedAudioTrackIndices?: number[];
+  mutedAudioTrackIndices?: number[];
 };
 
 export type ExistingExportClipsSnapshot = {

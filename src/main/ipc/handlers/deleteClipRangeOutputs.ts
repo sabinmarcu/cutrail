@@ -5,10 +5,13 @@ import {
 import path from 'node:path';
 import { ipcMain } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
+import { createSourceFingerprint } from '../../../domain/exportMetadata.identity.ts';
+import { normalizeRangeMilliseconds } from '../../../domain/exportMetadata.normalize.ts';
 import {
   normalizeClipSourceName,
   parseClipOutputName,
 } from '../../../domain/outputName.ts';
+import { readClipMetadata } from '../../../infra/ffmpeg/readClipMetadata.ts';
 
 type ClipRangeLike = { start: number; end: number };
 
@@ -17,6 +20,10 @@ type ClipRangeLike = { start: number; end: number };
  * @returns {string}
  */
 const buildRangeLookupKey = (range: ClipRangeLike): string => `${Math.floor(range.start)}:${Math.floor(range.end)}`;
+
+const buildRangeLookupKeyFromMilliseconds = (range: { startMs: number; endMs: number }): string => (
+  `${range.startMs}:${range.endMs}`
+);
 
 /** @returns {void} */
 const registerDeleteClipRangeOutputsHandler = () => {
@@ -45,16 +52,42 @@ const registerDeleteClipRangeOutputsHandler = () => {
     }
 
     const sourceName = normalizeClipSourceName(sourcePath);
+    const sourceFingerprint = createSourceFingerprint(sourcePath);
     const targetRangeKey = buildRangeLookupKey({
       start,
       end,
     });
+    const targetRangeMsKey = buildRangeLookupKeyFromMilliseconds(
+      normalizeRangeMilliseconds({
+        start,
+        end,
+      }),
+    );
 
     try {
       const entries = await readdir(outputDirectory, { withFileTypes: true });
-      const matchingPaths = entries
+      const maybeMatchingPaths = await Promise.all(entries
         .filter((entry) => entry.isFile())
-        .map((entry) => {
+        .map(async (entry) => {
+          const filePath = path.join(outputDirectory, entry.name);
+          const metadataReadback = await readClipMetadata(filePath).catch(() => null);
+
+          if (metadataReadback?.metadata) {
+            const { metadata } = metadataReadback;
+
+            const metadataRangeKey = buildRangeLookupKeyFromMilliseconds({
+              startMs: metadata.rangeMs.startMs,
+              endMs: metadata.rangeMs.endMs,
+            });
+
+            if (
+              metadata.sourceFingerprint === sourceFingerprint
+              && metadataRangeKey === targetRangeMsKey
+            ) {
+              return filePath;
+            }
+          }
+
           const parsed = parseClipOutputName(entry.name);
 
           if (
@@ -65,9 +98,13 @@ const registerDeleteClipRangeOutputsHandler = () => {
             return null;
           }
 
-          return path.join(outputDirectory, entry.name);
-        })
-        .filter((candidate): candidate is string => typeof candidate === 'string' && candidate.length > 0);
+          return filePath;
+        }));
+      const matchingPaths = maybeMatchingPaths.filter(
+        (candidate): candidate is string => (
+          typeof candidate === 'string' && candidate.length > 0
+        ),
+      );
 
       await Promise.all(matchingPaths.map((filePath) => unlink(filePath)));
 

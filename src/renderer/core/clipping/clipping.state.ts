@@ -115,7 +115,12 @@ export const useClippingState = (
     )
     .map((range) => {
       const matchingExistingClips = existingClips.filter(
-        (clip) => buildRangeLookupKey(clip.range) === buildRangeLookupKey(range),
+        (clip) => {
+          const classification = clip.classificationKind;
+          const isTrusted = classification !== 'foreign' && classification !== 'invalid';
+
+          return isTrusted && buildRangeLookupKey(clip.range) === buildRangeLookupKey(range);
+        },
       );
 
       return {

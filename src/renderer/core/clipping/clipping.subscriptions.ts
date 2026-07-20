@@ -13,6 +13,12 @@ const buildRangeLookupKey = (range: { start: number; end: number }): string => (
   `${Math.floor(range.start)}:${Math.floor(range.end)}`
 );
 
+const isTrustedExistingClip = (clip: ExistingClip): boolean => {
+  const classification = clip.classificationKind;
+
+  return classification !== 'foreign' && classification !== 'invalid';
+};
+
 const mergeRangesWithExistingClips = (
   previousRanges: ClipRange[],
   existingClips: ExistingClip[],
@@ -22,7 +28,9 @@ const mergeRangesWithExistingClips = (
     previousRanges.map((range) => buildRangeLookupKey(range)),
   );
   const uniqueClipsByRangeKey = new Map(
-    existingClips.map((clip) => [buildRangeLookupKey(clip.range), clip]),
+    existingClips
+      .filter((clip) => isTrustedExistingClip(clip))
+      .map((clip) => [buildRangeLookupKey(clip.range), clip]),
   );
 
   for (const clip of uniqueClipsByRangeKey.values()) {

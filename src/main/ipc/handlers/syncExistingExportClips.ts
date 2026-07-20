@@ -1,31 +1,10 @@
 import { watch } from 'node:fs';
 import type { FSWatcher } from 'node:fs';
-import {
-  readdir,
-  stat,
-} from 'node:fs/promises';
-import path from 'node:path';
 import { ipcMain } from 'electron';
 import type { WebContents } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
-import {
-  normalizeClipSourceName,
-  parseClipOutputName,
-} from '../../../domain/outputName.ts';
-
-type ExistingClipPayload = {
-  fileName: string;
-  filePath: string;
-  modifiedAtMs: number;
-  sourceName: string;
-  trimMode: 'fast' | 'accurate';
-  range: {
-    start: number;
-    end: number;
-    duration: number;
-  };
-  extension: string;
-};
+import type { ExistingExportClip } from '../../../shared/contracts.ts';
+import { scanExistingExportClips } from './syncExistingExportClips.scan.ts';
 
 type SyncPayload = {
   sourcePath?: string;
@@ -47,7 +26,7 @@ const watcherByWebContentsId = new Map<number, ExistingClipsWatcherState>();
  */
 const sendExistingClipsUpdate = (
   sender: WebContents,
-  payload: { sourcePath: string; outputDirectory: string; clips: ExistingClipPayload[] },
+  payload: { sourcePath: string; outputDirectory: string; clips: ExistingExportClip[] },
 ): void => {
   if (sender.isDestroyed()) {
     return;
@@ -101,7 +80,6 @@ const syncWatcherSnapshot = async (
   }
 
   const webContentsId = sender.id;
-  const sourceName = normalizeClipSourceName(sourcePath);
   const existingState = watcherByWebContentsId.get(webContentsId);
 
   if (existingState?.watchDirectory !== outputDirectory) {
@@ -110,28 +88,10 @@ const syncWatcherSnapshot = async (
 
   const refreshSnapshot = async () => {
     try {
-      const entries = await readdir(outputDirectory, { withFileTypes: true });
-      const clipResults = await Promise.all(entries
-        .filter((entry) => entry.isFile())
-        .map(async (entry) => {
-          const parsed = parseClipOutputName(entry.name);
-
-          if (!parsed || parsed.sourceName !== sourceName) {
-            return null;
-          }
-
-          const filePath = path.join(outputDirectory, entry.name);
-          const fileStats = await stat(filePath).catch(() => null);
-
-          return {
-            fileName: entry.name,
-            filePath,
-            modifiedAtMs: fileStats?.mtimeMs ?? 0,
-            ...parsed,
-          } satisfies ExistingClipPayload;
-        }));
-      const clips = clipResults
-        .filter((clip): clip is ExistingClipPayload => clip !== null);
+      const clips = await scanExistingExportClips({
+        sourcePath,
+        outputDirectory,
+      });
 
       sendExistingClipsUpdate(sender, {
         sourcePath,
