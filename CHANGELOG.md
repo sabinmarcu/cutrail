@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.11.0](https://github.com/sabinmarcu/cutrail/compare/v0.10.1...v0.11.0) (2026-07-20)
+
+
+### Features
+
+* **editor:** complete phase-3 watcher-driven revamp and status UX ([f580466](https://github.com/sabinmarcu/cutrail/commit/f58046678fffe5d2c6cb99e1839ef82993a4e207))
+* **editor:** refine clip card preview controls and exporting progress UI ([5aff65b](https://github.com/sabinmarcu/cutrail/commit/5aff65b995f83d613dcfdb4b25cb5e3903c29135))
+* **export:** add phase-0 metadata contracts and identity schemas ([c1d8263](https://github.com/sabinmarcu/cutrail/commit/c1d8263ab16d5de346cef6eec64401aa4f4d0619))
+* **export:** embed cutrail metadata in ffmpeg outputs ([44d09d8](https://github.com/sabinmarcu/cutrail/commit/44d09d8480a7948e267e24b2c1e89301f32c767b))
+* **phase4:** complete migration validation and watcher hardening ([3d54cf2](https://github.com/sabinmarcu/cutrail/commit/3d54cf296e9456859c1245ff2b874fed148b86ef))
+* **sync:** use metadata-first clip readback for editor and library ([b385828](https://github.com/sabinmarcu/cutrail/commit/b385828ae0d84c65af6a7407f43ee5ed11b038cc))
+
+
+### Bug Fixes
+
+* **pr:** address copilot review findings ([68dbdd1](https://github.com/sabinmarcu/cutrail/commit/68dbdd1f34da1ec3efb4e7a11e64262c90ae343a))
+
 ## [0.10.1](https://github.com/sabinmarcu/cutrail/compare/v0.10.0...v0.10.1) (2026-07-19)
 
 
