@@ -35,9 +35,18 @@ const binaryResolutionOptions: Array<{
   label: string;
   value: BinaryResolutionMode;
 }> = [
-  { label: 'Auto', value: 'auto' },
-  { label: 'Bundled', value: 'bundled' },
-  { label: 'Local', value: 'local' },
+  {
+    label: 'Auto',
+    value: 'auto',
+  },
+  {
+    label: 'Bundled',
+    value: 'bundled',
+  },
+  {
+    label: 'Local',
+    value: 'local',
+  },
 ];
 
 const defaultWindowDecorationMenuPreference: WindowDecorationMenuPreferenceState = {
@@ -223,8 +232,14 @@ export const OptionsWindow = () => {
                 globalThis.cutrail?.setStartupWindowMode?.(resolvedMode);
               }}
               options={[
-                { label: 'Splash Screen', value: 'splash' },
-                { label: 'Library Window', value: 'library' },
+                {
+                  label: 'Splash Screen',
+                  value: 'splash',
+                },
+                {
+                  label: 'Library Window',
+                  value: 'library',
+                },
               ]}
             />
           </div>
@@ -246,8 +261,14 @@ export const OptionsWindow = () => {
                 globalThis.cutrail?.setDefaultTrimMode?.(resolvedMode);
               }}
               options={[
-                { label: 'Quick', value: 'fast' },
-                { label: 'Accurate', value: 'accurate' },
+                {
+                  label: 'Quick',
+                  value: 'fast',
+                },
+                {
+                  label: 'Accurate',
+                  value: 'accurate',
+                },
               ]}
             />
           </div>

@@ -132,8 +132,14 @@ export const LibraryWindowDecoration = ({
               setSortDirection(nextValue as LibrarySortDirection);
             }}
             options={[
-              { label: 'Ascending', value: 'asc' },
-              { label: 'Descending', value: 'desc' },
+              {
+                label: 'Ascending',
+                value: 'asc',
+              },
+              {
+                label: 'Descending',
+                value: 'desc',
+              },
             ]}
           />
         </label>
@@ -146,9 +152,18 @@ export const LibraryWindowDecoration = ({
             value={filterMode}
             onChange={(nextValue) => setFilterMode(nextValue as LibraryFilterMode)}
             options={[
-              { label: 'All Videos', value: 'all' },
-              { label: 'With Clips', value: 'with-clips' },
-              { label: 'Without Clips', value: 'without-clips' },
+              {
+                label: 'All Videos',
+                value: 'all',
+              },
+              {
+                label: 'With Clips',
+                value: 'with-clips',
+              },
+              {
+                label: 'Without Clips',
+                value: 'without-clips',
+              },
             ]}
           />
         </label>

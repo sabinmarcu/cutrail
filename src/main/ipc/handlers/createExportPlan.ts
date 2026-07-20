@@ -95,7 +95,7 @@ const registerCreateExportPlanHandler = () => {
     const { outputDirectory } = parsedPayload.data;
     const ranges = parseRanges(parsedPayload.data.ranges);
     const extension = parsedPayload.data.extension ?? 'mp4';
-    const trimMode = parsedPayload.data.trimMode ?? 'accurate';
+    const trimMode = parsedPayload.data.trimMode ?? 'fast';
     const selectedAudioTrackIndices = normalizeTrackIndices(
       parsedPayload.data.selectedAudioTrackIndices,
     );

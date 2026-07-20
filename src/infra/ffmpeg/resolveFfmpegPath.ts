@@ -27,7 +27,7 @@ const canResolveSystemCommand = (command: string): boolean => {
       stdio: 'ignore',
     });
 
-    return typeof result.error === 'undefined';
+    return result.error === undefined;
   } catch {
     return false;
   }
