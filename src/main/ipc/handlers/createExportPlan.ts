@@ -132,14 +132,14 @@ const registerCreateExportPlanHandler = () => {
           range: job.range,
         })
         : job.range;
-      const resolvedRange = {
+      const snappedRange = {
         ...job.range,
         start: resolvedTrimRange.start,
         duration: resolvedTrimRange.duration,
         end: resolvedTrimRange.start + resolvedTrimRange.duration,
       };
       const metadata = exportClipMetadataSchema.parse((() => {
-        const rangeMs = normalizeRangeMilliseconds(resolvedRange);
+        const rangeMs = normalizeRangeMilliseconds(job.range);
         const rangeKey = createRangeKey(rangeMs);
 
         return {
@@ -166,14 +166,14 @@ const registerCreateExportPlanHandler = () => {
       return {
         ...job,
         outputPath: resolvedOutputPath,
-        range: resolvedRange,
+        range: job.range,
         selectedAudioTrackIndices,
         mutedAudioTrackIndices,
         metadata,
         args: buildFastTrimCommand({
           inputPath: job.inputPath,
           outputPath: resolvedOutputPath,
-          range: resolvedRange,
+          range: snappedRange,
           trimMode,
           audioStreamIndices,
           metadata,
