@@ -13,11 +13,9 @@ const dedupeCandidates = (candidates: Array<string | null>): string[] => {
   const resolved: string[] = [];
 
   for (const candidate of candidates) {
-    if (!candidate || resolved.includes(candidate)) {
-      continue;
+    if (candidate && !resolved.includes(candidate)) {
+      resolved.push(candidate);
     }
-
-    resolved.push(candidate);
   }
 
   return resolved;

@@ -297,10 +297,16 @@ export const deriveClipEntries = ({
           })));
 
         // If there is exactly one draft variant and one existing clip for this range,
-        // pair them even when variant metadata is missing (legacy fallback path).
-        if (rangeDraftVariants.length === 1 && remainingExistingEntries.length === 1) {
+        // pair them even when variant metadata is missing
+        // (legacy fallback path).
+        if (
+          rangeDraftVariants.length === 1
+          && remainingExistingEntries.length === 1
+        ) {
           const [fallbackCandidate] = remainingExistingEntries;
-          const fallbackEntries = existingVariantEntriesByMergeKey.get(fallbackCandidate.existingKey) ?? [];
+          const fallbackEntries = existingVariantEntriesByMergeKey.get(
+            fallbackCandidate.existingKey,
+          ) ?? [];
           const fallbackIndex = fallbackEntries.indexOf(fallbackCandidate.entry);
 
           if (fallbackIndex !== -1) {

@@ -4,7 +4,6 @@ import type {
   ExportTrimMode,
 } from '../shared/exportMetadata.ts';
 import {
-  createRangeKey,
   normalizeTrackIndices,
 } from './exportMetadata.normalize.ts';
 

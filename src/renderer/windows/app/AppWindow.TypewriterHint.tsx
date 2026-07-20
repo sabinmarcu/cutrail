@@ -57,44 +57,42 @@ export const AppWindowTypewriterHint = () => {
   const holdDuration = useMemo(() => readingDurationMs(phrase), [phrase]);
 
   useEffect(() => {
+    let cleanup: (() => void) | undefined;
+
     if (stage === 'typing') {
       if (visibleLength >= phrase.length) {
         setStage('holding');
-        return;
+      } else {
+        const timeoutId = globalThis.setTimeout(() => {
+          setVisibleLength((currentLength) => Math.min(currentLength + 1, phrase.length));
+        }, TYPE_SPEED_MS);
+
+        cleanup = () => {
+          globalThis.clearTimeout(timeoutId);
+        };
       }
-
-      const timeoutId = globalThis.setTimeout(() => {
-        setVisibleLength((currentLength) => Math.min(currentLength + 1, phrase.length));
-      }, TYPE_SPEED_MS);
-
-      return () => {
-        globalThis.clearTimeout(timeoutId);
-      };
-    }
-
-    if (stage === 'holding') {
+    } else if (stage === 'holding') {
       const timeoutId = globalThis.setTimeout(() => {
         setStage('deleting');
       }, holdDuration);
 
-      return () => {
+      cleanup = () => {
+        globalThis.clearTimeout(timeoutId);
+      };
+    } else if (visibleLength <= 0) {
+      setPhraseIndex((currentIndex) => pickNextIndex(currentIndex, PHRASES.length));
+      setStage('typing');
+    } else {
+      const timeoutId = globalThis.setTimeout(() => {
+        setVisibleLength((currentLength) => Math.max(currentLength - 1, 0));
+      }, DELETE_SPEED_MS);
+
+      cleanup = () => {
         globalThis.clearTimeout(timeoutId);
       };
     }
 
-    if (visibleLength <= 0) {
-      setPhraseIndex((currentIndex) => pickNextIndex(currentIndex, PHRASES.length));
-      setStage('typing');
-      return;
-    }
-
-    const timeoutId = globalThis.setTimeout(() => {
-      setVisibleLength((currentLength) => Math.max(currentLength - 1, 0));
-    }, DELETE_SPEED_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutId);
-    };
+    return cleanup;
   }, [holdDuration, phrase, stage, visibleLength]);
 
   return (

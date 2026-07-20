@@ -55,14 +55,12 @@ const resolveTagValue = (
   const normalizedTargetKey = canonicalKey.toLowerCase();
 
   for (const [key, value] of Object.entries(tags)) {
-    if (typeof value !== 'string') {
-      continue;
-    }
+    if (typeof value === 'string') {
+      const normalizedKey = key.toLowerCase();
 
-    const normalizedKey = key.toLowerCase();
-
-    if (normalizedKey === normalizedTargetKey || normalizedKey.endsWith(`.${normalizedTargetKey}`)) {
-      return value;
+      if (normalizedKey === normalizedTargetKey || normalizedKey.endsWith(`.${normalizedTargetKey}`)) {
+        return value;
+      }
     }
   }
 
