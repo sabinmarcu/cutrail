@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import '@renderer/windows/globalReset.css';
 import { WindowDecoration } from '@renderer/components/WindowDecoration';
+import { useClippingState } from '@renderer/core/clipping';
 import {
   editorColumn,
   page,
@@ -31,7 +32,8 @@ const getSourceFilename = (sourcePath: string): string => {
 
 export const EditorWindow = () => {
   const initialSourcePath = useMemo(() => getInitialSourcePath(), []);
-  const subtitleText = useMemo(() => getSourceFilename(initialSourcePath), [initialSourcePath]);
+  const state = useClippingState({ initialSourcePath });
+  const subtitleText = useMemo(() => getSourceFilename(state.sourcePath), [state.sourcePath]);
 
   return (
     <main className={page}>

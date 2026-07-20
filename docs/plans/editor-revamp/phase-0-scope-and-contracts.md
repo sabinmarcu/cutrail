@@ -94,6 +94,22 @@ Split rule for this phase:
 - Tests cover success and invalid-input paths.
 - No renderer behavior change yet.
 
+## Implementation Status (2026-07-20)
+
+Overall: DONE
+
+Completed:
+
+1. Shared metadata contract and Zod schemas are in place.
+2. Canonical identity helpers exist for source fingerprint, range key, and variant key.
+3. Export job shape carries metadata payloads through plan creation.
+4. Identity and schema tests exist and cover core deterministic behavior.
+
+Notes:
+
+- This phase's foundation is implemented and actively used by later phases.
+- No blocking deltas identified for Phase 0.
+
 ### Phase Handoff Artifacts
 
 Provide these handoff notes in the implementing PR description:

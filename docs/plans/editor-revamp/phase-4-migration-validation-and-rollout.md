@@ -79,3 +79,25 @@ Split rule for this phase:
 - Team can proceed with confidence to remove deeper filename coupling in later work.
 - Zod validation failures are observable, actionable, and non-fatal to editor startup.
 - Watcher-driven list and editor updates are stable under normal and burst filesystem activity.
+
+## Implementation Status (2026-07-20)
+
+Overall: PARTIAL
+
+Completed:
+
+1. Legacy fallback is retained and clips remain operable.
+2. Metadata-first sync path is active for new clips.
+3. Variant-precise deletion behavior is implemented.
+
+Pending:
+
+1. Diagnostics window does not yet expose dedicated clip-classification and metadata-health surfacing for this rollout.
+2. Full validation matrix execution notes are not yet recorded in plan docs.
+3. User-facing README/documentation updates specific to metadata-first editor behavior and watcher behavior are incomplete.
+4. Watcher-contract hardening follow-ups remain: accurate `changeSummary` counters, precise source snapshot metadata/legacy flags, and watcher-contract tests.
+5. Plan docs still need explicit progress notes per completed rollout checkpoint.
+
+Notes:
+
+- Phase 4 should be treated as active hardening/rollout work, not complete.

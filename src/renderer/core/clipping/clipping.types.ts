@@ -50,6 +50,7 @@ export type ClipVariantEntry = {
   clip: ExistingClip | null;
   filePath: string | null;
   isEditable: boolean;
+  isLocked: boolean;
   key: string;
   modifiedAtMs: number | null;
   mutedAudioTrackIndices: number[];
@@ -61,6 +62,9 @@ export type ClipVariantEntry = {
 
 export type ClipEntry = {
   activeVariant: ClipVariantEntry;
+  exportedVariantCount: number;
+  exportingVariantCount: number;
+  draftVariantCount: number;
   range: ClipRange;
   trustedExistingCount: number;
   variantEntries: ClipVariantEntry[];

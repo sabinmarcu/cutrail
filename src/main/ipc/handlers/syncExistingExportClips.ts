@@ -5,6 +5,11 @@ import type { WebContents } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
 import type { ExistingExportClip } from '../../../shared/contracts.ts';
 import { scanExistingExportClips } from './syncExistingExportClips.scan.ts';
+import {
+  emitOutputDirectorySnapshotUpdate,
+  emitOutputDirectoryWatcherDegraded,
+  emitOutputDirectoryWatcherStopped,
+} from '../../watchers/outputDirectoryWatcher.ts';
 
 type SyncPayload = {
   sourcePath?: string;
@@ -33,6 +38,12 @@ const sendExistingClipsUpdate = (
   }
 
   sender.send('cutrail:existing-export-clips-updated', payload);
+  emitOutputDirectorySnapshotUpdate({
+    sender,
+    sourcePath: payload.sourcePath,
+    outputDirectory: payload.outputDirectory,
+    clips: payload.clips,
+  });
 };
 
 /**
@@ -54,6 +65,10 @@ const clearWatcher = (sender: WebContents, webContentsId: number): void => {
   }
 
   watcherByWebContentsId.delete(webContentsId);
+  emitOutputDirectoryWatcherStopped({
+    sender,
+    reason: 'output-watcher-cleared',
+  });
   sendExistingClipsUpdate(sender, {
     sourcePath: '',
     outputDirectory: '',
@@ -99,6 +114,11 @@ const syncWatcherSnapshot = async (
         clips,
       });
     } catch {
+      emitOutputDirectoryWatcherDegraded({
+        sender,
+        reason: 'output-directory-snapshot-refresh-failed',
+      });
+
       sendExistingClipsUpdate(sender, {
         sourcePath,
         outputDirectory,
@@ -131,6 +151,10 @@ const syncWatcherSnapshot = async (
 
     watcherByWebContentsId.set(webContentsId, watcherState);
     sender.once('destroyed', () => {
+      emitOutputDirectoryWatcherStopped({
+        sender,
+        reason: 'webcontents-destroyed',
+      });
       clearWatcher(sender, webContentsId);
     });
   } else {

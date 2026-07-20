@@ -1,4 +1,8 @@
-import { useEffect } from 'react';
+import {
+  useEffect,
+  useRef,
+} from 'react';
+import { useWatcherSubscriptions } from '@renderer/core/watchers';
 import { buildRangeId } from './clipping';
 import type {
   ClipRange,
@@ -81,6 +85,118 @@ export const useClippingSubscriptions = ({
     sourcePath,
     videoRef,
   } = state;
+  const sourcePathReference = useRef(sourcePath);
+  const sourceIdentityReference = useRef<{
+    extension: string;
+    modifiedAtMs: number;
+  } | null>(null);
+
+  useEffect(() => {
+    sourcePathReference.current = sourcePath;
+  }, [sourcePath]);
+
+  useEffect(() => {
+    if (typeof globalThis.cutrail?.getVideoLibrary !== 'function') {
+      return;
+    }
+
+    globalThis.cutrail.getVideoLibrary().catch(() => {
+      // Best-effort watcher bootstrap for editor windows.
+    });
+  }, []);
+
+  useEffect(() => {
+    if (
+      sourcePath.length === 0
+      || typeof globalThis.cutrail?.getVideoLibrary !== 'function'
+    ) {
+      sourceIdentityReference.current = null;
+
+      return;
+    }
+
+    globalThis.cutrail.getVideoLibrary().then((snapshot) => {
+      const videos = Array.isArray(snapshot.videos) ? snapshot.videos : [];
+      const currentSourcePath = sourcePathReference.current;
+      const matchingEntry = videos.find((video) => video.filePath === currentSourcePath);
+
+      if (!matchingEntry) {
+        return;
+      }
+
+      sourceIdentityReference.current = {
+        extension: matchingEntry.extension,
+        modifiedAtMs: matchingEntry.modifiedAtMs,
+      };
+    }).catch(() => {
+      sourceIdentityReference.current = null;
+    });
+  }, [sourcePath]);
+
+  useWatcherSubscriptions({
+    onOutputSnapshot: (payload) => {
+      if (
+        !payload
+        || payload.sourcePath !== sourcePath
+        || payload.outputDirectory !== outputDirectory
+      ) {
+        return;
+      }
+
+      setExistingClips(Array.isArray(payload.clips) ? payload.clips : []);
+      setRanges((previousRanges) => mergeRangesWithExistingClips(
+        previousRanges,
+        Array.isArray(payload.clips) ? payload.clips : [],
+      ));
+    },
+    onSourceSnapshot: (payload) => {
+      const currentSourcePath = sourcePathReference.current;
+
+      if (currentSourcePath.length === 0) {
+        return;
+      }
+
+      const videos = Array.isArray(payload.videos) ? payload.videos : [];
+      const matchingEntry = videos.find((video) => video.filePath === currentSourcePath);
+
+      if (matchingEntry) {
+        sourceIdentityReference.current = {
+          extension: matchingEntry.extension,
+          modifiedAtMs: matchingEntry.modifiedAtMs,
+        };
+
+        return;
+      }
+
+      const currentIdentity = sourceIdentityReference.current;
+
+      if (!currentIdentity) {
+        return;
+      }
+
+      const candidates = videos.filter((video) => (
+        video.extension === currentIdentity.extension
+        && Math.round(video.modifiedAtMs) === Math.round(currentIdentity.modifiedAtMs)
+      ));
+
+      if (candidates.length !== 1) {
+        return;
+      }
+
+      const nextSourcePath = candidates[0]?.filePath;
+
+      if (typeof nextSourcePath !== 'string' || nextSourcePath.length === 0) {
+        return;
+      }
+
+      if (nextSourcePath === currentSourcePath) {
+        return;
+      }
+
+      setSourcePath(nextSourcePath);
+      setErrorMessage('');
+    },
+  });
 
   useEffect(() => {
     if (typeof globalThis.cutrail?.onExportProgress !== 'function') {
@@ -96,27 +212,45 @@ export const useClippingSubscriptions = ({
   }, [setProgressById]);
 
   useEffect(() => {
-    if (typeof globalThis.cutrail?.onExistingExportClipsUpdated !== 'function') {
+    const hasLegacySubscription = (
+      typeof globalThis.cutrail?.onExistingExportClipsUpdated === 'function'
+    );
+
+    if (!hasLegacySubscription) {
       return undefined;
     }
 
-    return globalThis.cutrail.onExistingExportClipsUpdated(
-      (payload: ExistingExportClipsSnapshot) => {
-        if (
-          !payload
-          || payload.sourcePath !== sourcePath
-          || payload.outputDirectory !== outputDirectory
-        ) {
-          return;
-        }
+    const applySnapshot = (payload: {
+      sourcePath: string;
+      outputDirectory: string;
+      clips: ExistingClip[];
+    }) => {
+      if (
+        !payload
+        || payload.sourcePath !== sourcePath
+        || payload.outputDirectory !== outputDirectory
+      ) {
+        return;
+      }
 
-        setExistingClips(Array.isArray(payload.clips) ? payload.clips : []);
-        setRanges((previousRanges) => mergeRangesWithExistingClips(
-          previousRanges,
-          Array.isArray(payload.clips) ? payload.clips : [],
-        ));
-      },
-    );
+      setExistingClips(Array.isArray(payload.clips) ? payload.clips : []);
+      setRanges((previousRanges) => mergeRangesWithExistingClips(
+        previousRanges,
+        Array.isArray(payload.clips) ? payload.clips : [],
+      ));
+    };
+
+    const unsubscribeLegacy = hasLegacySubscription
+      ? (globalThis.cutrail?.onExistingExportClipsUpdated?.(
+        (payload: ExistingExportClipsSnapshot) => {
+          applySnapshot(payload);
+        },
+      ) ?? (() => {}))
+      : () => {};
+
+    return () => {
+      unsubscribeLegacy();
+    };
   }, [outputDirectory, setExistingClips, setRanges, sourcePath]);
 
   useEffect(() => {

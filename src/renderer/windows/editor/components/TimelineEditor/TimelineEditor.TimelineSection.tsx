@@ -17,6 +17,7 @@ import type {
   TrimMode,
 } from '@renderer/core/clipping/clipping.types';
 import type { RangeDragMode } from './TimelineEditor';
+import { TimelineEditorRangeCoverageBadge } from './TimelineEditor.RangeCoverageBadge';
 import { useVisualPlaybackTime } from './TimelineEditor.useVisualPlaybackTime';
 import { formatSeconds } from './TimelineEditor.utils';
 import {
@@ -171,7 +172,10 @@ export const TimelineEditorTimelineSection = ({
             style={{ insetInlineStart: `${duration > 0 ? (visualCurrentTime / duration) * 100 : 0}%` }}
           />
           {clipEntries.map((clipEntry) => {
-            const { isLocked, range } = clipEntry;
+            const {
+              isLocked,
+              range,
+            } = clipEntry;
             const left = duration > 0 ? (range.start / duration) * 100 : 0;
             const width = duration > 0 ? ((range.end - range.start) / duration) * 100 : 0;
 
@@ -199,6 +203,27 @@ export const TimelineEditorTimelineSection = ({
                 <span data-timeline-range="true" className={handle({ side: 'start' })} onPointerDown={isLocked ? undefined : onCreateDragHandler(range, 'resize-start')} />
                 <span data-timeline-range="true" className={handle({ side: 'end' })} onPointerDown={isLocked ? undefined : onCreateDragHandler(range, 'resize-end')} />
               </button>
+            );
+          })}
+          {clipEntries.map((clipEntry) => {
+            const {
+              draftVariantCount,
+              exportedVariantCount,
+              exportingVariantCount,
+              range,
+            } = clipEntry;
+            const left = duration > 0 ? (range.start / duration) * 100 : 0;
+            const width = duration > 0 ? ((range.end - range.start) / duration) * 100 : 0;
+
+            return (
+              <TimelineEditorRangeCoverageBadge
+                key={`${range.id}-coverage`}
+                draftCount={draftVariantCount}
+                exportedCount={exportedVariantCount}
+                exportingCount={exportingVariantCount}
+                leftPercent={left}
+                widthPercent={width}
+              />
             );
           })}
         </div>

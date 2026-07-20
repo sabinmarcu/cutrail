@@ -94,3 +94,41 @@ Split rule for this phase:
 - UI no longer implies trim mode is only global.
 - Variant state derivation uses only schema-validated inputs.
 - List and editor views react correctly to source/output file add, change, and delete events.
+
+## Implementation Status (2026-07-20)
+
+Overall: COMPLETE (with accepted requirement deviations)
+
+Completed:
+
+1. Variant-aware clipping types, state derivation, and actions are implemented.
+2. Sidebar and timeline now operate on variant identity rather than filename-only assumptions.
+3. Variant-scoped remove behavior is implemented.
+4. Variant statuses include planned/exporting/exported/failed/legacy/foreign/invalid and are surfaced in UI.
+5. Exporting status now renders a true progress bar with percentage label.
+6. Library view reacts to source/output updates and displays clip-count badges.
+7. Dedicated renderer watcher-core modules are implemented (`watcherSubscriptions`, `watcherState`) and consumed by clipping subscriptions.
+8. Lock semantics are variant-aware via `isLocked` on variants and range lock derived from the active variant.
+9. Timeline coverage presentation is implemented with per-range coverage chips (`D` draft, `X` exported, `P` exporting).
+10. Editor source-path remapping is implemented from source watcher snapshots, including stale-snapshot rejection by `snapshotRevision`.
+11. Editor subtitle/title source binding now follows live clipping `sourcePath` updates after remap.
+
+Pending:
+
+1. Add focused tests for watcher-core stale-snapshot handling and source-rename remap edge cases.
+
+Notes:
+
+- Current UI behavior reflects product-direction updates made during implementation.
+- Accepted deviation: keep flattened variant-card flow instead of expandable range rows.
+- Accepted deviation: do not add legacy/foreign/source+plan/source-only clip-filter toggles in this revamp.
+- Canonical watcher snapshot channels are consumed in renderer subscriptions, including stale-snapshot filtering by `snapshotRevision`.
+
+## Accepted UI Requirement Deviations (2026-07-20)
+
+The following initial Phase 3 UI requirements are intentionally superseded by the implemented product direction:
+
+1. Replace "one range row with expandable variant rows" with flattened per-variant cards in the clips list.
+2. Replace planned source/legacy/foreign filter-toggle set with a simplified always-visible variant list.
+
+These are not considered outstanding blockers for Phase 3 completion.

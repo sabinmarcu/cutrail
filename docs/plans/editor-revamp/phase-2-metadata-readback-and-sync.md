@@ -112,3 +112,32 @@ Split rule for this phase:
 - Snapshot payload supports variant-aware renderer behavior.
 - Zod validation gates both decoded metadata and emitted snapshots.
 - List and editor windows receive watcher-driven updates for source and output changes.
+
+## Implementation Status (2026-07-20)
+
+Overall: SUBSTANTIALLY COMPLETE
+
+Completed:
+
+1. Metadata readback helper is implemented and tested.
+2. Existing-clip sync is metadata-first with legacy fallback classification.
+3. Clip classification fields are propagated (metadata, legacy, foreign, invalid).
+4. Deletion matching supports variant-precise removal.
+5. Source/output directory watch refresh behavior exists through IPC handlers.
+6. Canonical watcher snapshot and health payload schemas are implemented in shared modules.
+7. Dedicated main-process watcher modules are implemented (`watcherRegistry`, `watcherEmitter`, `sourceDirectoryWatcher`, `outputDirectoryWatcher`).
+8. Canonical watcher channels are emitted in main and exposed in preload bridge.
+9. Renderer subscriptions now consume canonical watcher snapshots and ignore stale snapshots by `snapshotRevision` ordering.
+10. Backward-compatible legacy watcher/update channels remain active during migration.
+
+Pending:
+
+1. `changeSummary` counters are currently placeholder values and need real added/changed/removed accounting.
+2. Source snapshot fields `hasMetadataClips` and `hasLegacyClips` need precise derivation instead of conservative placeholders.
+3. Watcher-contract tests (schema conformance, stale-snapshot ordering, and health transition behavior) are not yet implemented.
+
+Notes:
+
+- Functionally, live refresh exists and canonical watcher snapshots are wired end-to-end.
+- Renderer watcher handling has been extracted into dedicated core watcher modules in Phase 3; remaining Phase 2 work is focused on payload-quality hardening and tests.
+- Remaining work is now quality hardening and test coverage rather than architecture bootstrap.
