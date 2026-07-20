@@ -235,6 +235,7 @@ export type CutrailBridge = {
   closeWindow: () => Promise<unknown>;
   minimizeWindow: () => Promise<unknown>;
   toggleWindowMaximize: () => Promise<unknown>;
+  exitWindowFullscreen: () => Promise<unknown>;
   getWindowFullscreenState: () => Promise<boolean>;
   openAboutWindow: () => Promise<boolean>;
   openDiagnosticsWindow: () => Promise<boolean>;

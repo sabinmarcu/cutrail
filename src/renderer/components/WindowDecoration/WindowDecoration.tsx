@@ -33,6 +33,10 @@ const toggleWindowMaximize = () => {
   globalThis.cutrail?.toggleWindowMaximize?.();
 };
 
+const exitWindowFullscreen = () => {
+  globalThis.cutrail?.exitWindowFullscreen?.();
+};
+
 type WindowDecorationProps = {
   subtitleText?: string;
   titleText?: string;
@@ -64,6 +68,25 @@ export const WindowDecoration = ({
       setIsFullscreen(fullscreenState);
     });
   }, []);
+
+  useEffect(() => {
+    if (!isFullscreen) {
+      return () => {};
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        exitWindowFullscreen();
+      }
+    };
+
+    globalThis.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      globalThis.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
 
   useEffect(() => {
     globalThis.cutrail?.getWindowDecorationMenuPreference?.().then((nextPreference) => {

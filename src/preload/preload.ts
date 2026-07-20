@@ -50,6 +50,7 @@ export const cutrailBridge: CutrailBridge = {
   closeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'close'),
   minimizeWindow: () => ipcRenderer.invoke('cutrail:window-control', 'minimize'),
   toggleWindowMaximize: () => ipcRenderer.invoke('cutrail:window-control', 'maximize'),
+  exitWindowFullscreen: () => ipcRenderer.invoke('cutrail:window-control', 'exit-fullscreen'),
   getWindowFullscreenState: () => ipcRenderer.invoke('cutrail:get-window-fullscreen-state'),
   openAboutWindow: () => ipcRenderer.invoke('cutrail:open-about-window'),
   openDiagnosticsWindow: () => ipcRenderer.invoke('cutrail:open-diagnostics-window'),

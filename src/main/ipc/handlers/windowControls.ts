@@ -4,7 +4,7 @@ import {
 } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
 
-/** @typedef {'minimize' | 'maximize' | 'close'} WindowControlAction */
+/** @typedef {'minimize' | 'maximize' | 'close' | 'exit-fullscreen'} WindowControlAction */
 
 /** @returns {void} */
 const registerWindowControlsHandler = () => {
@@ -59,6 +59,14 @@ const registerWindowControlsHandler = () => {
 
       window.setFullScreen(nextFullscreenState);
       return nextFullscreenState;
+    }
+
+    if (action === 'exit-fullscreen') {
+      if (window.isFullScreen()) {
+        window.setFullScreen(false);
+      }
+
+      return false;
     }
 
     if (action === 'close') {
