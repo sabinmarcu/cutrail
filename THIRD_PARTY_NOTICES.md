@@ -15,8 +15,8 @@ cutrail executes the ffmpeg CLI as an external process for clip export.
 
 Runtime resolution order:
 1. `CUTRAIL_FFMPEG_PATH` environment override
-2. Bundled ffmpeg binary from `@ffmpeg-installer/ffmpeg`
-3. System `ffmpeg` from `PATH` (fallback)
+2. System `ffmpeg` from `PATH`
+3. Bundled ffmpeg binary from `@ffmpeg-installer/ffmpeg`
 
 ### Bundled binary source used by this repository
 
@@ -40,9 +40,14 @@ Observed package metadata (installed dependency):
 cutrail executes the ffprobe CLI as an external process for source metadata reads and keyframe analysis.
 
 Runtime resolution order:
-1. Bundled ffprobe binary from `@ffprobe-installer/ffprobe`
-2. Bundled ffmpeg sibling binary directory (`ffprobe` beside resolved `ffmpeg`)
-3. System `ffprobe` from `PATH` (fallback)
+1. System `ffprobe` from `PATH`
+2. Bundled ffprobe binary in the resolved ffmpeg directory (`ffprobe` beside resolved `ffmpeg`)
+3. Bundled ffprobe binary from `@ffprobe-installer/ffprobe`
+
+### Resolution mode controls
+
+The Options window exposes `auto`, `bundled`, and `local` switches for both ffmpeg and ffprobe resolution.
+Auto uses the runtime order above; bundled and local bias toward their named source first.
 
 ### Bundled binary source used by this repository
 

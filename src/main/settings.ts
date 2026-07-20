@@ -7,11 +7,14 @@ import {
   normalizeThemePrimaryColor,
   type ThemePrimaryColorValue,
 } from '../shared/themePrimaryColor.ts';
+import type { BinaryResolutionMode } from '../shared/contracts.ts';
 
 const SETTINGS_FILE_NAME = 'settings.json';
 const SOURCE_DIRECTORY_KEY = 'sourceDirectory';
 const OUTPUT_DIRECTORY_KEY = 'outputDirectory';
 const STARTUP_WINDOW_MODE_KEY = 'startupWindowMode';
+const FFMPEG_RESOLUTION_MODE_KEY = 'ffmpegResolutionMode';
+const FFPROBE_RESOLUTION_MODE_KEY = 'ffprobeResolutionMode';
 const HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY = 'hideDefaultAudioTrackWhenMultiple';
 const DEFAULT_TRIM_MODE_KEY = 'defaultTrimMode';
 const WINDOW_DECORATION_MENU_ENABLED_KEY = 'windowDecorationMenuEnabled';
@@ -19,6 +22,14 @@ const THEME_PRIMARY_COLOR_KEY = 'themePrimaryColor';
 
 type StartupWindowMode = 'splash' | 'library';
 type DefaultTrimMode = 'fast' | 'accurate';
+
+const parseBinaryResolutionMode = (value: unknown): BinaryResolutionMode | null => {
+  if (value === 'auto' || value === 'bundled' || value === 'local') {
+    return value;
+  }
+
+  return null;
+};
 
 const getSettingsFilePath = (): string => path.join(app.getPath('userData'), SETTINGS_FILE_NAME);
 
@@ -115,6 +126,18 @@ const getPersistedStartupWindowMode = async (): Promise<StartupWindowMode> => {
   return parseStartupWindowMode(settings[STARTUP_WINDOW_MODE_KEY]) ?? 'splash';
 };
 
+const getPersistedFfmpegResolutionMode = async (): Promise<BinaryResolutionMode> => {
+  const settings = await readSettings();
+
+  return parseBinaryResolutionMode(settings[FFMPEG_RESOLUTION_MODE_KEY]) ?? 'auto';
+};
+
+const getPersistedFfprobeResolutionMode = async (): Promise<BinaryResolutionMode> => {
+  const settings = await readSettings();
+
+  return parseBinaryResolutionMode(settings[FFPROBE_RESOLUTION_MODE_KEY]) ?? 'auto';
+};
+
 const getPersistedHideDefaultAudioTrackWhenMultiple = async (): Promise<boolean> => {
   const settings = await readSettings();
   return readBooleanSetting(settings, HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY) ?? false;
@@ -161,6 +184,20 @@ const setPersistedStartupWindowMode = async (
 ): Promise<void> => {
   const settings = await readSettings();
   settings[STARTUP_WINDOW_MODE_KEY] = startupWindowMode;
+  await writeSettings(settings);
+};
+
+const setPersistedFfmpegResolutionMode = async (value: BinaryResolutionMode): Promise<void> => {
+  const settings = await readSettings();
+  settings[FFMPEG_RESOLUTION_MODE_KEY] = parseBinaryResolutionMode(value) ?? 'auto';
+
+  await writeSettings(settings);
+};
+
+const setPersistedFfprobeResolutionMode = async (value: BinaryResolutionMode): Promise<void> => {
+  const settings = await readSettings();
+  settings[FFPROBE_RESOLUTION_MODE_KEY] = parseBinaryResolutionMode(value) ?? 'auto';
+
   await writeSettings(settings);
 };
 
@@ -220,6 +257,16 @@ const ensurePersistedDirectories = async (
     hasChanges = true;
   }
 
+  if (!parseBinaryResolutionMode(settings[FFMPEG_RESOLUTION_MODE_KEY])) {
+    settings[FFMPEG_RESOLUTION_MODE_KEY] = 'auto';
+    hasChanges = true;
+  }
+
+  if (!parseBinaryResolutionMode(settings[FFPROBE_RESOLUTION_MODE_KEY])) {
+    settings[FFPROBE_RESOLUTION_MODE_KEY] = 'auto';
+    hasChanges = true;
+  }
+
   if (readBooleanSetting(settings, HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY) === null) {
     settings[HIDE_DEFAULT_AUDIO_TRACK_WHEN_MULTIPLE_KEY] = false;
     hasChanges = true;
@@ -248,6 +295,8 @@ const ensurePersistedDirectories = async (
 export {
   getPersistedDefaultTrimMode,
   ensurePersistedDirectories,
+  getPersistedFfmpegResolutionMode,
+  getPersistedFfprobeResolutionMode,
   getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedWindowDecorationMenuEnabled,
   getPersistedThemePrimaryColor,
@@ -255,6 +304,8 @@ export {
   getPersistedOutputDirectory,
   getPersistedStartupWindowMode,
   setPersistedDefaultTrimMode,
+  setPersistedFfmpegResolutionMode,
+  setPersistedFfprobeResolutionMode,
   setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedThemePrimaryColor,
   setPersistedWindowDecorationMenuEnabled,

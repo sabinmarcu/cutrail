@@ -1,7 +1,10 @@
 import type { BrowserWindow } from 'electron';
 import { registerHandlers } from './ipc/registerHandlers.ts';
 import { selectValidSourceVideo } from './sourceSelection.ts';
-import type { WindowDecorationMenuPreferenceState } from '../shared/contracts.ts';
+import type {
+  BinaryResolutionMode,
+  WindowDecorationMenuPreferenceState,
+} from '../shared/contracts.ts';
 import type { WindowMenuModel } from '../shared/windowMenu.ts';
 import type { ThemePrimaryColorValue } from '../shared/themePrimaryColor.ts';
 
@@ -18,6 +21,8 @@ type RegisterIpcDeps = {
   getPersistedDefaultTrimMode: () => Promise<'fast' | 'accurate'>;
   getPersistedThemePrimaryColor: () => Promise<ThemePrimaryColorValue>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
+  getPersistedFfmpegResolutionMode: () => Promise<BinaryResolutionMode>;
+  getPersistedFfprobeResolutionMode: () => Promise<BinaryResolutionMode>;
   getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
   getWindowMenuModel: () => WindowMenuModel;
   invokeWindowMenuAction: (
@@ -42,6 +47,8 @@ type RegisterIpcDeps = {
   setPersistedDefaultTrimMode: (value: 'fast' | 'accurate') => Promise<void>;
   setPersistedThemePrimaryColor: (value: ThemePrimaryColorValue) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
+  setPersistedFfmpegResolutionMode: (mode: BinaryResolutionMode) => Promise<void>;
+  setPersistedFfprobeResolutionMode: (mode: BinaryResolutionMode) => Promise<void>;
   setWindowDecorationMenuPreference: (
     enabled: boolean,
   ) => Promise<WindowDecorationMenuPreferenceState>;
@@ -55,6 +62,8 @@ const registerIpcHandlers = ({
   getPersistedDefaultTrimMode,
   getPersistedThemePrimaryColor,
   getPersistedStartupWindowMode,
+  getPersistedFfmpegResolutionMode,
+  getPersistedFfprobeResolutionMode,
   getWindowDecorationMenuPreference,
   getWindowMenuModel,
   invokeWindowMenuAction,
@@ -73,6 +82,8 @@ const registerIpcHandlers = ({
   setPersistedDefaultTrimMode,
   setPersistedThemePrimaryColor,
   setPersistedStartupWindowMode,
+  setPersistedFfmpegResolutionMode,
+  setPersistedFfprobeResolutionMode,
   setWindowDecorationMenuPreference,
 }: RegisterIpcDeps): void => {
   registerHandlers({
@@ -83,6 +94,8 @@ const registerIpcHandlers = ({
     getPersistedDefaultTrimMode,
     getPersistedThemePrimaryColor,
     getPersistedStartupWindowMode,
+    getPersistedFfmpegResolutionMode,
+    getPersistedFfprobeResolutionMode,
     getWindowDecorationMenuPreference,
     getWindowMenuModel,
     invokeWindowMenuAction,
@@ -102,6 +115,8 @@ const registerIpcHandlers = ({
     setPersistedDefaultTrimMode,
     setPersistedThemePrimaryColor,
     setPersistedStartupWindowMode,
+    setPersistedFfmpegResolutionMode,
+    setPersistedFfprobeResolutionMode,
     setWindowDecorationMenuPreference,
   });
 };

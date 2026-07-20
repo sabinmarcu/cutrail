@@ -1,6 +1,10 @@
 import { app } from 'electron';
 
 import { getAppEnvironment } from '../infra/env.ts';
+import {
+  setFfmpegResolutionMode,
+  setFfprobeResolutionMode,
+} from '../infra/ffmpeg/ffmpegResolutionPreferences.ts';
 import { registerIpcHandlers } from './ipc.ts';
 import { selectValidSourceVideo } from './sourceSelection.ts';
 import {
@@ -27,6 +31,8 @@ import {
 import {
   ensurePersistedDirectories,
   getPersistedDefaultTrimMode,
+  getPersistedFfmpegResolutionMode,
+  getPersistedFfprobeResolutionMode,
   getPersistedHideDefaultAudioTrackWhenMultiple,
   getPersistedOutputDirectory,
   getPersistedSourceDirectory,
@@ -34,6 +40,8 @@ import {
   getPersistedThemePrimaryColor,
   getPersistedWindowDecorationMenuEnabled,
   setPersistedDefaultTrimMode,
+  setPersistedFfmpegResolutionMode,
+  setPersistedFfprobeResolutionMode,
   setPersistedHideDefaultAudioTrackWhenMultiple,
   setPersistedOutputDirectory,
   setPersistedThemePrimaryColor,
@@ -148,12 +156,16 @@ const startApp = async (): Promise<void> => {
 
     registerMediaProtocol();
     await ensurePersistedDirectories(environmentMenuDefault);
+    setFfmpegResolutionMode(await getPersistedFfmpegResolutionMode());
+    setFfprobeResolutionMode(await getPersistedFfprobeResolutionMode());
     registerIpcHandlers({
       getAppMetadata,
       getPersistedOutputDirectory,
       getPersistedSourceDirectory,
       getPersistedHideDefaultAudioTrackWhenMultiple,
       getPersistedDefaultTrimMode,
+      getPersistedFfmpegResolutionMode,
+      getPersistedFfprobeResolutionMode,
       getPersistedThemePrimaryColor,
       getPersistedStartupWindowMode,
       getWindowDecorationMenuPreference: resolveWindowDecorationMenuPreference,
@@ -171,6 +183,8 @@ const startApp = async (): Promise<void> => {
       setPersistedOutputDirectory,
       setPersistedHideDefaultAudioTrackWhenMultiple,
       setPersistedDefaultTrimMode,
+      setPersistedFfmpegResolutionMode,
+      setPersistedFfprobeResolutionMode,
       setPersistedThemePrimaryColor,
       setPersistedSourceDirectory,
       setPersistedStartupWindowMode,

@@ -43,15 +43,15 @@ export const helperText = style({
   margin: 0,
 });
 
-export const controlSelect = style({
-  background: 'var(--cutrail-surface-panel)',
-  borderInlineStart: `1px solid ${theme.colors.primary.muted}`,
-  borderInlineEnd: `1px solid ${theme.colors.primary.muted}`,
-  borderBlockStart: `1px solid ${theme.colors.primary.muted}`,
-  borderBlockEnd: `1px solid ${theme.colors.primary.muted}`,
-  color: theme.colors.primary.emphasis,
-  minBlockSize: '1.9rem',
-  paddingInline: theme.grid.xs,
+export const headerRow = style({
+  alignItems: 'center',
+  display: 'flex',
+  gap: theme.grid.s,
+  justifyContent: 'space-between',
+});
+
+export const headerControl = style({
+  marginInlineStart: 'auto',
 });
 
 export const colorControlRow = style({

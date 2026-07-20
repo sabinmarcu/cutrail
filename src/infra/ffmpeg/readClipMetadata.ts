@@ -1,14 +1,10 @@
 import { spawn } from 'node:child_process';
-import path from 'node:path';
-import {
-  access,
-} from 'node:fs/promises';
 import {
   exportClipMetadataSchema,
   EXPORT_METADATA_APP_NAME,
   type ExportClipMetadata,
 } from '../../shared/exportMetadata.ts';
-import { resolveFfmpegPath } from './resolveFfmpegPath.ts';
+import { resolveFfprobeCandidates } from './resolveFfprobeCandidates.ts';
 
 type ProbeResult = {
   stdout: string;
@@ -51,25 +47,6 @@ const probeWithCommand = (
     });
   });
 });
-
-const resolveFfprobeCandidates = async (): Promise<string[]> => {
-  const ffmpegPath = resolveFfmpegPath().path;
-  const extension = path.extname(ffmpegPath);
-  const ffprobeBaseName = `ffprobe${extension}`;
-  const siblingPath = path.join(path.dirname(ffmpegPath), ffprobeBaseName);
-  const candidates: string[] = [];
-
-  try {
-    await access(siblingPath);
-    candidates.push(siblingPath);
-  } catch {
-    // Fall back to PATH lookup.
-  }
-
-  candidates.push('ffprobe');
-
-  return candidates;
-};
 
 const resolveTagValue = (
   tags: Record<string, unknown>,
@@ -151,7 +128,7 @@ const parseProbeOutput = (stdout: string): ReadClipMetadataResult => {
 };
 
 export const readClipMetadata = async (filePath: string): Promise<ReadClipMetadataResult> => {
-  const candidates = await resolveFfprobeCandidates();
+  const candidates = resolveFfprobeCandidates();
   const commandArguments = [
     '-v',
     'error',

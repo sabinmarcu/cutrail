@@ -19,26 +19,53 @@ import {
 export const DiagnosticsWindow = () => {
   const runtimeInfo: RuntimeInfo | null = globalThis.cutrail?.getRuntimeInfo?.() ?? null;
   const [ffmpegStatus, setFfmpegStatus] = useState<FfmpegAvailabilityResult | null>(null);
+  const [ffprobeStatus, setFfprobeStatus] = useState<FfmpegAvailabilityResult | null>(null);
+
+  const refreshDiagnostics = () => {
+    if (typeof globalThis.cutrail?.getFfmpegDiagnostics === 'function') {
+      globalThis.cutrail.getFfmpegDiagnostics().then((status) => {
+        setFfmpegStatus(status ?? null);
+      });
+    } else {
+      globalThis.cutrail?.checkFfmpeg?.().then((status) => {
+        setFfmpegStatus(status ?? null);
+      });
+    }
+
+    if (typeof globalThis.cutrail?.getFfprobeDiagnostics === 'function') {
+      globalThis.cutrail.getFfprobeDiagnostics().then((status) => {
+        setFfprobeStatus(status ?? null);
+      });
+    } else {
+      globalThis.cutrail?.checkFfprobe?.().then((status) => {
+        setFfprobeStatus(status ?? null);
+      });
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
 
-    if (typeof globalThis.cutrail?.getFfmpegDiagnostics === 'function') {
-      globalThis.cutrail.getFfmpegDiagnostics().then((status) => {
-        if (mounted) {
-          setFfmpegStatus(status ?? null);
-        }
-      });
-    } else {
-      globalThis.cutrail?.checkFfmpeg?.().then((status) => {
-        if (mounted) {
-          setFfmpegStatus(status ?? null);
-        }
-      });
-    }
+    refreshDiagnostics();
+
+    const refreshOnPreferenceChange = () => {
+      if (mounted) {
+        refreshDiagnostics();
+      }
+    };
+
+    const unsubscribeFfmpeg = typeof globalThis.cutrail?.onFfmpegResolutionModeUpdated === 'function'
+      ? globalThis.cutrail.onFfmpegResolutionModeUpdated(refreshOnPreferenceChange)
+      : () => {};
+
+    const unsubscribeFfprobe = typeof globalThis.cutrail?.onFfprobeResolutionModeUpdated === 'function'
+      ? globalThis.cutrail.onFfprobeResolutionModeUpdated(refreshOnPreferenceChange)
+      : () => {};
 
     return () => {
       mounted = false;
+      unsubscribeFfmpeg();
+      unsubscribeFfprobe();
     };
   }, []);
 
@@ -61,6 +88,24 @@ export const DiagnosticsWindow = () => {
             {ffmpegStatus.available
               ? `${ffmpegStatus.versionLine ?? 'ffmpeg detected'} | ${ffmpegStatus.path}`
               : `${ffmpegStatus.error ?? 'ffmpeg could not be resolved'} | ${ffmpegStatus.path ?? 'no path'}`}
+          </p>
+        )}
+      </section>
+
+      <section className={`${panel} ${panelTone({ tone: ffprobeStatus?.available ? 'success' : 'danger' })}`}>
+        <h2 className={heading}>FFprobe Runtime</h2>
+        <p className={meta}>
+          {ffprobeStatus === null
+            ? 'Checking ffprobe availability...'
+            : (ffprobeStatus.available
+              ? `Ready (${ffprobeStatus.source})`
+              : `Unavailable (${ffprobeStatus.code})`)}
+        </p>
+        {ffprobeStatus && (
+          <p className={meta}>
+            {ffprobeStatus.available
+              ? `${ffprobeStatus.versionLine ?? 'ffprobe detected'} | ${ffprobeStatus.path}`
+              : `${ffprobeStatus.error ?? 'ffprobe could not be resolved'} | ${ffprobeStatus.path ?? 'no path'}`}
           </p>
         )}
       </section>

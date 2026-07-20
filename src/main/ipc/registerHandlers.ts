@@ -1,10 +1,12 @@
 import type { BrowserWindow } from 'electron';
 import { registerCheckFfmpegHandler } from './handlers/checkFfmpeg.ts';
+import { registerCheckFfprobeHandler } from './handlers/checkFfprobe.ts';
 import { registerClipFileActionsHandler } from './handlers/clipFileActions.ts';
 import { registerCreateExportPlanHandler } from './handlers/createExportPlan.ts';
 import { registerDeleteClipRangeOutputsHandler } from './handlers/deleteClipRangeOutputs.ts';
 import { registerGetAppMetadataHandler } from './handlers/getAppMetadata.ts';
 import { registerGetFfmpegDiagnosticsHandler } from './handlers/getFfmpegDiagnostics.ts';
+import { registerGetFfprobeDiagnosticsHandler } from './handlers/getFfprobeDiagnostics.ts';
 import { registerGetDefaultTrimModeHandler } from './handlers/getDefaultTrimMode.ts';
 import { registerGetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/getHideDefaultAudioTrackWhenMultiple.ts';
 import { registerGetOutputDirectoryHandler } from './handlers/getOutputDirectory.ts';
@@ -13,6 +15,8 @@ import { registerGetSourceAudioTracksHandler } from './handlers/getSourceAudioTr
 import { registerGetSourceAudioTrackWaveformHandler } from './handlers/getSourceAudioTrackWaveform.ts';
 import { registerGetSourceDirectoryHandler } from './handlers/getSourceDirectory.ts';
 import { registerGetStartupWindowModeHandler } from './handlers/getStartupWindowMode.ts';
+import { registerGetFfmpegResolutionModeHandler } from './handlers/getFfmpegResolutionMode.ts';
+import { registerGetFfprobeResolutionModeHandler } from './handlers/getFfprobeResolutionMode.ts';
 import { registerGetThirdPartyNoticesHandler } from './handlers/getThirdPartyNotices.ts';
 import { registerGetUpdateDialogStateHandler } from './handlers/getUpdateDialogState.ts';
 import { registerGetVideoLibraryHandler } from './handlers/getVideoLibrary.ts';
@@ -35,10 +39,15 @@ import { registerSetHideDefaultAudioTrackWhenMultipleHandler } from './handlers/
 import { registerSetDefaultTrimModeHandler } from './handlers/setDefaultTrimMode.ts';
 import { registerSetThemePrimaryColorHandler } from './handlers/setThemePrimaryColor.ts';
 import { registerSetStartupWindowModeHandler } from './handlers/setStartupWindowMode.ts';
+import { registerSetFfmpegResolutionModeHandler } from './handlers/setFfmpegResolutionMode.ts';
+import { registerSetFfprobeResolutionModeHandler } from './handlers/setFfprobeResolutionMode.ts';
 import { registerSetWindowDecorationMenuPreferenceHandler } from './handlers/setWindowDecorationMenuPreference.ts';
 import { registerSubmitUpdateDialogActionHandler } from './handlers/submitUpdateDialogAction.ts';
 import { registerWindowControlsHandler } from './handlers/windowControls.ts';
-import type { WindowDecorationMenuPreferenceState } from '../../shared/contracts.ts';
+import type {
+  BinaryResolutionMode,
+  WindowDecorationMenuPreferenceState,
+} from '../../shared/contracts.ts';
 import type { WindowMenuModel } from '../../shared/windowMenu.ts';
 import type { ThemePrimaryColorValue } from '../../shared/themePrimaryColor.ts';
 
@@ -55,6 +64,8 @@ type HandlerDependencies = {
   getPersistedDefaultTrimMode: () => Promise<'fast' | 'accurate'>;
   getPersistedThemePrimaryColor: () => Promise<ThemePrimaryColorValue>;
   getPersistedStartupWindowMode: () => Promise<'splash' | 'library'>;
+  getPersistedFfmpegResolutionMode: () => Promise<BinaryResolutionMode>;
+  getPersistedFfprobeResolutionMode: () => Promise<BinaryResolutionMode>;
   getWindowDecorationMenuPreference: () => Promise<WindowDecorationMenuPreferenceState>;
   getWindowMenuModel: () => WindowMenuModel;
   invokeWindowMenuAction: (
@@ -82,6 +93,8 @@ type HandlerDependencies = {
   setPersistedDefaultTrimMode: (value: 'fast' | 'accurate') => Promise<void>;
   setPersistedThemePrimaryColor: (value: ThemePrimaryColorValue) => Promise<void>;
   setPersistedStartupWindowMode: (startupWindowMode: 'splash' | 'library') => Promise<void>;
+  setPersistedFfmpegResolutionMode: (mode: BinaryResolutionMode) => Promise<void>;
+  setPersistedFfprobeResolutionMode: (mode: BinaryResolutionMode) => Promise<void>;
   setWindowDecorationMenuPreference: (
     enabled: boolean,
   ) => Promise<WindowDecorationMenuPreferenceState>;
@@ -100,6 +113,10 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerSelectOutputDirectoryHandler(deps);
   registerGetSourceDirectoryHandler(deps);
   registerGetStartupWindowModeHandler(deps);
+  registerGetFfmpegResolutionModeHandler(deps);
+  registerGetFfprobeResolutionModeHandler(deps);
+  registerSetFfmpegResolutionModeHandler(deps);
+  registerSetFfprobeResolutionModeHandler(deps);
   registerGetDefaultTrimModeHandler(deps);
   registerGetHideDefaultAudioTrackWhenMultipleHandler(deps);
   registerGetThemePrimaryColorHandler(deps);
@@ -108,6 +125,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerGetSourceAudioTracksHandler();
   registerGetSourceAudioTrackWaveformHandler();
   registerGetFfmpegDiagnosticsHandler();
+  registerGetFfprobeDiagnosticsHandler();
   registerGetThirdPartyNoticesHandler(deps);
   registerGetWindowDecorationMenuPreferenceHandler(deps);
   registerGetWindowMenuModelHandler(deps);
@@ -121,6 +139,7 @@ const registerHandlers = (deps: HandlerDependencies): void => {
   registerDeleteClipRangeOutputsHandler();
   registerSyncExistingExportClipsHandler();
   registerCheckFfmpegHandler();
+  registerCheckFfprobeHandler();
   registerRunExportPlanHandler();
   registerStartFileDragHandler();
   registerClipFileActionsHandler();

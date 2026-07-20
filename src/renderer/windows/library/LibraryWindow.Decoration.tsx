@@ -123,28 +123,34 @@ export const LibraryWindowDecoration = ({
         </label>
         <label className={control}>
           <span className={controlLabel}>Sort Dir</span>
-          <select
-            className={controlSelect}
+          <SegmentedSwitch
+            ariaLabel="Library sort direction"
+            className={viewSwitch}
+            optionClassName={viewSwitchOption}
             value={sortDirection}
-            onChange={(event) => {
-              setSortDirection(event.currentTarget.value as LibrarySortDirection);
+            onChange={(nextValue) => {
+              setSortDirection(nextValue as LibrarySortDirection);
             }}
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
+            options={[
+              { label: 'Ascending', value: 'asc' },
+              { label: 'Descending', value: 'desc' },
+            ]}
+          />
         </label>
         <label className={control}>
           <span className={controlLabel}>Filter</span>
-          <select
-            className={controlSelect}
+          <SegmentedSwitch
+            ariaLabel="Library filter mode"
+            className={viewSwitch}
+            optionClassName={viewSwitchOption}
             value={filterMode}
-            onChange={(event) => setFilterMode(event.currentTarget.value as LibraryFilterMode)}
-          >
-            <option value="all">All Videos</option>
-            <option value="with-clips">With Clips</option>
-            <option value="without-clips">Without Clips</option>
-          </select>
+            onChange={(nextValue) => setFilterMode(nextValue as LibraryFilterMode)}
+            options={[
+              { label: 'All Videos', value: 'all' },
+              { label: 'With Clips', value: 'with-clips' },
+              { label: 'Without Clips', value: 'without-clips' },
+            ]}
+          />
         </label>
       </div>
     </div>

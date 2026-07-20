@@ -35,7 +35,7 @@ How it currently functions:
 6. Electron `.mjs` modules stay JavaScript-based with `// @ts-check` and explicit JSDoc types for exported APIs.
 7. Runtime stack includes the Electron main process, the preload bridge, the React renderer, shared window chrome for non-splash windows, and editor-focused clipping logic under `src/renderer/core/clipping`.
 8. Styling uses `vanilla-extract` with `@sabinmarcu/theme` tokens, plus shared renderer components for reusable window patterns and controls.
-9. Video processing resolves ffmpeg from the bundled binary first, then from an explicit override, and finally from system `ffmpeg` on PATH.
+9. Video processing resolves ffmpeg from an explicit override when configured, otherwise prefers the operating system binary and falls back to the bundled binary; ffprobe prefers the operating system binary, then the ffmpeg sibling probe, then the separately bundled probe.
 10. Code quality is enforced through ESLint, TypeScript checks, Vitest, and Husky/Commitlint hooks.
 11. Desktop packaging declares OS file associations for supported video extensions so files can be opened with Cutrail from the system file manager.
 12. Main-process startup integrates OS file-open entrypoints and opens supported files directly in editor windows.
@@ -45,6 +45,7 @@ Current workflow boundaries:
 - Each selected source video opens its own independent editor window.
 - Editor windows focus on timeline editing and export only.
 - Output directory management is configured in the Options utility window.
+- Options include switch controls for startup behavior, trim accuracy, and ffmpeg/ffprobe resolution mode selection.
 - Shared button primitive lives under `src/renderer/components/Button`.
 - AUR packaging skeleton for `cutrail-bin` now lives under `packaging/aur/cutrail-bin`.
 - AUR packaging skeletons for `cutrail`, `cutrail-bin`, and `cutrail-git` now live under `packaging/aur/`.
@@ -123,7 +124,7 @@ The application supports the following runtime environment variables:
 
 1. `CUTRAIL_FFMPEG_PATH`
 - Purpose: Overrides ffmpeg binary resolution with an explicit executable path.
-- Default: unset (bundled ffmpeg first, then system PATH fallback).
+- Default: unset (Cutrail otherwise prefers the operating system ffmpeg, then the bundled binary).
 - Example: set it only when you need to point Cutrail at a specific ffmpeg binary.
 
 2. `CUTRAIL_OPEN_DEVTOOLS`

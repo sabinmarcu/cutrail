@@ -1,12 +1,5 @@
-import {
-  accessSync,
-  constants,
-} from 'node:fs';
 import { spawn } from 'node:child_process';
-import path from 'node:path';
-
-import ffprobeInstaller from '@ffprobe-installer/ffprobe';
-import { resolveFfmpegPath } from './resolveFfmpegPath.ts';
+import { resolveFfprobeCandidates } from './resolveFfprobeCandidates.ts';
 
 export type TrimRange = { start: number; duration: number };
 export type ResolveFastTrimRangeInput = {
@@ -24,49 +17,7 @@ const toSeconds = (value: unknown): number | null => {
   return parsed;
 };
 
-const APP_ASAR_PATH_SEGMENT = /([\\/])app\.asar([\\/])/u;
-
-const resolveExecutablePath = (candidatePath: string | undefined): string | null => {
-  if (typeof candidatePath !== 'string' || candidatePath.trim().length === 0) {
-    return null;
-  }
-
-  const trimmedCandidatePath = candidatePath.trim();
-  const resolvedCandidatePath = APP_ASAR_PATH_SEGMENT.test(trimmedCandidatePath)
-    ? trimmedCandidatePath.replace(APP_ASAR_PATH_SEGMENT, '$1app.asar.unpacked$2')
-    : trimmedCandidatePath;
-
-  try {
-    accessSync(resolvedCandidatePath, constants.X_OK);
-
-    return resolvedCandidatePath;
-  } catch {
-    return null;
-  }
-};
-
-const resolveFfprobePath = (): string => {
-  const installedFfprobePath = resolveExecutablePath(ffprobeInstaller?.path);
-
-  if (installedFfprobePath) {
-    return installedFfprobePath;
-  }
-
-  const ffmpegPath = resolveFfmpegPath().path;
-  const extension = path.extname(ffmpegPath);
-  const siblingFfprobePath = path.join(path.dirname(ffmpegPath), `ffprobe${extension}`);
-
-  const resolvedSiblingFfprobePath = resolveExecutablePath(siblingFfprobePath);
-
-  if (resolvedSiblingFfprobePath) {
-    return resolvedSiblingFfprobePath;
-  }
-
-  return 'ffprobe';
-};
-
 const readKeyframePoints = (inputPath: string): Promise<number[]> => new Promise((resolve) => {
-  const ffprobePath = resolveFfprobePath();
   const ffprobeArguments = [
     '-v',
     'error',
@@ -80,34 +31,50 @@ const readKeyframePoints = (inputPath: string): Promise<number[]> => new Promise
     'csv=p=0',
     inputPath,
   ];
-  const child = spawn(ffprobePath, ffprobeArguments, {
-    stdio: ['ignore', 'pipe', 'ignore'],
-  });
   let stdout = '';
+  const candidates = resolveFfprobeCandidates();
 
-  child.stdout.on('data', (chunk) => {
-    stdout += String(chunk);
-  });
+  const tryNextCandidate = (candidateIndex: number): void => {
+    const ffprobePath = candidates[candidateIndex];
 
-  child.once('error', () => {
-    resolve([]);
-  });
-
-  child.once('close', (exitCode) => {
-    if (exitCode !== 0) {
+    if (!ffprobePath) {
       resolve([]);
 
       return;
     }
 
-    const points = stdout
-      .split(/\r?\n/u)
-      .map((value) => toSeconds(value.trim()))
-      .filter((value): value is number => value !== null)
-      .sort((left, right) => left - right);
+    stdout = '';
 
-    resolve(points);
-  });
+    const child = spawn(ffprobePath, ffprobeArguments, {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+
+    child.once('error', () => {
+      tryNextCandidate(candidateIndex + 1);
+    });
+
+    child.once('close', (exitCode) => {
+      if (exitCode !== 0) {
+        tryNextCandidate(candidateIndex + 1);
+
+        return;
+      }
+
+      const points = stdout
+        .split(/\r?\n/u)
+        .map((value) => toSeconds(value.trim()))
+        .filter((value): value is number => value !== null)
+        .sort((left, right) => left - right);
+
+      resolve(points);
+    });
+  };
+
+  tryNextCandidate(0);
 });
 
 const resolveSafeStartPoint = (

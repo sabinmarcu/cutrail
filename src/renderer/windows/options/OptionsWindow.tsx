@@ -4,8 +4,12 @@ import {
 } from 'react';
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
+import { SegmentedSwitch } from '@renderer/components/SegmentedSwitch';
 import { UtilityWindow } from '@renderer/components/utility/UtilityWindow';
-import type { WindowDecorationMenuPreferenceState } from '../../../shared/contracts';
+import type {
+  BinaryResolutionMode,
+  WindowDecorationMenuPreferenceState,
+} from '../../../shared/contracts';
 import {
   defaultThemePrimaryColor,
   isThemePrimaryColorValue,
@@ -19,12 +23,22 @@ import {
   colorControlRow,
   colorInput,
   colorValue,
-  controlSelect,
   heading,
+  headerControl,
+  headerRow,
   helperText,
   panel,
   pathValue,
 } from './OptionsWindow.css';
+
+const binaryResolutionOptions: Array<{
+  label: string;
+  value: BinaryResolutionMode;
+}> = [
+  { label: 'Auto', value: 'auto' },
+  { label: 'Bundled', value: 'bundled' },
+  { label: 'Local', value: 'local' },
+];
 
 const defaultWindowDecorationMenuPreference: WindowDecorationMenuPreferenceState = {
   configuredEnabled: false,
@@ -35,6 +49,8 @@ const defaultWindowDecorationMenuPreference: WindowDecorationMenuPreferenceState
 export const OptionsWindow = () => {
   const [startupWindowMode, setStartupWindowMode] = useState<'splash' | 'library'>('splash');
   const [defaultTrimMode, setDefaultTrimMode] = useState<'fast' | 'accurate'>('fast');
+  const [ffmpegResolutionMode, setFfmpegResolutionMode] = useState<BinaryResolutionMode>('auto');
+  const [ffprobeResolutionMode, setFfprobeResolutionMode] = useState<BinaryResolutionMode>('auto');
   const [themePrimaryColor, setThemePrimaryColor] = useState<ThemePrimaryColorValue>(
     defaultThemePrimaryColor,
   );
@@ -75,6 +91,22 @@ export const OptionsWindow = () => {
       globalThis.cutrail.getDefaultTrimMode().then((mode) => {
         if (mounted) {
           setDefaultTrimMode(mode === 'accurate' ? 'accurate' : 'fast');
+        }
+      });
+    }
+
+    if (typeof globalThis.cutrail?.getFfmpegResolutionMode === 'function') {
+      globalThis.cutrail.getFfmpegResolutionMode().then((mode) => {
+        if (mounted) {
+          setFfmpegResolutionMode(mode === 'bundled' || mode === 'local' ? mode : 'auto');
+        }
+      });
+    }
+
+    if (typeof globalThis.cutrail?.getFfprobeResolutionMode === 'function') {
+      globalThis.cutrail.getFfprobeResolutionMode().then((mode) => {
+        if (mounted) {
+          setFfprobeResolutionMode(mode === 'bundled' || mode === 'local' ? mode : 'auto');
         }
       });
     }
@@ -127,6 +159,18 @@ export const OptionsWindow = () => {
       })
       : () => {};
 
+    const unsubscribeFfmpegResolutionMode = typeof globalThis.cutrail?.onFfmpegResolutionModeUpdated === 'function'
+      ? globalThis.cutrail.onFfmpegResolutionModeUpdated((mode) => {
+        setFfmpegResolutionMode(mode === 'bundled' || mode === 'local' ? mode : 'auto');
+      })
+      : () => {};
+
+    const unsubscribeFfprobeResolutionMode = typeof globalThis.cutrail?.onFfprobeResolutionModeUpdated === 'function'
+      ? globalThis.cutrail.onFfprobeResolutionModeUpdated((mode) => {
+        setFfprobeResolutionMode(mode === 'bundled' || mode === 'local' ? mode : 'auto');
+      })
+      : () => {};
+
     const unsubscribeThemePrimaryColor = typeof globalThis.cutrail?.onThemePrimaryColorUpdated === 'function'
       ? globalThis.cutrail.onThemePrimaryColorUpdated((color) => {
         if (isThemePrimaryColorValue(color)) {
@@ -153,6 +197,8 @@ export const OptionsWindow = () => {
       unsubscribeOutput();
       unsubscribeStartupMode();
       unsubscribeDefaultTrimMode();
+      unsubscribeFfmpegResolutionMode();
+      unsubscribeFfprobeResolutionMode();
       unsubscribeThemePrimaryColor();
       unsubscribeHideDefaultAudioTrack();
       unsubscribeWindowDecorationMenuPreference();
@@ -165,43 +211,109 @@ export const OptionsWindow = () => {
       subtitleText="Configure app-level behavior used by splash and editor windows."
     >
       <section className={panel}>
-        <h2 className={heading}>Default Startup Window</h2>
-        <select
-          className={controlSelect}
-          value={startupWindowMode}
-          onChange={(event) => {
-            const nextMode = event.currentTarget.value === 'library' ? 'library' : 'splash';
-            setStartupWindowMode(nextMode);
-            globalThis.cutrail?.setStartupWindowMode?.(nextMode);
-          }}
-        >
-          <option value="splash">Splash Screen</option>
-          <option value="library">Library Window</option>
-        </select>
+        <div className={headerRow}>
+          <h2 className={heading}>Default Startup Window</h2>
+          <div className={headerControl}>
+            <SegmentedSwitch
+              ariaLabel="Default startup window"
+              value={startupWindowMode}
+              onChange={(nextMode) => {
+                const resolvedMode = nextMode === 'library' ? 'library' : 'splash';
+                setStartupWindowMode(resolvedMode);
+                globalThis.cutrail?.setStartupWindowMode?.(resolvedMode);
+              }}
+              options={[
+                { label: 'Splash Screen', value: 'splash' },
+                { label: 'Library Window', value: 'library' },
+              ]}
+            />
+          </div>
+        </div>
         <p className={helperText}>
           This controls what opens first when Cutrail starts or reopens with no windows.
         </p>
       </section>
       <section className={panel}>
-        <h2 className={heading}>Default Trim Accuracy</h2>
-        <select
-          className={controlSelect}
-          value={defaultTrimMode}
-          onChange={(event) => {
-            const nextMode = event.currentTarget.value === 'accurate' ? 'accurate' : 'fast';
-            setDefaultTrimMode(nextMode);
-            globalThis.cutrail?.setDefaultTrimMode?.(nextMode);
-          }}
-        >
-          <option value="fast">Quick</option>
-          <option value="accurate">Accurate</option>
-        </select>
+        <div className={headerRow}>
+          <h2 className={heading}>Default Trim Accuracy</h2>
+          <div className={headerControl}>
+            <SegmentedSwitch
+              ariaLabel="Default trim accuracy"
+              value={defaultTrimMode}
+              onChange={(nextMode) => {
+                const resolvedMode = nextMode === 'accurate' ? 'accurate' : 'fast';
+                setDefaultTrimMode(resolvedMode);
+                globalThis.cutrail?.setDefaultTrimMode?.(resolvedMode);
+              }}
+              options={[
+                { label: 'Quick', value: 'fast' },
+                { label: 'Accurate', value: 'accurate' },
+              ]}
+            />
+          </div>
+        </div>
         <p className={helperText}>
           Sets the default trim mode used for newly created clip variants in the editor.
         </p>
       </section>
       <section className={panel}>
-        <h2 className={heading}>Primary Accent Color</h2>
+        <div className={headerRow}>
+          <h2 className={heading}>FFmpeg Resolution</h2>
+          <div className={headerControl}>
+            <SegmentedSwitch
+              ariaLabel="FFmpeg resolution mode"
+              value={ffmpegResolutionMode}
+              onChange={(nextMode) => {
+                setFfmpegResolutionMode(nextMode);
+                globalThis.cutrail?.setFfmpegResolutionMode?.(nextMode);
+              }}
+              options={binaryResolutionOptions}
+            />
+          </div>
+        </div>
+        <p className={helperText}>
+          Auto prefers the operating system ffmpeg, then the bundled binary.
+          Bundled and Local force that source first.
+        </p>
+      </section>
+      <section className={panel}>
+        <div className={headerRow}>
+          <h2 className={heading}>FFprobe Resolution</h2>
+          <div className={headerControl}>
+            <SegmentedSwitch
+              ariaLabel="FFprobe resolution mode"
+              value={ffprobeResolutionMode}
+              onChange={(nextMode) => {
+                setFfprobeResolutionMode(nextMode);
+                globalThis.cutrail?.setFfprobeResolutionMode?.(nextMode);
+              }}
+              options={binaryResolutionOptions}
+            />
+          </div>
+        </div>
+        <p className={helperText}>
+          Auto prefers the operating system ffprobe, then the ffmpeg sibling probe,
+          then the separately bundled probe.
+        </p>
+      </section>
+      <section className={panel}>
+        <div className={headerRow}>
+          <h2 className={heading}>Primary Accent Color</h2>
+          {themePrimaryColor !== defaultThemePrimaryColor && (
+            <div className={headerControl}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setThemePrimaryColor(defaultThemePrimaryColor);
+                  globalThis.cutrail?.setThemePrimaryColor?.(defaultThemePrimaryColor);
+                }}
+              >
+                Reset to Default
+              </Button>
+            </div>
+          )}
+        </div>
         <div className={colorControlRow}>
           <input
             className={colorInput}
@@ -219,17 +331,6 @@ export const OptionsWindow = () => {
             }}
           />
           <span className={colorValue}>{themePrimaryColor.toUpperCase()}</span>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={themePrimaryColor === defaultThemePrimaryColor}
-            onClick={() => {
-              setThemePrimaryColor(defaultThemePrimaryColor);
-              globalThis.cutrail?.setThemePrimaryColor?.(defaultThemePrimaryColor);
-            }}
-          >
-            Reset to Default
-          </Button>
         </div>
         <p className={helperText}>
           Controls the terminal-style glow/accent used across renderer windows.
@@ -269,7 +370,9 @@ export const OptionsWindow = () => {
         </p>
       </section>
       <section className={panel}>
-        <h2 className={heading}>Window Decoration Menu</h2>
+        <div className={headerRow}>
+          <h2 className={heading}>Window Decoration Menu</h2>
+        </div>
         <label className={checkboxRow}>
           <input
             className={checkboxInput}
@@ -295,7 +398,9 @@ export const OptionsWindow = () => {
         </p>
       </section>
       <section className={panel}>
-        <h2 className={heading}>Multi-Track Audio</h2>
+        <div className={headerRow}>
+          <h2 className={heading}>Multi-Track Audio</h2>
+        </div>
         <label className={checkboxRow}>
           <input
             className={checkboxInput}

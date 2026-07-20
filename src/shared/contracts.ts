@@ -7,6 +7,7 @@ import type {
 } from './exportMetadata.ts';
 
 export type BridgeTrimMode = 'fast' | 'accurate';
+export type BinaryResolutionMode = 'auto' | 'bundled' | 'local';
 
 export type ExportRangeLike = {
   id?: string;
@@ -248,6 +249,10 @@ export type CutrailBridge = {
   invokeWindowMenuAction: (actionId: string) => Promise<boolean>;
   getStartupWindowMode: () => Promise<StartupWindowMode>;
   setStartupWindowMode: (mode: StartupWindowMode) => Promise<StartupWindowMode>;
+  getFfmpegResolutionMode: () => Promise<BinaryResolutionMode>;
+  setFfmpegResolutionMode: (mode: BinaryResolutionMode) => Promise<BinaryResolutionMode>;
+  getFfprobeResolutionMode: () => Promise<BinaryResolutionMode>;
+  setFfprobeResolutionMode: (mode: BinaryResolutionMode) => Promise<BinaryResolutionMode>;
   getSourceDirectory: () => Promise<string | null>;
   getOutputDirectory: () => Promise<string | null>;
   getVideoLibrary: () => Promise<VideoLibrarySnapshot>;
@@ -258,6 +263,7 @@ export type CutrailBridge = {
     payload?: GetSourceAudioTrackWaveformPayload,
   ) => Promise<SourceAudioTrackWaveform>;
   getFfmpegDiagnostics: () => Promise<FfmpegAvailabilityResult>;
+  getFfprobeDiagnostics: () => Promise<FfmpegAvailabilityResult>;
   getThirdPartyNotices: () => Promise<string>;
   getUpdateDialogState: () => Promise<UpdateDialogState | null>;
   getDefaultTrimMode: () => Promise<BridgeTrimMode>;
@@ -286,6 +292,7 @@ export type CutrailBridge = {
   setThemePrimaryColor: (color: ThemePrimaryColorValue) => Promise<ThemePrimaryColorValue>;
   resolveMediaUrl: (inputPath: string) => string;
   checkFfmpeg: () => Promise<FfmpegAvailabilityResult>;
+  checkFfprobe: () => Promise<FfmpegAvailabilityResult>;
   createExportPlan: (payload: CreateExportPlanPayload) => Promise<ExportPlan>;
   runExportPlan: (payload: RunExportPlanPayload) => Promise<ExportRunResult>;
   startFileDrag: (payload: StartFileDragPayload) => void;
@@ -298,6 +305,8 @@ export type CutrailBridge = {
   onDefaultTrimModeUpdated: (listener: (payload: BridgeTrimMode) => void) => () => void;
   onThemePrimaryColorUpdated: (listener: (payload: ThemePrimaryColorValue) => void) => () => void;
   onStartupWindowModeUpdated: (listener: (payload: StartupWindowMode) => void) => () => void;
+  onFfmpegResolutionModeUpdated: (listener: (payload: BinaryResolutionMode) => void) => () => void;
+  onFfprobeResolutionModeUpdated: (listener: (payload: BinaryResolutionMode) => void) => () => void;
   onSourceDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onOutputDirectoryUpdated: (listener: (payload: string) => void) => () => void;
   onWindowDecorationMenuPreferenceUpdated: (
