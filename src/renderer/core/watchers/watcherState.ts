@@ -8,6 +8,11 @@ type WatcherSnapshotState = {
   outputRevision: number;
 };
 
+export const isWatcherRevisionAccepted = (
+  previousRevision: number,
+  nextRevision: number,
+): boolean => Number.isInteger(nextRevision) && nextRevision > previousRevision;
+
 const watcherSnapshotStateAtom = atom<WatcherSnapshotState>({
   sourceRevision: -1,
   outputRevision: -1,
@@ -17,7 +22,7 @@ export const useWatcherSnapshotState = () => {
   const [snapshotState, setSnapshotState] = useAtom(watcherSnapshotStateAtom);
 
   const acceptSourceRevision = (revision: number): boolean => {
-    if (!Number.isInteger(revision) || revision <= snapshotState.sourceRevision) {
+    if (!isWatcherRevisionAccepted(snapshotState.sourceRevision, revision)) {
       return false;
     }
 
@@ -30,7 +35,7 @@ export const useWatcherSnapshotState = () => {
   };
 
   const acceptOutputRevision = (revision: number): boolean => {
-    if (!Number.isInteger(revision) || revision <= snapshotState.outputRevision) {
+    if (!isWatcherRevisionAccepted(snapshotState.outputRevision, revision)) {
       return false;
     }
 

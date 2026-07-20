@@ -82,22 +82,33 @@ Split rule for this phase:
 
 ## Implementation Status (2026-07-20)
 
-Overall: PARTIAL
+Overall: COMPLETE
 
 Completed:
 
 1. Legacy fallback is retained and clips remain operable.
 2. Metadata-first sync path is active for new clips.
 3. Variant-precise deletion behavior is implemented.
+4. Diagnostics now surfaces watcher health, clip classification counts, and snapshot change summaries.
+5. Watcher payload hardening is complete:
+	- real `changeSummary` counters are emitted for source/output snapshots
+	- source snapshot `hasMetadataClips` and `hasLegacyClips` flags are derived from clip classifications
+	- watcher contract tests cover schema conformance and stale-revision ordering primitives
+6. User-facing documentation now includes metadata-first behavior, watcher contract behavior, and metadata limitation notes.
+7. Validation matrix checkpoints executed and recorded for this rollout:
+	- mixed trim-mode exports and syncs
+	- per-range variant + track selection behavior
+	- mixed metadata/legacy/foreign output sets
+	- variant/range deletion behavior
+	- watcher-driven source/output refresh under burst file updates
+	- restart consistency checks for timeline/list state
+8. Rollout checkpoint notes are now synchronized across editor revamp phase docs.
 
 Pending:
 
-1. Diagnostics window does not yet expose dedicated clip-classification and metadata-health surfacing for this rollout.
-2. Full validation matrix execution notes are not yet recorded in plan docs.
-3. User-facing README/documentation updates specific to metadata-first editor behavior and watcher behavior are incomplete.
-4. Watcher-contract hardening follow-ups remain: accurate `changeSummary` counters, precise source snapshot metadata/legacy flags, and watcher-contract tests.
-5. Plan docs still need explicit progress notes per completed rollout checkpoint.
+1. None.
 
 Notes:
 
-- Phase 4 should be treated as active hardening/rollout work, not complete.
+- Phase 4 rollout goals are complete for current scope.
+- Future follow-up can focus on optional deeper deprecation of filename-coupled fallback paths after additional release-cycle observation.

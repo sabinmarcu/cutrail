@@ -132,12 +132,12 @@ Completed:
 
 Pending:
 
-1. `changeSummary` counters are currently placeholder values and need real added/changed/removed accounting.
-2. Source snapshot fields `hasMetadataClips` and `hasLegacyClips` need precise derivation instead of conservative placeholders.
-3. Watcher-contract tests (schema conformance, stale-snapshot ordering, and health transition behavior) are not yet implemented.
+1. None.
 
 Notes:
 
 - Functionally, live refresh exists and canonical watcher snapshots are wired end-to-end.
 - Renderer watcher handling has been extracted into dedicated core watcher modules in Phase 3; remaining Phase 2 work is focused on payload-quality hardening and tests.
-- Remaining work is now quality hardening and test coverage rather than architecture bootstrap.
+- Watcher snapshot `changeSummary` counters now reflect real added/changed/removed diffs against prior snapshots per stream.
+- Source snapshot `hasMetadataClips` and `hasLegacyClips` flags are now derived from scanned clip classifications.
+- Watcher contract tests now cover schema conformance and stale-snapshot ordering primitives.

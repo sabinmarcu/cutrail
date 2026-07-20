@@ -85,6 +85,29 @@ Current workflow boundaries:
 - AUR packaging skeleton for `cutrail-bin` now lives under `packaging/aur/cutrail-bin`.
 - AUR packaging skeletons for `cutrail`, `cutrail-bin`, and `cutrail-git` now live under `packaging/aur/`.
 
+Metadata-first clip behavior:
+
+- Clip detection in output directories is metadata-first.
+- Clips are classified as `metadata`, `legacy`, `foreign`, or `invalid`.
+- Legacy filename parsing remains as a fallback for older exports without metadata.
+- Re-exporting legacy clips creates metadata-enabled outputs.
+- Clip identity matching is based on metadata keys (source fingerprint, range key, variant key) when present.
+
+Watcher behavior:
+
+- Source and output watchers publish canonical snapshot channels:
+	- `cutrail:source-directory-snapshot-updated`
+	- `cutrail:output-directory-snapshot-updated`
+	- `cutrail:watcher-health-updated`
+- Snapshot payloads include `snapshotRevision` and renderer consumers ignore stale revisions.
+- Snapshot payloads include `changeSummary` counters (`added`, `changed`, `removed`) derived from previous snapshots.
+- Source snapshot entries expose `hasMetadataClips` and `hasLegacyClips` flags for library/diagnostics surfacing.
+- Runtime contract validation is Zod-based; JSON Schema is not used in this rollout.
+
+Known limitation:
+
+- External tools that remux or rewrite containers can strip metadata tags, causing clip classification to fall back to `legacy` or `foreign` detection.
+
 Main architecture boundaries:
 - IPC handlers are split one-per-file under `src/main/ipc/handlers`.
 - Main-process window modules are grouped under `src/main/windows`.

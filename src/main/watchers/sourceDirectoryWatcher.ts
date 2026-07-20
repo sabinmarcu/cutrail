@@ -3,7 +3,10 @@ import {
   emitSourceDirectorySnapshot,
   emitWatcherHealth,
 } from './watcherEmitter.ts';
-import { nextSourceSnapshotRevision } from './watcherRegistry.ts';
+import {
+  nextSourceSnapshotRevision,
+  updateSourceSnapshotChangeSummary,
+} from './watcherRegistry.ts';
 import type { SourceDirectoryEntry } from '../../shared/watcherEvents.ts';
 
 const emitSourceDirectorySnapshotUpdate = ({
@@ -16,6 +19,7 @@ const emitSourceDirectorySnapshotUpdate = ({
   videos: SourceDirectoryEntry[];
 }): void => {
   const snapshotRevision = nextSourceSnapshotRevision(sender.id);
+  const changeSummary = updateSourceSnapshotChangeSummary(sender.id, videos);
 
   emitSourceDirectorySnapshot(sender, {
     watcherType: 'source',
@@ -23,11 +27,7 @@ const emitSourceDirectorySnapshotUpdate = ({
     sourceDirectory,
     generatedAtMs: Date.now(),
     videos,
-    changeSummary: {
-      added: 0,
-      changed: 0,
-      removed: 0,
-    },
+    changeSummary,
   });
 
   emitWatcherHealth(sender, {
