@@ -58,3 +58,15 @@ export const runtime = style({
   padding: theme.grid.s,
   whiteSpace: 'pre-wrap',
 });
+
+export const keyValueGrid = style({
+  display: 'grid',
+  gap: theme.grid.xs,
+});
+
+export const keyValueItem = style({
+  color: theme.colors.secondary.emphasis,
+  fontSize: '0.76rem',
+  lineHeight: 1.4,
+  margin: 0,
+});

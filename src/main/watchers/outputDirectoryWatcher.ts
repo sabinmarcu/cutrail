@@ -4,7 +4,10 @@ import {
   emitOutputDirectorySnapshot,
   emitWatcherHealth,
 } from './watcherEmitter.ts';
-import { nextOutputSnapshotRevision } from './watcherRegistry.ts';
+import {
+  nextOutputSnapshotRevision,
+  updateOutputSnapshotChangeSummary,
+} from './watcherRegistry.ts';
 
 const emitOutputDirectorySnapshotUpdate = ({
   sender,
@@ -18,6 +21,7 @@ const emitOutputDirectorySnapshotUpdate = ({
   clips: ExistingExportClip[];
 }): void => {
   const snapshotRevision = nextOutputSnapshotRevision(sender.id);
+  const changeSummary = updateOutputSnapshotChangeSummary(sender.id, clips);
 
   emitOutputDirectorySnapshot(sender, {
     watcherType: 'output',
@@ -39,11 +43,7 @@ const emitOutputDirectorySnapshotUpdate = ({
       selectedAudioTrackIndices: clip.selectedAudioTrackIndices ?? [],
       mutedAudioTrackIndices: clip.mutedAudioTrackIndices ?? [],
     })),
-    changeSummary: {
-      added: 0,
-      changed: 0,
-      removed: 0,
-    },
+    changeSummary,
   });
 
   emitWatcherHealth(sender, {

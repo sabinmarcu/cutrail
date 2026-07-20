@@ -12,6 +12,7 @@ import {
   emitSourceDirectoryWatcherDegraded,
   emitSourceDirectoryWatcherStopped,
 } from '../../watchers/sourceDirectoryWatcher.ts';
+import { scanExistingExportClips } from './syncExistingExportClips.scan.ts';
 
 type GetVideoLibraryDeps = {
   getPersistedOutputDirectory: () => Promise<string | null>;
@@ -70,6 +71,24 @@ const emitSourceSnapshotForLibrary = async ({
   outputDirectory: string | null;
 }): Promise<void> => {
   const videos = await readSourceVideos(sourceDirectory, outputDirectory);
+  const clipKindBySourcePath = new Map<string, {
+    hasLegacyClips: boolean;
+    hasMetadataClips: boolean;
+  }>();
+
+  if (typeof outputDirectory === 'string' && outputDirectory.length > 0) {
+    await Promise.all(videos.map(async (video) => {
+      const clips = await scanExistingExportClips({
+        sourcePath: video.filePath,
+        outputDirectory,
+      }).catch(() => []);
+
+      clipKindBySourcePath.set(video.filePath, {
+        hasLegacyClips: clips.some((clip) => clip.classificationKind === 'legacy'),
+        hasMetadataClips: clips.some((clip) => clip.classificationKind === 'metadata'),
+      });
+    }));
+  }
 
   emitSourceDirectorySnapshotUpdate({
     sender,
@@ -80,8 +99,8 @@ const emitSourceSnapshotForLibrary = async ({
       extension: video.extension,
       modifiedAtMs: video.modifiedAtMs,
       clipCount: video.clipCount,
-      hasMetadataClips: video.clipCount > 0,
-      hasLegacyClips: false,
+      hasMetadataClips: clipKindBySourcePath.get(video.filePath)?.hasMetadataClips ?? false,
+      hasLegacyClips: clipKindBySourcePath.get(video.filePath)?.hasLegacyClips ?? false,
     })),
   });
 };
@@ -178,6 +197,24 @@ const registerGetVideoLibraryHandler = ({
 
     try {
       const videos = await readSourceVideos(sourceDirectory, outputDirectory);
+      const clipKindBySourcePath = new Map<string, {
+        hasLegacyClips: boolean;
+        hasMetadataClips: boolean;
+      }>();
+
+      if (typeof outputDirectory === 'string' && outputDirectory.length > 0) {
+        await Promise.all(videos.map(async (video) => {
+          const clips = await scanExistingExportClips({
+            sourcePath: video.filePath,
+            outputDirectory,
+          }).catch(() => []);
+
+          clipKindBySourcePath.set(video.filePath, {
+            hasLegacyClips: clips.some((clip) => clip.classificationKind === 'legacy'),
+            hasMetadataClips: clips.some((clip) => clip.classificationKind === 'metadata'),
+          });
+        }));
+      }
 
       emitSourceDirectorySnapshotUpdate({
         sender: event.sender,
@@ -188,8 +225,8 @@ const registerGetVideoLibraryHandler = ({
           extension: video.extension,
           modifiedAtMs: video.modifiedAtMs,
           clipCount: video.clipCount,
-          hasMetadataClips: video.clipCount > 0,
-          hasLegacyClips: false,
+          hasMetadataClips: clipKindBySourcePath.get(video.filePath)?.hasMetadataClips ?? false,
+          hasLegacyClips: clipKindBySourcePath.get(video.filePath)?.hasLegacyClips ?? false,
         })),
       });
 
