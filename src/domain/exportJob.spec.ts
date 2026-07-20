@@ -28,8 +28,8 @@ describe('buildExportJobs', () => {
 
     expect(result.errors).toEqual([]);
     expect(result.jobs.map((job: { id: string }) => job.id)).toEqual(['early', 'later']);
-    expect(result.jobs[0].outputPath).toBe('/clips/source__fast__00-00-05_00-00-09__v-4ab1a777.mp4');
-    expect(result.jobs[1].outputPath).toBe('/clips/source__fast__00-00-20_00-00-22__v-4ab1a777.mp4');
+    expect(result.jobs[0].outputPath).toBe('/clips/source__fast__00-00-05-000_00-00-09-000__v-4ab1a777.mp4');
+    expect(result.jobs[1].outputPath).toBe('/clips/source__fast__00-00-20-000_00-00-22-000__v-4ab1a777.mp4');
   });
 
   it('returns validation errors for invalid ranges', () => {
