@@ -1,6 +1,7 @@
 import {
   atom,
-  useAtom,
+  useAtomValue,
+  useSetAtom,
 } from 'jotai';
 
 type WatcherSnapshotState = {
@@ -19,32 +20,45 @@ const watcherSnapshotStateAtom = atom<WatcherSnapshotState>({
 });
 
 export const useWatcherSnapshotState = () => {
-  const [snapshotState, setSnapshotState] = useAtom(watcherSnapshotStateAtom);
+  const snapshotState = useAtomValue(watcherSnapshotStateAtom);
+  const setSnapshotState = useSetAtom(watcherSnapshotStateAtom);
 
   const acceptSourceRevision = (revision: number): boolean => {
-    if (!isWatcherRevisionAccepted(snapshotState.sourceRevision, revision)) {
-      return false;
-    }
+    let accepted = false;
 
-    setSnapshotState((previous) => ({
-      ...previous,
-      sourceRevision: revision,
-    }));
+    setSnapshotState((previous) => {
+      if (!isWatcherRevisionAccepted(previous.sourceRevision, revision)) {
+        return previous;
+      }
 
-    return true;
+      accepted = true;
+
+      return {
+        ...previous,
+        sourceRevision: revision,
+      };
+    });
+
+    return accepted;
   };
 
   const acceptOutputRevision = (revision: number): boolean => {
-    if (!isWatcherRevisionAccepted(snapshotState.outputRevision, revision)) {
-      return false;
-    }
+    let accepted = false;
 
-    setSnapshotState((previous) => ({
-      ...previous,
-      outputRevision: revision,
-    }));
+    setSnapshotState((previous) => {
+      if (!isWatcherRevisionAccepted(previous.outputRevision, revision)) {
+        return previous;
+      }
 
-    return true;
+      accepted = true;
+
+      return {
+        ...previous,
+        outputRevision: revision,
+      };
+    });
+
+    return accepted;
   };
 
   return {

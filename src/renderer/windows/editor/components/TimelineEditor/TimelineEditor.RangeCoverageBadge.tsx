@@ -108,11 +108,17 @@ const CoverageBadgeItem = ({
 
     const buttonElement = event.currentTarget;
 
-    computeTooltipPosition(buttonElement, tooltipElement);
-
     if (!tooltipElement.matches(':popover-open')) {
       tooltipElement.showPopover();
     }
+
+    globalThis.requestAnimationFrame(() => {
+      if (!tooltipElement.matches(':popover-open')) {
+        return;
+      }
+
+      computeTooltipPosition(buttonElement, tooltipElement);
+    });
   };
 
   const closeTooltip = () => {

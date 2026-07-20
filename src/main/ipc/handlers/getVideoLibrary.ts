@@ -1,5 +1,7 @@
 import { watch } from 'node:fs';
 import type { FSWatcher } from 'node:fs';
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
 import { ipcMain } from 'electron';
 import type { WebContents } from 'electron';
 import { assertTrustedSender } from '../assertTrustedSender.ts';
@@ -12,7 +14,14 @@ import {
   emitSourceDirectoryWatcherDegraded,
   emitSourceDirectoryWatcherStopped,
 } from '../../watchers/sourceDirectoryWatcher.ts';
-import { scanExistingExportClips } from './syncExistingExportClips.scan.ts';
+import { readClipMetadata } from '../../../infra/ffmpeg/readClipMetadata.ts';
+import {
+  createSourceFingerprint,
+} from '../../../domain/exportMetadata.identity.ts';
+import {
+  normalizeClipSourceName,
+  parseClipOutputName,
+} from '../../../domain/outputName.ts';
 
 type GetVideoLibraryDeps = {
   getPersistedOutputDirectory: () => Promise<string | null>;
@@ -61,6 +70,66 @@ const clearDirectoryWatchers = (webContentsId: number): void => {
   clearWatcherState(webContentsId);
 };
 
+const buildSourceClipKindMap = async (
+  outputDirectory: string,
+  sourcePathByFingerprint: Map<string, string>,
+  sourcePathByName: Map<string, string>,
+): Promise<Map<string, {
+  hasLegacyClips: boolean;
+  hasMetadataClips: boolean;
+}>> => {
+  const clipKindBySourcePath = new Map<string, {
+    hasLegacyClips: boolean;
+    hasMetadataClips: boolean;
+  }>();
+  const outputEntries = await readdir(outputDirectory, { withFileTypes: true });
+
+  const ensureClipFlags = (sourcePath: string) => {
+    const existing = clipKindBySourcePath.get(sourcePath);
+
+    if (existing) {
+      return existing;
+    }
+
+    const created = {
+      hasLegacyClips: false,
+      hasMetadataClips: false,
+    };
+
+    clipKindBySourcePath.set(sourcePath, created);
+
+    return created;
+  };
+
+  for (const outputEntry of outputEntries) {
+    if (outputEntry.isFile()) {
+      const filePath = path.join(outputDirectory, outputEntry.name);
+      const metadataReadback = await readClipMetadata(filePath).catch(() => null);
+      const metadataSourceFingerprint = metadataReadback?.metadata?.sourceFingerprint;
+
+      if (typeof metadataSourceFingerprint === 'string') {
+        const sourcePath = sourcePathByFingerprint.get(metadataSourceFingerprint);
+
+        if (sourcePath) {
+          ensureClipFlags(sourcePath).hasMetadataClips = true;
+        }
+      } else {
+        const parsedLegacyName = parseClipOutputName(outputEntry.name);
+
+        if (parsedLegacyName) {
+          const sourcePath = sourcePathByName.get(parsedLegacyName.sourceName);
+
+          if (sourcePath) {
+            ensureClipFlags(sourcePath).hasLegacyClips = true;
+          }
+        }
+      }
+    }
+  }
+
+  return clipKindBySourcePath;
+};
+
 const emitSourceSnapshotForLibrary = async ({
   sender,
   sourceDirectory,
@@ -71,23 +140,25 @@ const emitSourceSnapshotForLibrary = async ({
   outputDirectory: string | null;
 }): Promise<void> => {
   const videos = await readSourceVideos(sourceDirectory, outputDirectory);
-  const clipKindBySourcePath = new Map<string, {
+  const sourcePathByFingerprint = new Map<string, string>();
+  const sourcePathByName = new Map<string, string>();
+
+  for (const video of videos) {
+    sourcePathByFingerprint.set(createSourceFingerprint(video.filePath), video.filePath);
+    sourcePathByName.set(normalizeClipSourceName(video.filePath), video.filePath);
+  }
+
+  let clipKindBySourcePath = new Map<string, {
     hasLegacyClips: boolean;
     hasMetadataClips: boolean;
   }>();
 
   if (typeof outputDirectory === 'string' && outputDirectory.length > 0) {
-    await Promise.all(videos.map(async (video) => {
-      const clips = await scanExistingExportClips({
-        sourcePath: video.filePath,
-        outputDirectory,
-      }).catch(() => []);
-
-      clipKindBySourcePath.set(video.filePath, {
-        hasLegacyClips: clips.some((clip) => clip.classificationKind === 'legacy'),
-        hasMetadataClips: clips.some((clip) => clip.classificationKind === 'metadata'),
-      });
-    }));
+    clipKindBySourcePath = await buildSourceClipKindMap(
+      outputDirectory,
+      sourcePathByFingerprint,
+      sourcePathByName,
+    ).catch(() => new Map());
   }
 
   emitSourceDirectorySnapshotUpdate({
@@ -197,23 +268,25 @@ const registerGetVideoLibraryHandler = ({
 
     try {
       const videos = await readSourceVideos(sourceDirectory, outputDirectory);
-      const clipKindBySourcePath = new Map<string, {
+      const sourcePathByFingerprint = new Map<string, string>();
+      const sourcePathByName = new Map<string, string>();
+
+      for (const video of videos) {
+        sourcePathByFingerprint.set(createSourceFingerprint(video.filePath), video.filePath);
+        sourcePathByName.set(normalizeClipSourceName(video.filePath), video.filePath);
+      }
+
+      let clipKindBySourcePath = new Map<string, {
         hasLegacyClips: boolean;
         hasMetadataClips: boolean;
       }>();
 
       if (typeof outputDirectory === 'string' && outputDirectory.length > 0) {
-        await Promise.all(videos.map(async (video) => {
-          const clips = await scanExistingExportClips({
-            sourcePath: video.filePath,
-            outputDirectory,
-          }).catch(() => []);
-
-          clipKindBySourcePath.set(video.filePath, {
-            hasLegacyClips: clips.some((clip) => clip.classificationKind === 'legacy'),
-            hasMetadataClips: clips.some((clip) => clip.classificationKind === 'metadata'),
-          });
-        }));
+        clipKindBySourcePath = await buildSourceClipKindMap(
+          outputDirectory,
+          sourcePathByFingerprint,
+          sourcePathByName,
+        ).catch(() => new Map());
       }
 
       emitSourceDirectorySnapshotUpdate({
