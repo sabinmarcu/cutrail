@@ -112,6 +112,21 @@
         "repo": "cutrail"
       }
     ],
+    "fileAssociations": [
+      {
+        "name": "Cutrail Video",
+        "description": "Video file supported by Cutrail",
+        "ext": [
+          "mp4",
+          "mkv",
+          "webm",
+          "mov",
+          "avi"
+        ],
+        "role": "Editor",
+        "icon": "src/assets/icons/icon.png"
+      }
+    ],
     "asarUnpack": [
       "node_modules/@ffmpeg-installer/**/*"
     ],

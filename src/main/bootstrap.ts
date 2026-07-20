@@ -44,6 +44,7 @@ import {
 import { createAppUpdater } from './updater.ts';
 import { createWindowManager } from './windows/windowManager.ts';
 import { resolveWindowMenuPresentation } from './menuVisibility.ts';
+import { registerFileAssociationIntegration } from './fileAssociations.ts';
 import type { WindowDecorationMenuPreferenceState } from '../shared/contracts.ts';
 
 // Allow renderer playback to use HTMLMediaElement.audioTracks when Chromium keeps it gated.
@@ -63,6 +64,9 @@ const windows = createWindowManager({
 const updater = createAppUpdater({
   openUpdateDialog: windows.openUpdateDialog,
   updateUpdateDialogState: windows.updateUpdateDialogState,
+});
+registerFileAssociationIntegration({
+  openEditorWindow: windows.openEditorWindow,
 });
 const environmentMenuDefault = resolveWindowMenuPresentation(
   environment,

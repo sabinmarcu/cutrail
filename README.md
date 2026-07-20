@@ -77,6 +77,8 @@ How it currently functions:
 	- `AGENTS.md`
 	- `SKILLS.md`
 	- `docs/styling-guide.md` (hard rules for renderer/component styling and structure)
+15. Desktop packaging declares OS file associations for supported video extensions (`.mp4`, `.mkv`, `.webm`, `.mov`, `.avi`) so files can be opened with Cutrail from the system file manager.
+16. Main-process startup integrates OS file-open entrypoints (`open-file`, startup args, and second-instance args) and opens supported files directly in editor windows.
 
 Current workflow boundaries:
 - Source video selection is triggered from File menu actions and splash-entry actions.
