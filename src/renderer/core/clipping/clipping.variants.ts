@@ -290,7 +290,7 @@ export const deriveClipEntries = ({
       });
 
       if (!existingVariantEntry && draftVariant.sourceFilePath === null) {
-        const remainingExistingEntries = Array.from(existingVariantEntriesByMergeKey.entries())
+        const remainingExistingEntries = [...existingVariantEntriesByMergeKey.entries()]
           .flatMap(([existingKey, entries]) => entries.map((entry) => ({
             existingKey,
             entry,
@@ -301,7 +301,7 @@ export const deriveClipEntries = ({
         if (rangeDraftVariants.length === 1 && remainingExistingEntries.length === 1) {
           const [fallbackCandidate] = remainingExistingEntries;
           const fallbackEntries = existingVariantEntriesByMergeKey.get(fallbackCandidate.existingKey) ?? [];
-          const fallbackIndex = fallbackEntries.findIndex((entry) => entry === fallbackCandidate.entry);
+          const fallbackIndex = fallbackEntries.indexOf(fallbackCandidate.entry);
 
           if (fallbackIndex !== -1) {
             const [matchedFallback] = fallbackEntries.splice(fallbackIndex, 1);

@@ -6,15 +6,14 @@ import {
 import logoPath from '@assets/logo-green.svg';
 import '@renderer/windows/globalReset.css';
 import { Button } from '@renderer/components/Button';
+import { AppWindowTypewriterHint } from './AppWindow.TypewriterHint';
 import {
   actionsRow,
   dragActive,
-  dropHint,
   logo,
   noDrag,
   page,
   shell,
-  subtitle,
   title,
   content,
   footer,
@@ -182,8 +181,7 @@ export const AppWindow = () => {
           <section className={`${content} ${noDrag} ${isDragActive ? dragActive : ''}`}>
           <img className={logo} src={logoPath} alt="Cutrail" />
           <h1 className={title}>Cutrail</h1>
-          <p className={subtitle}>Open a source video to begin editing clips.</p>
-          <p className={dropHint}>Or drop a video file here</p>
+          <AppWindowTypewriterHint />
           <Button
             type="button"
             variant="primary"

@@ -70,14 +70,6 @@ export const dragActive = style({
   borderBlockEnd: `1px dashed ${theme.colors.primary.base}`,
 });
 
-export const dropHint = style({
-  color: theme.colors.secondary.base,
-  fontSize: '0.74rem',
-  letterSpacing: '0.07em',
-  margin: 0,
-  textTransform: 'uppercase',
-});
-
 export const actionsRow = style({
   display: 'flex',
   flexWrap: 'wrap',
@@ -106,12 +98,4 @@ export const title = style({
   letterSpacing: '0.18em',
   margin: 0,
   textTransform: 'uppercase',
-});
-
-export const subtitle = style({
-  color: theme.colors.secondary.base,
-  fontSize: '0.82rem',
-  letterSpacing: '0.04em',
-  lineHeight: 1.45,
-  margin: 0,
 });
