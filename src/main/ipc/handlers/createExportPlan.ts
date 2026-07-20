@@ -90,11 +90,8 @@ const registerCreateExportPlanHandler = () => {
       extension,
       trimMode,
     });
-    const jobs = exportPlan.jobs.map((job) => ({
-      ...job,
-      selectedAudioTrackIndices,
-      mutedAudioTrackIndices,
-      metadata: exportClipMetadataSchema.parse((() => {
+    const jobs = exportPlan.jobs.map((job) => {
+      const metadata = exportClipMetadataSchema.parse((() => {
         const rangeMs = normalizeRangeMilliseconds(job.range);
         const rangeKey = createRangeKey(rangeMs);
 
@@ -117,15 +114,23 @@ const registerCreateExportPlanHandler = () => {
           variantKey,
           createdAtMs,
         };
-      })()),
-      args: buildFastTrimCommand({
-        inputPath: job.inputPath,
-        outputPath: job.outputPath,
-        range: job.range,
-        trimMode,
-        audioStreamIndices,
-      }),
-    }));
+      })());
+
+      return {
+        ...job,
+        selectedAudioTrackIndices,
+        mutedAudioTrackIndices,
+        metadata,
+        args: buildFastTrimCommand({
+          inputPath: job.inputPath,
+          outputPath: job.outputPath,
+          range: job.range,
+          trimMode,
+          audioStreamIndices,
+          metadata,
+        }),
+      };
+    });
 
     return {
       jobs,
