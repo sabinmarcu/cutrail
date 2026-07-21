@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.13.0](https://github.com/sabinmarcu/cutrail/compare/v0.12.2...v0.13.0) (2026-07-21)
+
+
+### Features
+
+* **cli:** add clipanion app launcher entrypoint ([48adf94](https://github.com/sabinmarcu/cutrail/commit/48adf94affbd3e47f1f3cb3e066bc8e95f580d0a))
+
+
+### Bug Fixes
+
+* **main:** register media schemes before app readiness ([cbb260c](https://github.com/sabinmarcu/cutrail/commit/cbb260cce41fb4898bb6863a85093e3aa28cf84d))
+* **main:** skip startup window on direct video launch ([228a8bb](https://github.com/sabinmarcu/cutrail/commit/228a8bb983d730a9cbde01c0d7a64a8d21cd24e1))
+
 ## [0.12.2](https://github.com/sabinmarcu/cutrail/compare/v0.12.1...v0.12.2) (2026-07-20)
 
 
