@@ -9,6 +9,7 @@
     "types": ["node", "electron"]
   },
   "include": [
+    "src/cli/**/*.ts",
     "src/main/**/*.mjs",
     "src/main/**/*.ts",
     "src/preload/**/*.mjs",

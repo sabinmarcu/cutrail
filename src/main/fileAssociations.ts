@@ -8,6 +8,7 @@ const SUPPORTED_VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.webm', '.mov', '.a
 
 type FileAssociationIntegrationDeps = {
   openEditorWindow: (sourcePath: string) => boolean;
+  startupFilePaths?: string[];
 };
 
 type FileAssociationIntegrationApi = {
@@ -45,8 +46,12 @@ const findSupportedPathsFromArgv = (argv: string[]): string[] => argv
 
 const registerFileAssociationIntegration = ({
   openEditorWindow,
+  startupFilePaths = [],
 }: FileAssociationIntegrationDeps): FileAssociationIntegrationApi => {
-  const startupPaths = findSupportedPathsFromArgv(process.argv);
+  const startupPaths = [
+    ...startupFilePaths.filter(hasSupportedVideoExtension),
+    ...findSupportedPathsFromArgv(process.argv),
+  ];
   let pendingOpenFilePaths: string[] = [];
 
   const openIfValid = async (filePath: string): Promise<void> => {

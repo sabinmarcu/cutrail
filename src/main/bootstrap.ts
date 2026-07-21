@@ -53,6 +53,7 @@ import { createAppUpdater } from './updater.ts';
 import { createWindowManager } from './windows/windowManager.ts';
 import { resolveWindowMenuPresentation } from './menuVisibility.ts';
 import { registerFileAssociationIntegration } from './fileAssociations.ts';
+import { getCliStartupPaths } from './cliStartupPaths.ts';
 import type { WindowDecorationMenuPreferenceState } from '../shared/contracts.ts';
 
 // Allow renderer playback to use HTMLMediaElement.audioTracks when Chromium keeps it gated.
@@ -75,6 +76,7 @@ const updater = createAppUpdater({
 });
 const fileAssociationIntegration = registerFileAssociationIntegration({
   openEditorWindow: windows.openEditorWindow,
+  startupFilePaths: getCliStartupPaths(),
 });
 const environmentMenuDefault = resolveWindowMenuPresentation(
   environment,
