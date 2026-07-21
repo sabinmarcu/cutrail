@@ -7,28 +7,30 @@ import { registerMediaSchemes } from './mediaProtocol.ts';
 registerMediaSchemes();
 
 const startFromCli = async (): Promise<void> => {
-	const result = await runCutrailCli({
-		argv: process.argv.slice(2),
-		cwd: process.cwd(),
-		stderr: process.stderr,
-		stdout: process.stdout,
-		version: app.getVersion(),
-	});
+  const result = await runCutrailCli({
+    argv: process.argv.slice(2),
+    cwd: process.cwd(),
+    stderr: process.stderr,
+    stdout: process.stdout,
+    version: app.getVersion(),
+  });
 
-	if (!result.shouldStartApp) {
-		app.exit(result.exitCode);
+  if (!result.shouldStartApp) {
+    app.exit(result.exitCode);
 
-		return;
-	}
+    return;
+  }
 
-	setCliStartupPaths(result.startupPaths);
+  setCliStartupPaths(result.startupPaths);
 
-	const { registerAppBootstrap } = await import('./bootstrap.ts');
-	registerAppBootstrap();
+  const { registerAppBootstrap } = await import('./bootstrap.ts');
+  registerAppBootstrap();
 };
 
-void startFromCli().catch((error) => {
-	const errorText = error instanceof Error ? error.stack ?? error.message : String(error);
-	process.stderr.write(`${errorText}\n`);
-	app.exit(1);
-});
+try {
+  await startFromCli();
+} catch (error) {
+  const errorText = error instanceof Error ? error.stack ?? error.message : String(error);
+  process.stderr.write(`${errorText}\n`);
+  app.exit(1);
+}

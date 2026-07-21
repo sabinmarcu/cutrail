@@ -1,7 +1,9 @@
-import { Cli } from 'clipanion';
+import {
+  Builtins,
+  Cli,
+} from 'clipanion';
 
 import { createLaunchCommand } from './commands/Launch.command.ts';
-import { createVersionCommand } from './commands/Version.command.ts';
 
 type CutrailCliInput = {
   argv: string[];
@@ -41,12 +43,9 @@ const runCutrailCli = async ({
     setStartupPaths: (nextPaths) => {
       startupPaths = nextPaths;
     },
-    stderr,
   }));
-  cli.register(createVersionCommand({
-    stdout,
-    version,
-  }));
+  cli.register(Builtins.HelpCommand);
+  cli.register(Builtins.VersionCommand);
 
   const exitCode = await cli.run(argv, {
     stderr,

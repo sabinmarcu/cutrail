@@ -14,7 +14,6 @@ type LaunchCommandInput = {
   cwd: string;
   markShouldStartApp: () => void;
   setStartupPaths: (paths: string[]) => void;
-  stderr: NodeJS.WriteStream;
 };
 
 const toUniquePaths = (pathsToNormalize: string[], cwd: string): string[] => {
@@ -52,13 +51,12 @@ const validatePathsExist = async (
   };
 };
 
-const createLaunchCommand = ({
+function createLaunchCommand({
   cwd,
   markShouldStartApp,
   setStartupPaths,
-  stderr,
-}: LaunchCommandInput): CommandClass<BaseContext> => {
-  return class LaunchCommand extends Command<BaseContext> {
+}: LaunchCommandInput): CommandClass<BaseContext> {
+  class LaunchCommand extends Command<BaseContext> {
     static paths = [Command.Default];
 
     sourcePaths = Option.Rest();
@@ -69,7 +67,7 @@ const createLaunchCommand = ({
 
       if (missingPaths.length > 0) {
         for (const missingPath of missingPaths) {
-          stderr.write(`Path not found: ${missingPath}\n`);
+          this.context.stderr.write(`Path not found: ${missingPath}\n`);
         }
 
         return 1;
@@ -80,8 +78,10 @@ const createLaunchCommand = ({
 
       return 0;
     }
-  };
-};
+  }
+
+  return LaunchCommand;
+}
 
 export {
   createLaunchCommand,

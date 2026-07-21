@@ -2,6 +2,7 @@ import path from 'node:path';
 import {
   app,
 } from 'electron';
+import { runCutrailCli } from '../cli/cutrailCli.ts';
 import { validateSourceVideoFile } from './sourceSelection.ts';
 
 const SUPPORTED_VIDEO_EXTENSIONS = new Set(['.mp4', '.mkv', '.webm', '.mov', '.avi']);
@@ -21,37 +22,13 @@ const hasSupportedVideoExtension = (filePath: string): boolean => {
   return SUPPORTED_VIDEO_EXTENSIONS.has(extension);
 };
 
-const normalizePotentialFilePath = (value: unknown): string | null => {
-  if (typeof value !== 'string') {
-    return null;
-  }
-
-  const trimmed = value.trim();
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  if (trimmed.startsWith('-')) {
-    return null;
-  }
-
-  return trimmed;
-};
-
-const findSupportedPathsFromArgv = (argv: string[]): string[] => argv
-  .map(normalizePotentialFilePath)
-  .filter((value): value is string => typeof value === 'string')
-  .filter(hasSupportedVideoExtension);
+const toUniqueFilePaths = (paths: string[]): string[] => [...new Set(paths)];
 
 const registerFileAssociationIntegration = ({
   openEditorWindow,
   startupFilePaths = [],
 }: FileAssociationIntegrationDeps): FileAssociationIntegrationApi => {
-  const startupPaths = [
-    ...startupFilePaths.filter(hasSupportedVideoExtension),
-    ...findSupportedPathsFromArgv(process.argv),
-  ];
+  const startupPaths = toUniqueFilePaths(startupFilePaths.filter(hasSupportedVideoExtension));
   let pendingOpenFilePaths: string[] = [];
 
   const openIfValid = async (filePath: string): Promise<void> => {
@@ -79,7 +56,9 @@ const registerFileAssociationIntegration = ({
       return;
     }
 
-    pendingOpenFilePaths = [...pendingOpenFilePaths, filePath];
+    if (!pendingOpenFilePaths.includes(filePath)) {
+      pendingOpenFilePaths = [...pendingOpenFilePaths, filePath];
+    }
   });
 
   const singleInstanceLock = app.requestSingleInstanceLock();
@@ -93,23 +72,38 @@ const registerFileAssociationIntegration = ({
   }
 
   app.on('second-instance', (_event, argv) => {
-    const candidatePaths = findSupportedPathsFromArgv(argv);
+    const argvWithoutRuntimePrefixes = argv.slice(2);
 
-    for (const candidatePath of candidatePaths) {
-      openIfValid(candidatePath);
-    }
+    runCutrailCli({
+      argv: argvWithoutRuntimePrefixes,
+      cwd: process.cwd(),
+      stderr: process.stderr,
+      stdout: process.stdout,
+      version: app.getVersion(),
+    }).then((result) => {
+      if (result.exitCode !== 0 || result.startupPaths.length === 0) {
+        return;
+      }
+
+      const candidatePaths = toUniqueFilePaths(result.startupPaths);
+
+      for (const candidatePath of candidatePaths) {
+        openIfValid(candidatePath);
+      }
+    }).catch((error) => {
+      const errorText = error instanceof Error ? error.stack ?? error.message : String(error);
+      process.stderr.write(`${errorText}\n`);
+    });
   });
 
   app.whenReady().then(() => {
-    if (pendingOpenFilePaths.length > 0) {
-      for (const pendingPath of pendingOpenFilePaths) {
-        openIfValid(pendingPath);
-      }
+    const initialPaths = toUniqueFilePaths([
+      ...pendingOpenFilePaths,
+      ...startupPaths,
+    ]);
+    pendingOpenFilePaths = [];
 
-      pendingOpenFilePaths = [];
-    }
-
-    for (const startupPath of startupPaths) {
+    for (const startupPath of initialPaths) {
       openIfValid(startupPath);
     }
   });
