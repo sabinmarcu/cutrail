@@ -10,6 +10,10 @@ type FileAssociationIntegrationDeps = {
   openEditorWindow: (sourcePath: string) => boolean;
 };
 
+type FileAssociationIntegrationApi = {
+  hasStartupVideoOpenRequest: () => boolean;
+};
+
 const hasSupportedVideoExtension = (filePath: string): boolean => {
   const extension = path.extname(filePath).toLowerCase();
 
@@ -41,7 +45,8 @@ const findSupportedPathsFromArgv = (argv: string[]): string[] => argv
 
 const registerFileAssociationIntegration = ({
   openEditorWindow,
-}: FileAssociationIntegrationDeps): void => {
+}: FileAssociationIntegrationDeps): FileAssociationIntegrationApi => {
+  const startupPaths = findSupportedPathsFromArgv(process.argv);
   let pendingOpenFilePaths: string[] = [];
 
   const openIfValid = async (filePath: string): Promise<void> => {
@@ -59,6 +64,10 @@ const registerFileAssociationIntegration = ({
   app.on('open-file', (event, filePath) => {
     event.preventDefault();
 
+    if (!hasSupportedVideoExtension(filePath)) {
+      return;
+    }
+
     if (app.isReady()) {
       openIfValid(filePath);
 
@@ -73,7 +82,9 @@ const registerFileAssociationIntegration = ({
   if (!singleInstanceLock) {
     app.quit();
 
-    return;
+    return {
+      hasStartupVideoOpenRequest: () => false,
+    };
   }
 
   app.on('second-instance', (_event, argv) => {
@@ -93,12 +104,14 @@ const registerFileAssociationIntegration = ({
       pendingOpenFilePaths = [];
     }
 
-    const startupPaths = findSupportedPathsFromArgv(process.argv);
-
     for (const startupPath of startupPaths) {
       openIfValid(startupPath);
     }
   });
+
+  return {
+    hasStartupVideoOpenRequest: () => startupPaths.length > 0 || pendingOpenFilePaths.length > 0,
+  };
 };
 
 export {

@@ -73,7 +73,7 @@ const updater = createAppUpdater({
   openUpdateDialog: windows.openUpdateDialog,
   updateUpdateDialogState: windows.updateUpdateDialogState,
 });
-registerFileAssociationIntegration({
+const fileAssociationIntegration = registerFileAssociationIntegration({
   openEditorWindow: windows.openEditorWindow,
 });
 const environmentMenuDefault = resolveWindowMenuPresentation(
@@ -191,7 +191,11 @@ const startApp = async (): Promise<void> => {
       setWindowDecorationMenuPreference,
     });
     await syncAppMenu();
-    await openStartupWindow();
+
+    if (!fileAssociationIntegration.hasStartupVideoOpenRequest()) {
+      await openStartupWindow();
+    }
+
     updater.checkForUpdates();
 
     app.on('activate', async () => {
