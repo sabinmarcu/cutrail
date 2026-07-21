@@ -2,6 +2,9 @@ import { app } from 'electron';
 
 import { runCutrailCli } from '../cli/cutrailCli.ts';
 import { setCliStartupPaths } from './cliStartupPaths.ts';
+import { registerMediaSchemes } from './mediaProtocol.ts';
+
+registerMediaSchemes();
 
 const startFromCli = async (): Promise<void> => {
 	const result = await runCutrailCli({

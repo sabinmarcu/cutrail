@@ -9,7 +9,6 @@ import { registerIpcHandlers } from './ipc.ts';
 import { selectValidSourceVideo } from './sourceSelection.ts';
 import {
   registerMediaProtocol,
-  registerMediaSchemes,
 } from './mediaProtocol.ts';
 import {
   createAppMenu,
@@ -58,8 +57,6 @@ import type { WindowDecorationMenuPreferenceState } from '../shared/contracts.ts
 
 // Allow renderer playback to use HTMLMediaElement.audioTracks when Chromium keeps it gated.
 app.commandLine.appendSwitch('enable-blink-features', 'AudioVideoTracks');
-
-registerMediaSchemes();
 
 const environment = getAppEnvironment();
 const windows = createWindowManager({
